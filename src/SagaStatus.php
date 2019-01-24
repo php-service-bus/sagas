@@ -21,12 +21,12 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaStatus;
  */
 final class SagaStatus
 {
-    public const STATUS_IN_PROGRESS = 'in_progress';
-    public const STATUS_COMPLETED   = 'completed';
-    public const STATUS_FAILED      = 'failed';
-    public const STATUS_EXPIRED     = 'expired';
+    private const STATUS_IN_PROGRESS = 'in_progress';
+    private const STATUS_COMPLETED   = 'completed';
+    private const STATUS_FAILED      = 'failed';
+    private const STATUS_EXPIRED     = 'expired';
 
-    private const LIST              = [
+    private const LIST               = [
         self::STATUS_IN_PROGRESS,
         self::STATUS_COMPLETED,
         self::STATUS_FAILED,
@@ -54,10 +54,7 @@ final class SagaStatus
             throw new InvalidSagaStatus($value);
         }
 
-        $self        = new self();
-        $self->value = $value;
-
-        return $self;
+        return new self($value);
     }
 
     /**
@@ -67,10 +64,7 @@ final class SagaStatus
      */
     public static function created(): self
     {
-        $self        = new self();
-        $self->value = self::STATUS_IN_PROGRESS;
-
-        return $self;
+        return new self(self::STATUS_IN_PROGRESS);
     }
 
     /**
@@ -80,10 +74,7 @@ final class SagaStatus
      */
     public static function completed(): self
     {
-        $self        = new self();
-        $self->value = self::STATUS_COMPLETED;
-
-        return $self;
+        return new self(self::STATUS_COMPLETED);
     }
 
     /**
@@ -93,10 +84,7 @@ final class SagaStatus
      */
     public static function failed(): self
     {
-        $self        = new self();
-        $self->value = self::STATUS_FAILED;
-
-        return $self;
+        return new self(self::STATUS_FAILED);
     }
 
     /**
@@ -106,10 +94,7 @@ final class SagaStatus
      */
     public static function expired(): self
     {
-        $self        = new self();
-        $self->value = self::STATUS_EXPIRED;
-
-        return $self;
+        return new self(self::STATUS_EXPIRED);
     }
 
     /**
@@ -141,10 +126,10 @@ final class SagaStatus
     }
 
     /**
-     * Close constructor
+     * @param string $value
      */
-    private function __construct()
+    private function __construct(string $value)
     {
-
+        $this->value = $value;
     }
 }

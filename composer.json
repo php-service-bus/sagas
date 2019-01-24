@@ -25,7 +25,8 @@
   "require": {
     "php": ">=7.2",
     "php-service-bus/common": "dev-master",
-    "php-service-bus/storage-common": "dev-master"
+    "php-service-bus/storage-common": "dev-master",
+    "php-service-bus/annotations-reader": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^7",
