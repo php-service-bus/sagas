@@ -12,8 +12,6 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
-use ServiceBus\Sagas\SagaMetadata;
-
 /**
  * Configuration details
  *

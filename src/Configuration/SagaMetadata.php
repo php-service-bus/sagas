@@ -10,7 +10,7 @@
 
 declare(strict_types = 1);
 
-namespace ServiceBus\Sagas;
+namespace ServiceBus\Sagas\Configuration;
 
 /**
  * Basic information about saga

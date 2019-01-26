@@ -15,6 +15,7 @@ namespace ServiceBus\Sagas;
 use function ServiceBus\Common\datetimeInstantiator;
 use ServiceBus\Common\Messages\Command;
 use ServiceBus\Common\Messages\Event;
+use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
 use ServiceBus\Sagas\Contract\SagaStatusChanged;
@@ -290,7 +291,7 @@ abstract class Saga
          *
          * @return void
          */
-        $closure = static function(Event $event) use ($eventListenerMethodName): void
+        $closure = function(Event $event) use ($eventListenerMethodName): void
         {
             if(true === \method_exists($this, $eventListenerMethodName))
             {
