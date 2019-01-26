@@ -12,8 +12,10 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Store\Exceptions;
 
-
-class SagaSerializationError
+/**
+ *
+ */
+final class SagaSerializationError extends \RuntimeException
 {
 
 }
