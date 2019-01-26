@@ -1,6 +1,6 @@
 {
   "name": "php-service-bus/sagas",
-  "description": "PHP Service Bus Saga (Process Manager) implementation",
+  "description": "Common parts of the implementation of the concept of sagas",
   "type": "library",
   "keywords": ["cqrs", "event-sourcing", "async-php", "command-bus", "messaging"],
   "authors": [
