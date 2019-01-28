@@ -78,7 +78,7 @@ abstract class Saga
     private $expireDate;
 
     /**
-     * Date of saga closed
+     * Saga closing date
      *
      * @var \DateTimeImmutable|null
      */
@@ -164,6 +164,16 @@ abstract class Saga
     final public function expireDate(): \DateTimeImmutable
     {
         return $this->expireDate;
+    }
+
+    /**
+     * Saga closing date
+     *
+     * @return \DateTimeImmutable|null
+     */
+    final public function closedAt(): ?\DateTimeImmutable
+    {
+        return $this->closedAt;
     }
 
     /**
