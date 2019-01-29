@@ -46,10 +46,12 @@ function unserializeSaga(string $serializedContent): Saga
     {
         $decoded = \base64_decode($serializedContent);
 
+        // @codeCoverageIgnoreStart
         if(false === $decoded)
         {
             throw new \LogicException('Incorrect base64 content');
         }
+        // @codeCoverageIgnoreEnd
 
         /** @var Saga|bool $unserialized */
         $unserialized = \unserialize($decoded, ['allowed_classes' => true]);

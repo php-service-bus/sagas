@@ -200,4 +200,52 @@ class SagaTest extends TestCase
         static::assertEquals(\get_class($id), $sagaCreatedEvent->idClass);
         static::assertEquals(CorrectSaga::class, $sagaCreatedEvent->sagaClass);
     }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function makeFailed(): void
+    {
+        $id   = new TestSagaId('123456789', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+        $saga->start(new EmptyCommand());
+
+        invokeReflectionMethod($saga, 'makeFailed', 'fail reason');
+
+        /** @var array<int, string> $events */
+        $events = invokeReflectionMethod($saga, 'raisedEvents');
+
+        $latest = \end($events);
+
+        static::assertInstanceOf(SagaClosed::class, $latest);
+        static::assertNotNull($saga->closedAt());
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function makeExpired(): void
+    {
+        $id   = new TestSagaId('123456789', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+        $saga->start(new EmptyCommand());
+
+        invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
+
+        /** @var array<int, string> $events */
+        $events = invokeReflectionMethod($saga, 'raisedEvents');
+
+        $latest = \end($events);
+
+        static::assertInstanceOf(SagaClosed::class, $latest);
+        static::assertNotNull($saga->closedAt());
+    }
 }

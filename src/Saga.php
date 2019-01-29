@@ -315,7 +315,7 @@ abstract class Saga
     /**
      * Change saga status to expired
      *
-     * @noinspection PhpUnusedPrivateMethodInspection
+     * @noinspection PhpDocMissingThrowsInspection PhpUnusedPrivateMethodInspection
      *
      * @see          SagaStatus::STATUS_EXPIRED
      *
@@ -325,6 +325,9 @@ abstract class Saga
     {
         $this->doChangeState(SagaStatus::expired());
         $this->doClose('expired');
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->expireDate = datetimeInstantiator('NOW');
     }
 
     /**

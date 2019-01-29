@@ -12,9 +12,10 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Configuration;
 
+use Amp\Delayed;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
-use ServiceBus\Common\Messages\Event;
+use function ServiceBus\Common\invokeReflectionMethod;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
@@ -148,6 +149,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         $records = $context->logger->records;
 
+        static::assertSame(EventWithKey::class, $processor->event());
         static::assertCount(1, $records);
         static::assertEquals('Error in applying event to saga: "{throwableMessage}"', $records[0]['message']);
         static::assertEquals(
@@ -216,6 +218,40 @@ final class DefaultEventProcessorTest extends TestCase
         static::assertCount(1, $records);
         static::assertSame(
             'The value of the "key" property of the "ServiceBus\\Sagas\\Tests\\stubs\\EventWithKey" event can\'t be empty, since it is the saga id',
+            $records[0]['context']['throwableMessage']
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function executeWithCompletedSaga(): void
+    {
+        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+
+        invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
+
+        wait($this->store->save($saga));
+
+        $context = new TestContext;
+
+        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+
+        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
+        $processor = \iterator_to_array($processors)[0];
+
+        wait($processor(new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
+
+        $records = $context->logger->records;
+
+        static::assertCount(1, $records);
+        static::assertSame(
+            'Attempt to apply event to completed saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
             $records[0]['context']['throwableMessage']
         );
     }
