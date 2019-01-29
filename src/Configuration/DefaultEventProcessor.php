@@ -229,7 +229,7 @@ final class DefaultEventProcessor implements EventProcessor
 
             throw  new \RuntimeException(
                 \sprintf(
-                    'The value of the "%s" property of the "%s" event can not be empty, since it is the saga id',
+                    'The value of the "%s" property of the "%s" event can\'t be empty, since it is the saga id',
                     $propertyName,
                     \get_class($event)
                 )

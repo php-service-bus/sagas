@@ -21,6 +21,7 @@ use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventProcessor;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectEventListenerClass;
+use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectListenerName;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithInvalidListenerArg;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithMultipleListenerArgs;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithToManyArguments;
@@ -152,7 +153,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
             ->processorCollection;
 
         static::assertNotEmpty($result);
-        static::assertCount(2, $result);
+        static::assertCount(3, $result);
 
         foreach($result as $messageHandler)
         {
@@ -234,5 +235,20 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithInvalidListenerArg::class);
+    }
+
+    /**
+     * @test
+     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
+     * @expectedExceptionMessage Invalid method name of the event listener: "wrongEventListenerName". Expected: onEventWithKey
+     *
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function sagaWithIncorrectListenerName(): void
+    {
+        (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
+            ->load(SagaWithIncorrectListenerName::class);
     }
 }

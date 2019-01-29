@@ -25,6 +25,7 @@ use ServiceBus\Sagas\Configuration\SagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
 use ServiceBus\Sagas\Configuration\SagaListenerOptions;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
+use function ServiceBus\Sagas\createEventListenerName;
 
 /**
  * Annotation based saga configuration loader
@@ -152,9 +153,23 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         /** @var \ReflectionMethod $eventListenerReflectionMethod */
         $eventListenerReflectionMethod = $annotation->reflectionMethod;
 
-        return $this->eventListenerProcessorFactory->createProcessor(
-            $this->extractEventClass($eventListenerReflectionMethod),
-            $listenerOptions
+        $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
+        $expectedMethodName = createEventListenerName($eventClass);
+
+        if($expectedMethodName === $eventListenerReflectionMethod->name)
+        {
+            return $this->eventListenerProcessorFactory->createProcessor(
+                $eventClass,
+                $listenerOptions
+            );
+        }
+
+        throw new InvalidSagaEventListenerMethod(
+            \sprintf(
+                'Invalid method name of the event listener: "%s". Expected: %s',
+                $eventListenerReflectionMethod->name,
+                $expectedMethodName
+            )
         );
     }
 

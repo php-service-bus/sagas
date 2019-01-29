@@ -292,7 +292,7 @@ abstract class Saga
      */
     private function applyEvent(Event $event): void
     {
-        $eventListenerMethodName = self::createListenerName($event);
+        $eventListenerMethodName = createEventListenerName(\get_class($event));
 
         /**
          * Call child class method
@@ -310,24 +310,6 @@ abstract class Saga
         };
 
         $closure->call($this, $event);
-    }
-
-    /**
-     * Create event listener name
-     *
-     * @param Event $event
-     *
-     * @return string
-     */
-    private static function createListenerName(Event $event): string
-    {
-        $eventListenerMethodNameParts = \explode('\\', \get_class($event));
-
-        return \sprintf(
-            '%s%s',
-            self::EVENT_APPLY_PREFIX,
-            \end($eventListenerMethodNameParts)
-        );
     }
 
     /**

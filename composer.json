@@ -17,6 +17,7 @@
       "ServiceBus\\Sagas\\": "src/"
     },
     "files": [
+      "src/functions.php",
       "src/Store/Sql/functions.php"
     ]
   },
@@ -25,6 +26,7 @@
       "ServiceBus\\Sagas\\Tests\\": "tests/"
     },
     "files": [
+      "src/functions.php",
       "src/Store/Sql/functions.php"
     ]
   },

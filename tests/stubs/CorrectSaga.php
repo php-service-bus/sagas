@@ -133,4 +133,18 @@ final class CorrectSaga extends Saga
     {
 
     }
+
+    /**
+     * @noinspection PhpUnusedPrivateMethodInspection
+     *
+     * @SagaEventListener()
+     *
+     * @param EmptyEvent $event
+     *
+     * @return void
+     */
+    private function onEmptyEvent(EmptyEvent $event): void
+    {
+
+    }
 }
