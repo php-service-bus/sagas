@@ -37,6 +37,7 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
      */
     public function createProcessor(string $event, SagaListenerOptions $listenerOptions): EventProcessor
     {
+        /** @var class-string<\ServiceBus\Common\Messages\Event> $event */
         return new DefaultEventProcessor($event, $this->sagaStore, $listenerOptions);
     }
 }

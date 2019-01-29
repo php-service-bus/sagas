@@ -182,7 +182,13 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
                 /** @var \ReflectionClass $reflectionClass */
                 $reflectionClass = $reflectionParameters[0]->getClass();
 
-                return $reflectionClass->getName();
+                /**
+                 * @noinspection OneTimeUseVariablesInspection
+                 * @var          class-string<\ServiceBus\Common\Messages\Event> $eventClass
+                 */
+                $eventClass = $reflectionClass->getName();
+
+                return $eventClass;
             }
 
             throw InvalidSagaEventListenerMethod::wrongEventArgument($reflectionMethod);
