@@ -14,13 +14,24 @@ namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Common\Messages\Command;
 use function ServiceBus\Common\uuid;
+use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
+use ServiceBus\Sagas\Configuration\Annotations\SagaEventListener;
 use ServiceBus\Sagas\Saga;
 
 /**
- *
+ * @SagaHeader(
+ *     idClass="ServiceBus\Sagas\Tests\stubs\TestSagaId",
+ *     containingIdProperty="requestId",
+ *     expireDateModifier="+1 year"
+ * )
  */
 final class CorrectSaga extends Saga
 {
+    /**
+     * @var string|null
+     */
+    private $value;
+
     /**
      * @inheritdoc
      */
@@ -60,6 +71,24 @@ final class CorrectSaga extends Saga
     }
 
     /**
+     * @return string|null
+     */
+    public function value(): ?string
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param string $newValue
+     *
+     * @return void
+     */
+    public function changeValue(string $newValue): void
+    {
+        $this->value = $newValue;
+    }
+
+    /**
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @return void
@@ -74,6 +103,10 @@ final class CorrectSaga extends Saga
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
      *
+     * @SagaEventListener(
+     *     containingIdProperty="key"
+     * )
+     *
      * @param EventWithKey $event
      *
      * @return void
@@ -87,6 +120,10 @@ final class CorrectSaga extends Saga
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
+     *
+     * @SagaEventListener(
+     *     containingIdProperty="key"
+     * )
      *
      * @param SecondEventWithKey $event
      *

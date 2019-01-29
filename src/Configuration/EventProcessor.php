@@ -22,6 +22,13 @@ use ServiceBus\Common\Messages\Event;
 interface EventProcessor
 {
     /**
+     * Receipt of the event for which the handler was created
+     *
+     * @return string
+     */
+    public function event(): string;
+
+    /**
      * Invoke saga listener
      *
      * @param Event             $event

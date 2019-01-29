@@ -4,12 +4,19 @@ php:
   - 7.2
   - 7.3
 
+addons:
+  postgresql: "9.5"
+
+services:
+  - postgresql
+
 cache:
   directories:
     - $HOME/.cache/composer
 
 before_script:
   - mkdir -p build/logs
+  - psql -c 'CREATE DATABASE test;' -U postgres
 
 install:
   - travis_retry composer install --no-interaction --no-suggest

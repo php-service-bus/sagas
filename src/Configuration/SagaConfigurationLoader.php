@@ -23,6 +23,8 @@ interface SagaConfigurationLoader
      * @param string $sagaClass
      *
      * @return SagaConfiguration
+     *
+     * @throws \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
      */
     public function load(string $sagaClass): SagaConfiguration;
 }

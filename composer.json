@@ -15,12 +15,18 @@
   "autoload": {
     "psr-4": {
       "ServiceBus\\Sagas\\": "src/"
-    }
+    },
+    "files": [
+      "src/Store/Sql/functions.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
       "ServiceBus\\Sagas\\Tests\\": "tests/"
-    }
+    },
+    "files": [
+      "src/Store/Sql/functions.php"
+    ]
   },
   "require": {
     "php": ">=7.2",
@@ -28,6 +34,9 @@
     "php-service-bus/storage-common": "dev-master"
   },
   "require-dev": {
+    "php-service-bus/storage-sql": "dev-master",
+    "php-service-bus/annotations-reader": "dev-master",
+    "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^7",
     "vimeo/psalm": "^3"
   },
