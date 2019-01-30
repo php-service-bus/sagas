@@ -12,10 +12,10 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Configuration;
 
-use Amp\Delayed;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
 use function ServiceBus\Common\invokeReflectionMethod;
+use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
@@ -111,12 +111,12 @@ final class DefaultEventProcessorTest extends TestCase
 
         $context = new TestContext;
 
-        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
-        $processor = \iterator_to_array($processors)[0];
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
 
-        wait($processor(new EventWithKey((string) $id), $context));
+        wait(($handler->closure)(new EventWithKey((string) $id), $context));
 
         $messages = $context->messages;
 
@@ -140,16 +140,16 @@ final class DefaultEventProcessorTest extends TestCase
 
         $context = new TestContext;
 
-        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
-        $processor = \iterator_to_array($processors)[0];
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
 
-        wait($processor(new EventWithKey((string) $id), $context));
+        wait(($handler->closure)(new EventWithKey((string) $id), $context));
 
         $records = $context->logger->records;
 
-        static::assertSame(EventWithKey::class, $processor->event());
+        static::assertSame(EventWithKey::class, $handler->messageClass);
         static::assertCount(1, $records);
         static::assertEquals('Error in applying event to saga: "{throwableMessage}"', $records[0]['message']);
         static::assertEquals(
@@ -174,12 +174,12 @@ final class DefaultEventProcessorTest extends TestCase
 
         $context = new TestContext;
 
-        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
-        $processor = \iterator_to_array($processors)[2];
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[2];
 
-        wait($processor(new EmptyEvent(), $context));
+        wait(($handler->closure)(new EmptyEvent(), $context));
 
         $records = $context->logger->records;
 
@@ -206,12 +206,12 @@ final class DefaultEventProcessorTest extends TestCase
 
         $context = new TestContext;
 
-        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
-        $processor = \iterator_to_array($processors)[0];
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
 
-        wait($processor(new EventWithKey(''), $context));
+        wait(($handler->closure)(new EventWithKey(''), $context));
 
         $records = $context->logger->records;
 
@@ -240,12 +240,12 @@ final class DefaultEventProcessorTest extends TestCase
 
         $context = new TestContext;
 
-        $processors = $this->configLoader->load(CorrectSaga::class)->processorCollection;
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\DefaultEventProcessor $processor */
-        $processor = \iterator_to_array($processors)[0];
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
 
-        wait($processor(new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
+        wait(($handler->closure)(new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
 
         $records = $context->logger->records;
 

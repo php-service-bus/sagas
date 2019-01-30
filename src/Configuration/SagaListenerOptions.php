@@ -12,10 +12,12 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Common\MessageExecutor\MessageHandlerOptions;
+
 /**
  * Specified for each listener options
  */
-final class SagaListenerOptions
+final class SagaListenerOptions implements MessageHandlerOptions
 {
     /**
      * If a value is specified for a particular listener, then it will be used. Otherwise, the value will be obtained

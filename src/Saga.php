@@ -326,8 +326,14 @@ abstract class Saga
         $this->doChangeState(SagaStatus::expired());
         $this->doClose('expired');
 
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->expireDate = datetimeInstantiator('NOW');
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         *
+         * @var \DateTimeImmutable $currentDateTime
+         */
+        $currentDateTime = datetimeInstantiator('NOW');
+
+        $this->expireDate = $currentDateTime;
     }
 
     /**

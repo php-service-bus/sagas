@@ -248,8 +248,8 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Create identifier instance
      *
-     * @template        SagaId
-     * @template-typeof SagaId $idClass
+     * @template        \ServiceBus\Sagas\SagaId
+     * @template-typeof \ServiceBus\Sagas\SagaId $idClass
      *
      * @param string $idClass
      * @param string $idValue

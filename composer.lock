@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8b3cf0018e23245a4eb267f88d861de8",
+    "hash": "03b503644a9c52cb6d4209904e5d7d09",
     "content-hash": "54feae177ba7b08e1094f7ee58487e93",
     "packages": [
         {
@@ -134,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "21bc9ce34e11d4b8065826268d7f357993917fcf"
+                "reference": "09a30fd3ea001111a7dd231fcb05b9b1d828ebc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/21bc9ce34e11d4b8065826268d7f357993917fcf",
-                "reference": "21bc9ce34e11d4b8065826268d7f357993917fcf",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/09a30fd3ea001111a7dd231fcb05b9b1d828ebc6",
+                "reference": "09a30fd3ea001111a7dd231fcb05b9b1d828ebc6",
                 "shasum": ""
             },
             "require": {
@@ -181,7 +181,7 @@
                 "event-sourcing",
                 "messaging"
             ],
-            "time": "2019-01-23 07:25:30"
+            "time": "2019-01-30 16:04:18"
         },
         {
             "name": "php-service-bus/storage-common",
@@ -3124,16 +3124,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.0.12",
+            "version": "3.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "279912cb5566c4b5394af9ac4f8cbd8c9a2b9450"
+                "reference": "0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/279912cb5566c4b5394af9ac4f8cbd8c9a2b9450",
-                "reference": "279912cb5566c4b5394af9ac4f8cbd8c9a2b9450",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b",
+                "reference": "0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b",
                 "shasum": ""
             },
             "require": {
@@ -3197,7 +3197,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-01-20 17:50:47"
+            "time": "2019-01-29 15:34:31"
         },
         {
             "name": "webmozart/assert",

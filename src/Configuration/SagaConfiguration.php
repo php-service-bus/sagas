@@ -15,8 +15,8 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Configuration details
  *
- * @property-read SagaMetadata                                                      $metaData
- * @property-read \SplObjectStorage<\ServiceBus\Sagas\Configuration\EventProcessor> $processorCollection
+ * @property-read SagaMetadata                                                        $metaData
+ * @property-read \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
  */
 final class SagaConfiguration
 {
@@ -26,28 +26,28 @@ final class SagaConfiguration
     public $metaData;
 
     /**
-     * @var \SplObjectStorage<\ServiceBus\Sagas\Configuration\EventProcessor>
+     * @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
      */
-    public $processorCollection;
+    public $handlerCollection;
 
     /**
-     * @param SagaMetadata                                                      $metaData
-     * @param \SplObjectStorage<\ServiceBus\Sagas\Configuration\EventProcessor> $processorCollection
+     * @param SagaMetadata                                                        $metaData
+     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
      *
      * @return self
      */
-    public static function create(SagaMetadata $metaData, \SplObjectStorage $processorCollection): self
+    public static function create(SagaMetadata $metaData, \SplObjectStorage $handlerCollection): self
     {
-        return new self($metaData, $processorCollection);
+        return new self($metaData, $handlerCollection);
     }
 
     /**
-     * @param SagaMetadata                                                       $metaData
-     * @param  \SplObjectStorage<\ServiceBus\Sagas\Configuration\EventProcessor> $processorCollection
+     * @param SagaMetadata                                                        $metaData
+     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
      */
-    private function __construct(SagaMetadata $metaData, \SplObjectStorage $processorCollection)
+    private function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {
-        $this->metaData            = $metaData;
-        $this->processorCollection = $processorCollection;
+        $this->metaData          = $metaData;
+        $this->handlerCollection = $handlerCollection;
     }
 }

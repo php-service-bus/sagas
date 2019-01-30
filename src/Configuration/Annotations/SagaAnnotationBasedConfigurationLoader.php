@@ -16,10 +16,10 @@ use ServiceBus\AnnotationsReader\Annotation;
 use ServiceBus\AnnotationsReader\AnnotationCollection;
 use ServiceBus\AnnotationsReader\AnnotationsReader;
 use ServiceBus\AnnotationsReader\DoctrineAnnotationsReader;
+use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
-use ServiceBus\Sagas\Configuration\EventProcessor;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
@@ -85,7 +85,6 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
                 self::searchSagaHeader($sagaClass, $annotations)
             );
 
-            /** @var \SplObjectStorage<\ServiceBus\Sagas\Configuration\EventProcessor> $handlersCollection */
             $handlersCollection = $this->collectSagaEventHandlers($annotations, $sagaMetadata);
 
             return SagaConfiguration::create($sagaMetadata, $handlersCollection);
@@ -102,7 +101,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      * @param AnnotationCollection $annotationCollection
      * @param SagaMetadata         $sagaMetadata
      *
-     * @return \SplObjectStorage
+     * @return \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
      *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
      */
@@ -121,9 +120,11 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         foreach($methodAnnotations as $methodAnnotation)
         {
             $handlersCollection->attach(
-                $this->createListenerProcessor($methodAnnotation, $sagaMetadata)
+                $this->createMessageHandler($methodAnnotation, $sagaMetadata)
             );
         }
+
+        /** @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlersCollection */
 
         return $handlersCollection;
     }
@@ -134,11 +135,11 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      * @param Annotation   $annotation
      * @param SagaMetadata $sagaMetadata
      *
-     * @return EventProcessor
+     * @return MessageHandler
      *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
      */
-    private function createListenerProcessor(Annotation $annotation, SagaMetadata $sagaMetadata): EventProcessor
+    private function createMessageHandler(Annotation $annotation, SagaMetadata $sagaMetadata): MessageHandler
     {
         /** @var SagaEventListener $listenerAnnotation */
         $listenerAnnotation = $annotation->annotationObject;
@@ -153,15 +154,26 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         /** @var \ReflectionMethod $eventListenerReflectionMethod */
         $eventListenerReflectionMethod = $annotation->reflectionMethod;
 
-        $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
+        $eventClass         = $this->extractEventClass($eventListenerReflectionMethod);
         $expectedMethodName = createEventListenerName($eventClass);
 
         if($expectedMethodName === $eventListenerReflectionMethod->name)
         {
-            return $this->eventListenerProcessorFactory->createProcessor(
+            /** @var \ReflectionMethod $reflectionMethod */
+            $reflectionMethod = $annotation->reflectionMethod;
+
+            $processor = $this->eventListenerProcessorFactory->createProcessor(
                 $eventClass,
                 $listenerOptions
             );
+
+            /**
+             * @var callable $processor
+             * @var \Closure(\ServiceBus\Common\Messages\Message, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
+             */
+            $closure = \Closure::fromCallable($processor);
+
+            return MessageHandler::create($closure, $reflectionMethod, $listenerOptions);
         }
 
         throw new InvalidSagaEventListenerMethod(

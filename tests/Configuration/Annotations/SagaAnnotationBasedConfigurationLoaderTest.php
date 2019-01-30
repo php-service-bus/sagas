@@ -15,6 +15,7 @@ namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\Constraint\IsType;
 use PHPUnit\Framework\TestCase;
+use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
@@ -134,7 +135,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $result = (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(CorrectSagaWithoutListeners::class)
-            ->processorCollection;
+            ->handlerCollection;
 
         static::assertEmpty($result);
     }
@@ -150,16 +151,14 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $result = (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(CorrectSaga::class)
-            ->processorCollection;
+            ->handlerCollection;
 
         static::assertNotEmpty($result);
         static::assertCount(3, $result);
 
         foreach($result as $messageHandler)
         {
-            /** @var \ServiceBus\Sagas\Configuration\EventProcessor $messageHandler */
-            static::assertInstanceOf(EventProcessor::class, $messageHandler);
-            static::assertThat($messageHandler, new IsType('callable'));
+            static::assertInstanceOf(MessageHandler::class, $messageHandler);
         }
     }
 
