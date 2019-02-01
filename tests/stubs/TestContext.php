@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Service Bus Saga (Process Manager) implementation
+ * Saga pattern implementation
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT

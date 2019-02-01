@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "03b503644a9c52cb6d4209904e5d7d09",
-    "content-hash": "54feae177ba7b08e1094f7ee58487e93",
+    "hash": "a69bcddbfeb798cba0a5c1eeff872a3b",
+    "content-hash": "4e27f234eeb69d2fa7ea2c6f4080fa71",
     "packages": [
         {
             "name": "amphp/amp",
@@ -134,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "09a30fd3ea001111a7dd231fcb05b9b1d828ebc6"
+                "reference": "7945f503f01e94d083bfb3784e7717922b3ccbe4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/09a30fd3ea001111a7dd231fcb05b9b1d828ebc6",
-                "reference": "09a30fd3ea001111a7dd231fcb05b9b1d828ebc6",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/7945f503f01e94d083bfb3784e7717922b3ccbe4",
+                "reference": "7945f503f01e94d083bfb3784e7717922b3ccbe4",
                 "shasum": ""
             },
             "require": {
@@ -150,7 +150,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^7",
                 "symfony/dependency-injection": "^v4.2",
-                "vimeo/psalm": "^3"
+                "vimeo/psalm": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -177,11 +177,9 @@
             "keywords": [
                 "async-php",
                 "command-bus",
-                "cqrs",
-                "event-sourcing",
                 "messaging"
             ],
-            "time": "2019-01-30 16:04:18"
+            "time": "2019-01-31 15:29:38"
         },
         {
             "name": "php-service-bus/storage-common",
@@ -189,12 +187,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "d4e1204b6aa40ae212b870091618a977dfe7c11f"
+                "reference": "aa05c6297c92d3e458f2ecaa433f7ea537d4285f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/d4e1204b6aa40ae212b870091618a977dfe7c11f",
-                "reference": "d4e1204b6aa40ae212b870091618a977dfe7c11f",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/aa05c6297c92d3e458f2ecaa433f7ea537d4285f",
+                "reference": "aa05c6297c92d3e458f2ecaa433f7ea537d4285f",
                 "shasum": ""
             },
             "require": {
@@ -203,7 +201,7 @@
             "require-dev": {
                 "amphp/amp": "^2",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "^3"
+                "vimeo/psalm": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -223,15 +221,13 @@
                     "role": "Maintainer"
                 }
             ],
-            "description": "PHP Service Bus storage common parts",
+            "description": "Common storage parts",
             "keywords": [
                 "async-php",
                 "command-bus",
-                "cqrs",
-                "event-sourcing",
                 "messaging"
             ],
-            "time": "2019-01-26 11:01:29"
+            "time": "2019-01-31 16:50:19"
         },
         {
             "name": "ramsey/uuid",
@@ -1611,12 +1607,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "0726274d13fd1969c24993aa7cabc4be69a45478"
+                "reference": "823d0c09cd2541914d9582b73dca1cfeddc50d6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/0726274d13fd1969c24993aa7cabc4be69a45478",
-                "reference": "0726274d13fd1969c24993aa7cabc4be69a45478",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/823d0c09cd2541914d9582b73dca1cfeddc50d6a",
+                "reference": "823d0c09cd2541914d9582b73dca1cfeddc50d6a",
                 "shasum": ""
             },
             "require": {
@@ -1630,7 +1626,7 @@
             "require-dev": {
                 "doctrine/dbal": "^v2.6",
                 "phpunit/phpunit": "^7",
-                "vimeo/psalm": "^3"
+                "vimeo/psalm": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -1655,15 +1651,15 @@
                     "role": "Maintainer"
                 }
             ],
-            "description": "PHP Service Bus SQL storage implementation",
+            "description": "SQL databases adapters implementation",
             "keywords": [
                 "async-php",
                 "command-bus",
-                "cqrs",
-                "event-sourcing",
-                "messaging"
+                "messaging",
+                "postgresql",
+                "sql"
             ],
-            "time": "2019-01-23 11:16:25"
+            "time": "2019-01-31 17:11:40"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -2134,16 +2130,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.2",
+            "version": "7.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "7c89093bd00f7d5ddf0ab81dee04f801416b4944"
+                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7c89093bd00f7d5ddf0ab81dee04f801416b4944",
-                "reference": "7c89093bd00f7d5ddf0ab81dee04f801416b4944",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2cb759721e53bc05f56487f628c6b9fbb6c18746",
+                "reference": "2cb759721e53bc05f56487f628c6b9fbb6c18746",
                 "shasum": ""
             },
             "require": {
@@ -2214,7 +2210,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-01-15 08:19:08"
+            "time": "2019-02-01 05:24:07"
         },
         {
             "name": "psr/log",
@@ -2490,28 +2486,31 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "4.0.2",
+            "version": "4.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "4a43e9af57b4afa663077b9bc85255dbc6e8a2bd"
+                "reference": "6fda8ce1974b62b14935adc02a9ed38252eca656"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/4a43e9af57b4afa663077b9bc85255dbc6e8a2bd",
-                "reference": "4a43e9af57b4afa663077b9bc85255dbc6e8a2bd",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/6fda8ce1974b62b14935adc02a9ed38252eca656",
+                "reference": "6fda8ce1974b62b14935adc02a9ed38252eca656",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.4"
+                "phpunit/phpunit": "^7.5"
+            },
+            "suggest": {
+                "ext-posix": "*"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
@@ -2536,7 +2535,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2019-01-28 15:26:03"
+            "time": "2019-02-01 05:27:49"
         },
         {
             "name": "sebastian/exporter",
@@ -3124,16 +3123,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.0.13",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b"
+                "reference": "53756e7017cd250b80edbc377a2fa64cd89f9461"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b",
-                "reference": "0bb5143efd2350bcbb01f06f5374a4c6cf5a7a4b",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/53756e7017cd250b80edbc377a2fa64cd89f9461",
+                "reference": "53756e7017cd250b80edbc377a2fa64cd89f9461",
                 "shasum": ""
             },
             "require": {
@@ -3197,7 +3196,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-01-29 15:34:31"
+            "time": "2019-02-01 02:18:00"
         },
         {
             "name": "webmozart/assert",
@@ -3350,7 +3349,8 @@
         "php-service-bus/common": 20,
         "php-service-bus/storage-common": 20,
         "php-service-bus/storage-sql": 20,
-        "php-service-bus/annotations-reader": 20
+        "php-service-bus/annotations-reader": 20,
+        "vimeo/psalm": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

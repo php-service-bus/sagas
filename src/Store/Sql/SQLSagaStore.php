@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Service Bus Saga (Process Manager) implementation
+ * Saga pattern implementation
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -51,6 +51,8 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
+     * @psalm-suppress MixedTypeCoercion
+     *
      * @inheritdoc
      */
     public function obtain(SagaId $id): Promise
@@ -218,7 +220,10 @@ final class SQLSagaStore implements SagasStore
     {
         try
         {
-            /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
+            /**
+             * @psalm-suppress TooManyTemplateParams Wrong Promise template
+             * @var \ServiceBus\Storage\Common\ResultSet $resultSet
+             */
             $resultSet = yield $this->adapter->execute($query, $parameters);
 
             return $resultSet;

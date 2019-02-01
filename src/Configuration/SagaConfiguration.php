@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Service Bus Saga (Process Manager) implementation
+ * Saga pattern implementation
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -15,8 +15,8 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Configuration details
  *
- * @property-read SagaMetadata                                                        $metaData
- * @property-read \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
+ * @property-read SagaMetadata                                                                $metaData
+ * @property-read \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
  */
 final class SagaConfiguration
 {
@@ -26,13 +26,13 @@ final class SagaConfiguration
     public $metaData;
 
     /**
-     * @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
+     * @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string>
      */
     public $handlerCollection;
 
     /**
-     * @param SagaMetadata                                                        $metaData
-     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
+     * @param SagaMetadata                                                                $metaData
+     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
      *
      * @return self
      */
@@ -42,8 +42,8 @@ final class SagaConfiguration
     }
 
     /**
-     * @param SagaMetadata                                                        $metaData
-     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlerCollection
+     * @param SagaMetadata                                                                $metaData
+     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
      */
     private function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {

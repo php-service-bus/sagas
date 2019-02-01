@@ -4,4 +4,8 @@
 
 ## What is it?
 
-Common parts of the implementation of the concept of sagas for [service-bus](https://github.com/php-service-bus/service-bus) framework.
+Saga pattern implementation
+
+## Usage
+
+[@see Saga module](https://github.com/php-service-bus/module-sagas)

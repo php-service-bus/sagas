@@ -1,8 +1,13 @@
 {
   "name": "php-service-bus/sagas",
-  "description": "Common parts of the implementation of the concept of sagas",
+  "description": "Saga pattern implementation",
   "type": "library",
-  "keywords": ["cqrs", "event-sourcing", "async-php", "command-bus", "messaging"],
+  "keywords": [
+    "sagas",
+    "async-php",
+    "command-bus",
+    "messaging"
+  ],
   "authors": [
     {
       "name": "Masiukevich Maksim",
@@ -23,6 +28,9 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "ServiceBus\\Common\\Tests\\": "vendor/php-service-bus/common/tests",
+      "ServiceBus\\Storage\\Common\\Tests\\": "vendor/php-service-bus/storage-common/tests",
+      "ServiceBus\\Storage\\Sql\\Tests\\": "vendor/php-service-bus/storage-sql/tests",
       "ServiceBus\\Sagas\\Tests\\": "tests/"
     },
     "files": [
@@ -40,7 +48,7 @@
     "php-service-bus/annotations-reader": "dev-master",
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^7",
-    "vimeo/psalm": "^3"
+    "vimeo/psalm": "dev-master"
   },
   "prefer-stable": true,
   "minimum-stability": "dev",

@@ -29,3 +29,4 @@ script:
 after_script:
   - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then wget -c -nc --retry-connrefused --tries=0 https://scrutinizer-ci.com/ocular.phar; fi
   - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+  - if [ "$TRAVIS_PHP_VERSION" == "7.2" ]; then ./vendor/bin/psalm --config=psalm.xml; fi

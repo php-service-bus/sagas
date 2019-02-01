@@ -1,7 +1,7 @@
 <?php
 
 /**
- * PHP Service Bus Saga (Process Manager) implementation
+ * Saga pattern implementation
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,13 +13,11 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 
 use function Amp\Promise\wait;
-use PHPUnit\Framework\Constraint\IsType;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
-use ServiceBus\Sagas\Configuration\EventProcessor;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectEventListenerClass;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectListenerName;
