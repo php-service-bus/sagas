@@ -40,15 +40,15 @@
   },
   "require": {
     "php": ">=7.2",
-    "php-service-bus/common": "dev-master",
-    "php-service-bus/storage-common": "dev-master"
+    "php-service-bus/common": "^v3.0",
+    "php-service-bus/storage-common": "^v3.0"
   },
   "require-dev": {
-    "php-service-bus/storage-sql": "dev-master",
-    "php-service-bus/annotations-reader": "dev-master",
+    "php-service-bus/storage-sql": "^v3.0",
+    "php-service-bus/annotations-reader": "^v3.0",
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^7",
-    "vimeo/psalm": "dev-master"
+    "vimeo/psalm": "^v3"
   },
   "prefer-stable": true,
   "minimum-stability": "dev",
