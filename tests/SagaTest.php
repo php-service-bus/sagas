@@ -19,6 +19,8 @@ use function ServiceBus\Common\uuid;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
 use ServiceBus\Sagas\Contract\SagaStatusChanged;
+use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
+use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\SagaStatus;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\EmptyCommand;
@@ -31,7 +33,6 @@ class SagaTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      *
      * @return void
      *
@@ -39,6 +40,8 @@ class SagaTest extends TestCase
      */
     public function createWithNotEqualsSagaClass(): void
     {
+        $this->expectException(InvalidSagaIdentifier::class);
+
         new CorrectSaga(new TestSagaId('123456789', \get_class($this)));
     }
 
@@ -100,8 +103,6 @@ class SagaTest extends TestCase
 
     /**
      * @test
-     * @expectedException  \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     * @expectedExceptionMessage  Changing the state of the saga is impossible: the saga is complete
      *
      * @return void
      *
@@ -109,6 +110,9 @@ class SagaTest extends TestCase
      */
     public function changeStateOnClosedSaga(): void
     {
+        $this->expectException(ChangeSagaStateFailed::class);
+        $this->expectExceptionMessage('Changing the state of the saga is impossible: the saga is complete');
+
         $id = new TestSagaId('123456789', CorrectSaga::class);
 
         $saga = new CorrectSaga($id);

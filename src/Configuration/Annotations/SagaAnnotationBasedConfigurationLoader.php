@@ -69,6 +69,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     {
         try
         {
+            /** @psalm-var class-string $sagaClass */
+
             $annotations = $this->annotationReader
                 ->extract($sagaClass)
                 ->filter(
@@ -243,7 +245,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         {
             throw new \InvalidArgumentException(
                 \sprintf(
-                    'In the meta data of the saga "%s", an incorrect value of the "idClass"', $sagaClass
+                    'In the meta data of the saga "%s" an incorrect value of the "idClass"', $sagaClass
                 )
             );
         }

@@ -11,7 +11,9 @@
 declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests;
+
 use PHPUnit\Framework\TestCase;
+use ServiceBus\Sagas\Exceptions\InvalidSagaStatus;
 use ServiceBus\Sagas\SagaStatus;
 
 /**
@@ -21,13 +23,16 @@ final class SagaStatusTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Exceptions\InvalidSagaStatus
-     * @expectedExceptionMessage Incorrect saga status specified: qwerty
      *
      * @return void
+     *
+     * @throws \Throwable
      */
     public function withInvalidStatus(): void
     {
+        $this->expectException(InvalidSagaStatus::class);
+        $this->expectExceptionMessage('Incorrect saga status specified: qwerty');
+
         SagaStatus::create('qwerty');
     }
 

@@ -14,6 +14,7 @@ namespace ServiceBus\Sagas\Tests\Store;
 
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
+use ServiceBus\Sagas\Store\Exceptions\DuplicateSaga;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\TestSagaId;
@@ -131,7 +132,6 @@ final class SQLSagaStoreTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga
      *
      * @return void
      *
@@ -139,6 +139,8 @@ final class SQLSagaStoreTest extends TestCase
      */
     public function saveDuplicate(): void
     {
+        $this->expectException(DuplicateSaga::class);
+
         $id   = TestSagaId::new(CorrectSaga::class);
         $saga = new CorrectSaga($id);
 

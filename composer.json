@@ -47,7 +47,7 @@
     "php-service-bus/storage-sql": "^v3.0",
     "php-service-bus/annotations-reader": "^v3.0",
     "doctrine/dbal": "^v2.6",
-    "phpunit/phpunit": "^7",
+    "phpunit/phpunit": "^8",
     "vimeo/psalm": "^v3"
   },
   "prefer-stable": true,

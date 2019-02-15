@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests;
 
 use PHPUnit\Framework\TestCase;
+use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\SagaId;
 
 /**
@@ -22,13 +23,16 @@ final class SagaIdTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
-     * @expectedExceptionMessage The saga identifier can't be empty
      *
      * @return void
+     *
+     * @throws \Throwable
      */
     public function createWithEmptyIdValue(): void
     {
+        $this->expectException(InvalidSagaIdentifier::class);
+        $this->expectExceptionMessage('The saga identifier can\'t be empty');
+
         new class('', __METHOD__) extends SagaId
         {
 
@@ -37,12 +41,13 @@ final class SagaIdTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      *
      * @return void
      */
     public function createWithWrongSagaClass(): void
     {
+        $this->expectException(InvalidSagaIdentifier::class);
+
         new class('qwerty', __METHOD__) extends SagaId
         {
 
@@ -51,12 +56,13 @@ final class SagaIdTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      *
      * @return void
      */
     public function createWithEmptySagaClass(): void
     {
+        $this->expectException(InvalidSagaIdentifier::class);
+
         new class('qwerty', '') extends SagaId
         {
 

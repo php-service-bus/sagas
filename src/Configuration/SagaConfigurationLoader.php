@@ -20,6 +20,8 @@ interface SagaConfigurationLoader
     /**
      * Retrieving saga configuration and event handlers
      *
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     *
      * @param string $sagaClass
      *
      * @return SagaConfiguration

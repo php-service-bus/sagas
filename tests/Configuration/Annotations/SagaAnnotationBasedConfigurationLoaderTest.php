@@ -15,9 +15,11 @@ namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
+use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
+use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectEventListenerClass;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectListenerName;
@@ -90,7 +92,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
      *
      * @return void
      *
@@ -98,6 +99,8 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithoutAnnotations(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+
         $object = new class()
         {
 
@@ -108,9 +111,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
-     * @expectedExceptionMessage In the meta data of the saga "ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWrongIdClassSpecified",
-     *                           an incorrect value of the "idClass"
      *
      * @return void
      *
@@ -118,6 +118,13 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithIncorrectHeaderAnnotationData(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+        $this->expectExceptionMessage(
+            \sprintf(
+                'In the meta data of the saga "%s" an incorrect value of the "idClass"', SagaWrongIdClassSpecified::class
+            )
+        );
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWrongIdClassSpecified::class);
     }
@@ -162,7 +169,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
      *
      * @return void
      *
@@ -170,13 +176,14 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithUnExistsEventClass(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithUnExistsEventListenerClass::class);
     }
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
      *
      * @return void
      *
@@ -184,13 +191,14 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithToManyListenerArguments(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithToManyArguments::class);
     }
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
      *
      * @return void
      *
@@ -198,15 +206,14 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithIncorrectListenerClass(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithIncorrectEventListenerClass::class);
     }
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
-     * @expectedExceptionMessage There are too many arguments for the "ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithMultipleListenerArgs:onEmptyEvent"
-     *                           method. A subscriber can only accept an argument: the class of the event he listens to
      *
      * @return void
      *
@@ -214,15 +221,21 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithMultipleListenerArgs(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+        $this->expectExceptionMessage(
+            \sprintf(
+                'There are too many arguments for the "%s:onEmptyEvent" method. A subscriber can only accept an '
+                . 'argument: the class of the event he listens to',
+                SagaWithMultipleListenerArgs::class
+            )
+        );
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithMultipleListenerArgs::class);
     }
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
-     * @expectedExceptionMessage The event handler "ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithInvalidListenerArg:onSomeEvent"
-     *                           should take as the first argument an object that implements the "ServiceBus\Common\Messages\Event"
      *
      * @return void
      *
@@ -230,14 +243,22 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithInvalidListenerArgument(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+        $this->expectExceptionMessage(
+            \sprintf(
+                'The event handler "%s:onSomeEvent" should take as the first argument an object that implements the "%s"',
+                SagaWithInvalidListenerArg::class, Event::class
+
+            )
+        );
+
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithInvalidListenerArg::class);
     }
 
     /**
      * @test
-     * @expectedException \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
-     * @expectedExceptionMessage Invalid method name of the event listener: "wrongEventListenerName". Expected: onEventWithKey
      *
      * @return void
      *
@@ -245,6 +266,11 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithIncorrectListenerName(): void
     {
+        $this->expectException(InvalidSagaConfiguration::class);
+        $this->expectExceptionMessage(
+            'Invalid method name of the event listener: "wrongEventListenerName". Expected: onEventWithKey'
+        );
+
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithIncorrectListenerName::class);
     }
