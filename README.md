@@ -8,4 +8,4 @@ Saga pattern implementation
 
 ## Usage
 
-[@see Saga module](https://github.com/php-service-bus/module-sagas)
+[@see Saga module](https://github.com/php-service-bus/documentation/blob/master/pages/modules/sagas.md)
