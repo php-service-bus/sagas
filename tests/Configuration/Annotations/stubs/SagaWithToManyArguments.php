@@ -13,7 +13,6 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations\stubs;
 
 use ServiceBus\Common\Context\ServiceBusContext;
-use ServiceBus\Common\Messages\Command;
 use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
 use ServiceBus\Sagas\Configuration\Annotations\SagaEventListener;
 use ServiceBus\Sagas\Saga;
@@ -32,7 +31,7 @@ final class SagaWithToManyArguments extends Saga
     /**
      * @inheritdoc
      */
-    public function start(Command $command): void
+    public function start(object $command): void
     {
 
     }

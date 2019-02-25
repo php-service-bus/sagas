@@ -19,11 +19,11 @@ class InvalidSagaStatus extends \InvalidArgumentException
 {
     /**
      * @param string $status
+     *
+     * @return self
      */
-    public function __construct(string $status)
+    public static function create(string $status): self
     {
-        parent::__construct(
-            \sprintf('Incorrect saga status specified: %s', $status)
-        );
+        return new self(\sprintf('Incorrect saga status specified: %s', $status));
     }
 }

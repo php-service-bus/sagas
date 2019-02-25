@@ -17,7 +17,6 @@ use ServiceBus\AnnotationsReader\AnnotationCollection;
 use ServiceBus\AnnotationsReader\AnnotationsReader;
 use ServiceBus\AnnotationsReader\DoctrineAnnotationsReader;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
@@ -93,7 +92,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         }
         catch(\Throwable $throwable)
         {
-            throw new InvalidSagaConfiguration($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
+            throw InvalidSagaConfiguration::fromThrowable($throwable);
         }
     }
 
@@ -171,7 +170,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             /**
              * @var callable $processor
-             * @var \Closure(\ServiceBus\Common\Messages\Message, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
+             * @var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
              */
             $closure = \Closure::fromCallable($processor);
 
@@ -206,14 +205,14 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
                 ? $reflectionParameters[0]->getClass()
                 : null;
 
-            if(null !== $firstArgumentClass && true === $firstArgumentClass->isSubclassOf(Event::class))
+            if(null !== $firstArgumentClass)
             {
                 /** @var \ReflectionClass $reflectionClass */
                 $reflectionClass = $reflectionParameters[0]->getClass();
 
                 /**
-                 * @noinspection OneTimeUseVariablesInspection
-                 * @var          class-string<\ServiceBus\Common\Messages\Event> $eventClass
+                 * @noinspection       OneTimeUseVariablesInspection
+                 * @psalm-var          class-string $eventClass
                  */
                 $eventClass = $reflectionClass->getName();
 

@@ -12,13 +12,12 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Contract;
 
-use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\SagaId;
 
 /**
  * New saga created
  */
-final class SagaCreated implements Event
+final class SagaCreated
 {
     /**
      * Saga identifier

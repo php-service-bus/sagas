@@ -15,7 +15,6 @@ namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
@@ -206,8 +205,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      */
     public function sagaWithIncorrectListenerClass(): void
     {
-        $this->expectException(InvalidSagaConfiguration::class);
-
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithIncorrectEventListenerClass::class);
     }
@@ -244,14 +241,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     public function sagaWithInvalidListenerArgument(): void
     {
         $this->expectException(InvalidSagaConfiguration::class);
-        $this->expectExceptionMessage(
-            \sprintf(
-                'The event handler "%s:onSomeEvent" should take as the first argument an object that implements the "%s"',
-                SagaWithInvalidListenerArg::class, Event::class
-
-            )
-        );
-
+        $this->expectExceptionMessage('Invalid method name of the event listener: "onSomeEvent". Expected: onEmptyCommand');
 
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithInvalidListenerArg::class);

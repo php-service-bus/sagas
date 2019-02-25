@@ -14,7 +14,6 @@ namespace ServiceBus\Sagas\Configuration;
 
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
-use ServiceBus\Common\Messages\Event;
 
 /**
  * Saga event listener processor
@@ -31,10 +30,10 @@ interface EventProcessor
     /**
      * Invoke saga listener
      *
-     * @param Event             $event
+     * @param object             $event
      * @param ServiceBusContext $context
      *
      * @return Promise Doesn't return result
      */
-    public function __invoke(Event $event, ServiceBusContext $context): Promise;
+    public function __invoke(object $event, ServiceBusContext $context): Promise;
 }

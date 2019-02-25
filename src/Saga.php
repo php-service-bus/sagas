@@ -13,8 +13,6 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas;
 
 use function ServiceBus\Common\datetimeInstantiator;
-use ServiceBus\Common\Messages\Command;
-use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
@@ -45,14 +43,14 @@ abstract class Saga
     /**
      * List of events that should be published while saving
      *
-     * @var array<int, \ServiceBus\Common\Messages\Event>
+     * @var array<int, object>
      */
     private $events;
 
     /**
      * List of commands that should be fired while saving
      *
-     * @var array<int, \ServiceBus\Common\Messages\Command>
+     * @var array<int, object>
      */
     private $commands;
 
@@ -92,7 +90,7 @@ abstract class Saga
      *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
-     * @throws \ServiceBus\Common\Exceptions\DateTime\CreateDateTimeFailed
+     * @throws \ServiceBus\Common\Exceptions\DateTimeException
      */
     final public function __construct(SagaId $id, ?\DateTimeImmutable $expireDate = null)
     {
@@ -130,11 +128,11 @@ abstract class Saga
     /**
      * Start saga flow
      *
-     * @param Command $command
+     * @param object $command
      *
      * @return void
      */
-    abstract public function start(Command $command): void;
+    abstract public function start(object $command): void;
 
     /**
      * Receive saga id
@@ -179,13 +177,13 @@ abstract class Saga
     /**
      * Raise (apply event)
      *
-     * @param Event $event
+     * @param object $event
      *
      * @return void
      *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
      */
-    final protected function raise(Event $event): void
+    final protected function raise(object $event): void
     {
         $this->assertNotClosedSaga();
 
@@ -196,13 +194,13 @@ abstract class Saga
     /**
      * Fire command
      *
-     * @param Command $command
+     * @param object $command
      *
      * @return void
      *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
      */
-    final protected function fire(Command $command): void
+    final protected function fire(object $command): void
     {
         $this->assertNotClosedSaga();
 
@@ -253,11 +251,11 @@ abstract class Saga
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @return array<int, \ServiceBus\Common\Messages\Command>
+     * @return array<int, object>
      */
     private function firedCommands(): array
     {
-        /** @var array<int, \ServiceBus\Common\Messages\Command> $commands */
+        /** @var array<int, object> $commands */
         $commands = $this->commands;
 
         $this->clearFiredCommands();
@@ -271,11 +269,11 @@ abstract class Saga
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @return array<int, \ServiceBus\Common\Messages\Event>
+     * @return array<int, object>
      */
     private function raisedEvents(): array
     {
-        /** @var array<int, \ServiceBus\Common\Messages\Event> $commands */
+        /** @var array<int, object> $commands */
         $events = $this->events;
 
         $this->clearRaisedEvents();
@@ -286,22 +284,22 @@ abstract class Saga
     /**
      * Apply event
      *
-     * @param Event $event
+     * @param object $event
      *
      * @return void
      */
-    private function applyEvent(Event $event): void
+    private function applyEvent(object $event): void
     {
         $eventListenerMethodName = createEventListenerName(\get_class($event));
 
         /**
          * Call child class method
          *
-         * @param Event $event
+         * @param object $event
          *
          * @return void
          */
-        $closure = function(Event $event) use ($eventListenerMethodName): void
+        $closure = function(object $event) use ($eventListenerMethodName): void
         {
             if(true === \method_exists($this, $eventListenerMethodName))
             {
@@ -406,21 +404,21 @@ abstract class Saga
     }
 
     /**
-     * @param Event $event
+     * @param object $event
      *
      * @return void
      */
-    private function attachEvent(Event $event): void
+    private function attachEvent(object $event): void
     {
         $this->events[] = $event;
     }
 
     /**
-     * @param Command $command
+     * @param object $command
      *
      * @return void
      */
-    private function attachCommand(Command $command): void
+    private function attachCommand(object $command): void
     {
         $this->commands[] = $command;
     }
@@ -436,7 +434,7 @@ abstract class Saga
     {
         if(false === $this->status->inProgress())
         {
-            throw new ChangeSagaStateFailed('Changing the state of the saga is impossible: the saga is complete');
+            throw ChangeSagaStateFailed::create($this->status);
         }
     }
 
@@ -468,7 +466,7 @@ abstract class Saga
      *
      * @return void
      *
-     * @throws \ServiceBus\Common\Exceptions\DateTime\CreateDateTimeFailed
+     * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      */
     private function assertExpirationDateIsCorrect(\DateTimeImmutable $dateTime): void

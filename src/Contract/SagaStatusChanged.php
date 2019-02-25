@@ -12,14 +12,13 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Contract;
 
-use ServiceBus\Common\Messages\Event;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaStatus;
 
 /**
  * The status of the saga was changed
  */
-final class SagaStatusChanged implements Event
+final class SagaStatusChanged
 {
     /**
      * Saga identifier

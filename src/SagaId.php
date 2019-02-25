@@ -64,14 +64,12 @@ abstract class SagaId
     {
         if('' === $id)
         {
-            throw new InvalidSagaIdentifier('The saga identifier can\'t be empty');
+            throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 
         if('' === $sagaClass || false === \class_exists($sagaClass))
         {
-            throw new InvalidSagaIdentifier(
-                \sprintf('Invalid saga class specified ("%s")', $sagaClass)
-            );
+            throw InvalidSagaIdentifier::invalidSagaClass($sagaClass);
         }
 
         /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */

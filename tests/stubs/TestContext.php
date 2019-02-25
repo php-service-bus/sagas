@@ -18,7 +18,6 @@ use Psr\Log\LogLevel;
 use Psr\Log\Test\TestLogger;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\Endpoint\DeliveryOptions;
-use ServiceBus\Common\Messages\Message;
 use function ServiceBus\Common\uuid;
 
 /**
@@ -27,7 +26,7 @@ use function ServiceBus\Common\uuid;
 final class TestContext implements ServiceBusContext
 {
     /**
-     * @var Message[]
+     * @var object[]
      */
     public $messages = [];
 
@@ -60,7 +59,7 @@ final class TestContext implements ServiceBusContext
     /**
      * @inheritDoc
      */
-    public function delivery(Message $message, ?DeliveryOptions $deliveryOptions = null): Promise
+    public function delivery(object $message, ?DeliveryOptions $deliveryOptions = null): Promise
     {
         $this->messages[] = $message;
 

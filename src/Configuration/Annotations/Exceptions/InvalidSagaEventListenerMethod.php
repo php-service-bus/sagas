@@ -12,8 +12,6 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration\Annotations\Exceptions;
 
-use ServiceBus\Common\Messages\Event;
-
 /**
  *
  */
@@ -44,10 +42,9 @@ final class InvalidSagaEventListenerMethod extends \LogicException
     {
         return new self(
             \sprintf(
-                'The event handler "%s:%s" should take as the first argument an object that implements the "%s"',
+                'The event handler "%s:%s" should take as the first argument an object',
                 $reflectionMethod->getDeclaringClass()->getName(),
-                $reflectionMethod->getName(),
-                Event::class
+                $reflectionMethod->getName()
             )
         );
     }

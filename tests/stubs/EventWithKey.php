@@ -12,12 +12,10 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
-use ServiceBus\Common\Messages\Event;
-
 /**
  * @property-read string $key
  */
-final class EventWithKey implements Event
+final class EventWithKey
 {
     /**
      * @var string

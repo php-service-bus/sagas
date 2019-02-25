@@ -51,7 +51,7 @@ final class SagaStatus
     {
         if(false === \in_array($value, self::LIST, true))
         {
-            throw new InvalidSagaStatus($value);
+            throw InvalidSagaStatus::create($value);
         }
 
         return new self($value);

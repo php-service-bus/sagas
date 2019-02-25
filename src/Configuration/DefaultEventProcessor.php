@@ -18,7 +18,6 @@ use Psr\Log\LogLevel;
 use ServiceBus\Common\Context\ServiceBusContext;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
-use ServiceBus\Common\Messages\Event;
 use function ServiceBus\Common\readReflectionPropertyValue;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\SagasStore;
@@ -31,7 +30,7 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * The event for which the handler is registered
      *
-     * @psalm-var class-string<\ServiceBus\Common\Messages\Event>
+     * @psalm-var class-string
      *
      * @var string
      */
@@ -50,7 +49,7 @@ final class DefaultEventProcessor implements EventProcessor
     private $sagaListenerOptions;
 
     /**
-     * @psalm-param class-string<\ServiceBus\Common\Messages\Event> $forEvent
+     * @psalm-param class-string $forEvent
      *
      * @param string              $forEvent
      * @param SagasStore          $sagasStore
@@ -74,11 +73,11 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * @inheritDoc
      */
-    public function __invoke(Event $event, ServiceBusContext $context): Promise
+    public function __invoke(object $event, ServiceBusContext $context): Promise
     {
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(Event $event, ServiceBusContext $context): \Generator
+            function(object $event, ServiceBusContext $context): \Generator
             {
                 try
                 {
@@ -87,10 +86,10 @@ final class DefaultEventProcessor implements EventProcessor
 
                     invokeReflectionMethod($saga, 'applyEvent', $event);
 
-                    /** @var array<int, \ServiceBus\Common\Messages\Command> $commands */
+                    /** @var array<int, object> $commands */
                     $commands = invokeReflectionMethod($saga, 'firedCommands');
 
-                    /** @var array<int, \ServiceBus\Common\Messages\Event> $events */
+                    /** @var array<int, object> $events */
                     $events = invokeReflectionMethod($saga, 'raisedEvents');
 
                     yield $this->sagasStore->update($saga);
@@ -117,9 +116,9 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Delivery events & commands to message bus
      *
-     * @param ServiceBusContext                               $context
-     * @param array<int, \ServiceBus\Common\Messages\Command> $commands
-     * @param array<int, \ServiceBus\Common\Messages\Event>   $events
+     * @param ServiceBusContext  $context
+     * @param array<int, object> $commands
+     * @param array<int, object> $events
      *
      * @return \Generator Doesn't return result
      */
@@ -127,13 +126,13 @@ final class DefaultEventProcessor implements EventProcessor
     {
         $promises = [];
 
-        /** @var \ServiceBus\Common\Messages\Command $command */
+        /** @var object $command */
         foreach($commands as $command)
         {
             $promises[] = $context->delivery($command);
         }
 
-        /** @var \ServiceBus\Common\Messages\Event $event */
+        /** @var object $event */
         foreach($events as $event)
         {
             $promises[] = $context->delivery($event);
@@ -143,16 +142,16 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     * @param Event $event
+     * @param object $event
      *
      * @return \Generator
      *
      * @throws \RuntimeException
-     * @throws \ServiceBus\Common\Exceptions\DateTime\CreateDateTimeFailed
+     * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      */
-    private function loadSaga(Event $event): \Generator
+    private function loadSaga(object $event): \Generator
     {
         /** @var \DateTimeImmutable $currentDatetime */
         $currentDatetime = datetimeInstantiator('NOW');
@@ -186,13 +185,13 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Search saga identifier in the event payload
      *
-     * @param Event $event
+     * @param object $event
      *
      * @return SagaId
      *
      * @throws \RuntimeException
      */
-    private function searchSagaIdentifier(Event $event): SagaId
+    private function searchSagaIdentifier(object $event): SagaId
     {
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
@@ -279,14 +278,14 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Read event property value
      *
-     * @param Event  $event
+     * @param object $event
      * @param string $propertyName
      *
      * @return string
      *
      * @throws \Throwable Reflection property not found
      */
-    private static function readEventProperty(Event $event, string $propertyName): string
+    private static function readEventProperty(object $event, string $propertyName): string
     {
         if(true === isset($event->{$propertyName}))
         {

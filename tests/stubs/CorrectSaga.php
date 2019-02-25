@@ -12,7 +12,6 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
-use ServiceBus\Common\Messages\Command;
 use function ServiceBus\Common\uuid;
 use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
 use ServiceBus\Sagas\Configuration\Annotations\SagaEventListener;
@@ -35,7 +34,7 @@ final class CorrectSaga extends Saga
     /**
      * @inheritdoc
      */
-    public function start(Command $command): void
+    public function start(object $command): void
     {
 
     }
