@@ -40,12 +40,12 @@
   },
   "require": {
     "php": ">=7.2",
-    "php-service-bus/common": "v3.0.x-dev",
-    "php-service-bus/storage-common": "^v3.0"
+    "php-service-bus/common": "v3.0.7",
+    "php-service-bus/storage-common": "v3.0.7"
   },
   "require-dev": {
-    "php-service-bus/storage-sql": "^v3.0",
-    "php-service-bus/annotations-reader": "^v3.0",
+    "php-service-bus/storage-sql": "v3.0.7",
+    "php-service-bus/annotations-reader": "v3.0.7",
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^8",
     "vimeo/psalm": "^v3"
