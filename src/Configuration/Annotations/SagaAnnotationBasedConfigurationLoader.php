@@ -68,14 +68,16 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     {
         try
         {
-            /** @psalm-var class-string $sagaClass */
+            /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
 
             $annotations = $this->annotationReader
                 ->extract($sagaClass)
                 ->filter(
                     static function(Annotation $annotation): ?Annotation
                     {
-                        return true === \in_array(\get_class($annotation->annotationObject), self::SUPPORTED_TYPES, true)
+                        $annotationClass = \get_class($annotation->annotationObject);
+
+                        return true === \in_array($annotationClass, self::SUPPORTED_TYPES, true)
                             ? $annotation
                             : null;
                     }
@@ -102,7 +104,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      * @param AnnotationCollection $annotationCollection
      * @param SagaMetadata         $sagaMetadata
      *
-     * @return \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
+     * @psalm-return \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
+     * @return \SplObjectStorage
      *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
      */
@@ -125,7 +128,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
             );
         }
 
-        /** @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlersCollection */
+        /** @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlersCollection */
 
         return $handlersCollection;
     }
@@ -221,6 +224,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     /**
      * Collect metadata information
      *
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     *
      * @param string     $sagaClass
      * @param SagaHeader $sagaHeader
      *
@@ -244,7 +249,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         return SagaMetadata::create(
             $sagaClass,
-            (string) $sagaHeader->idClass,
+            $sagaHeader->idClass,
             (string) $sagaHeader->containingIdProperty,
             (string) $sagaHeader->expireDateModifier
         );
@@ -252,6 +257,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
     /**
      * Search saga header information
+     *
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
      * @param string               $sagaClass
      * @param AnnotationCollection $annotationCollection

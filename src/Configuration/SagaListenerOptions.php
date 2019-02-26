@@ -62,6 +62,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
     /**
      * Receive saga class
      *
+     * @psalm-return class-string<\ServiceBus\Sagas\Saga>
      * @return string
      */
     public function sagaClass(): string
@@ -72,6 +73,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
     /**
      * Receive identifier class
      *
+     * @psalm-return class-string<\ServiceBus\Sagas\SagaId>
      * @return string
      */
     public function identifierClass(): string

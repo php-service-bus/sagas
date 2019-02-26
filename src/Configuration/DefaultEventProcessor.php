@@ -31,7 +31,6 @@ final class DefaultEventProcessor implements EventProcessor
      * The event for which the handler is registered
      *
      * @psalm-var class-string
-     *
      * @var string
      */
     private $forEvent;
@@ -86,10 +85,16 @@ final class DefaultEventProcessor implements EventProcessor
 
                     invokeReflectionMethod($saga, 'applyEvent', $event);
 
-                    /** @var array<int, object> $commands */
+                    /**
+                     * @var object[] $commands
+                     * @psalm-var array<int, object> $commands
+                     */
                     $commands = invokeReflectionMethod($saga, 'firedCommands');
 
-                    /** @var array<int, object> $events */
+                    /**
+                     * @var object[] $events
+                     * @psalm-var array<int, object> $events
+                     */
                     $events = invokeReflectionMethod($saga, 'raisedEvents');
 
                     yield $this->sagasStore->update($saga);
@@ -116,9 +121,12 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Delivery events & commands to message bus
      *
-     * @param ServiceBusContext  $context
-     * @param array<int, object> $commands
-     * @param array<int, object> $events
+     * @psalm-param array<int, object> $commands
+     * @psalm-param array<int, object> $events
+     *
+     * @param ServiceBusContext $context
+     * @param object[]          $commands
+     * @param object[]          $events
      *
      * @return \Generator Doesn't return result
      */
@@ -195,6 +203,7 @@ final class DefaultEventProcessor implements EventProcessor
     {
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
+        /** @psalm-suppress RedundantConditionGivenDocblockType */
         if(true === \class_exists($identifierClass))
         {
             $propertyName = \lcfirst($this->sagaListenerOptions->containingIdentifierProperty());
@@ -247,8 +256,8 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Create identifier instance
      *
-     * @template        \ServiceBus\Sagas\SagaId
-     * @template-typeof \ServiceBus\Sagas\SagaId $idClass
+     * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
      * @param string $idClass
      * @param string $idValue
@@ -260,6 +269,7 @@ final class DefaultEventProcessor implements EventProcessor
      */
     private static function identifierInstantiator(string $idClass, string $idValue, string $sagaClass): SagaId
     {
+        /** @var SagaId|object $identifier */
         $identifier = new $idClass($idValue, $sagaClass);
 
         if($identifier instanceof SagaId)

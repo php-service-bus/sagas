@@ -134,12 +134,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "4ccdfc1d92ea8dc2ca064d76bdaca94a88125258"
+                "reference": "d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/4ccdfc1d92ea8dc2ca064d76bdaca94a88125258",
-                "reference": "4ccdfc1d92ea8dc2ca064d76bdaca94a88125258",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf",
+                "reference": "d3b1b081a08e2656dcdb4ccb242b4e18abe74bdf",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +179,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-02-25 14:24:39"
+            "time": "2019-02-26 07:22:23"
         },
         {
             "name": "php-service-bus/storage-common",
@@ -1935,16 +1935,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "7.0.2",
+            "version": "7.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "cfca9c5f7f2694ca0c7749ffb142927d9f05250f"
+                "reference": "0317a769a81845c390e19684d9ba25d7f6aa4707"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/cfca9c5f7f2694ca0c7749ffb142927d9f05250f",
-                "reference": "cfca9c5f7f2694ca0c7749ffb142927d9f05250f",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/0317a769a81845c390e19684d9ba25d7f6aa4707",
+                "reference": "0317a769a81845c390e19684d9ba25d7f6aa4707",
                 "shasum": ""
             },
             "require": {
@@ -1994,7 +1994,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-02-15 13:40:27"
+            "time": "2019-02-26 07:38:26"
         },
         {
             "name": "phpunit/php-file-iterator",

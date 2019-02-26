@@ -203,7 +203,7 @@ final class SQLSagaStore implements SagasStore
         }
         catch(\Throwable $throwable)
         {
-            throw new SagasStoreInteractionFailed($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
+            throw SagasStoreInteractionFailed::fromThrowable($throwable);
         }
     }
 
@@ -234,7 +234,7 @@ final class SQLSagaStore implements SagasStore
         }
         catch(\Throwable $throwable)
         {
-            throw new SagasStoreInteractionFailed($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
+            throw SagasStoreInteractionFailed::fromThrowable($throwable);
         }
     }
 }

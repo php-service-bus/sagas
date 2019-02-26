@@ -65,6 +65,6 @@ function unserializeSaga(string $serializedContent): Saga
     }
     catch(\Throwable $throwable)
     {
-        throw new SagaSerializationError($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
+        throw SagaSerializationError::fromThrowable($throwable);
     }
 }

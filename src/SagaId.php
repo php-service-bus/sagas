@@ -34,12 +34,13 @@ abstract class SagaId
      * Saga class
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
-     *
      * @var string
      */
     public $sagaClass;
 
     /**
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     *
      * @param string $sagaClass
      *
      * @return static
@@ -48,12 +49,12 @@ abstract class SagaId
      */
     public static function new(string $sagaClass): self
     {
-        /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
-
         return new static(uuid(), $sagaClass);
     }
 
     /**
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     *
      * @param string $id
      * @param string $sagaClass
      *
@@ -67,12 +68,11 @@ abstract class SagaId
             throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 
+        /** @psalm-suppress DocblockTypeContradiction */
         if('' === $sagaClass || false === \class_exists($sagaClass))
         {
             throw InvalidSagaIdentifier::invalidSagaClass($sagaClass);
         }
-
-        /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
 
         $this->id        = $id;
         $this->sagaClass = $sagaClass;

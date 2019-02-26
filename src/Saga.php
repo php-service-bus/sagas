@@ -43,14 +43,16 @@ abstract class Saga
     /**
      * List of events that should be published while saving
      *
-     * @var array<int, object>
+     * @psalm-var array<int, object>
+     * @var array
      */
     private $events;
 
     /**
      * List of commands that should be fired while saving
      *
-     * @var array<int, object>
+     * @psalm-var array<int, object>
+     * @var array
      */
     private $commands;
 
@@ -251,11 +253,11 @@ abstract class Saga
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @return array<int, object>
+     * @psalm-return array<int, object>
+     * @return array
      */
     private function firedCommands(): array
     {
-        /** @var array<int, object> $commands */
         $commands = $this->commands;
 
         $this->clearFiredCommands();
@@ -269,11 +271,11 @@ abstract class Saga
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @return array<int, object>
+     * @psalm-return array<int, object>
+     * @return array
      */
     private function raisedEvents(): array
     {
-        /** @var array<int, object> $commands */
         $events = $this->events;
 
         $this->clearRaisedEvents();

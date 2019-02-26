@@ -31,7 +31,9 @@ final class SagaEventListener
     public $containingIdProperty;
 
     /**
-     * @param array<string, mixed> $data
+     * @psalm-param array<string, mixed> $data
+     *
+     * @param array $data
      *
      * @throws \InvalidArgumentException
      */

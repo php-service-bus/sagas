@@ -27,6 +27,7 @@ final class SagaMetadata
     /**
      * Class namespace
      *
+     * @psalm-var class-string<\ServiceBus\Sagas\Saga>
      * @var string
      */
     public $sagaClass;
@@ -34,6 +35,7 @@ final class SagaMetadata
     /**
      * Identifier class
      *
+     * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
      * @var string
      */
     public $identifierClass;
@@ -55,6 +57,9 @@ final class SagaMetadata
     public $expireDateModifier;
 
     /**
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $identifierClass
+     *
      * @param string $sagaClass
      * @param string $identifierClass
      * @param string $containingIdentifierProperty
@@ -73,6 +78,9 @@ final class SagaMetadata
     }
 
     /**
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $identifierClass
+     *
      * @param string $sagaClass
      * @param string $identifierClass
      * @param string $containingIdentifierProperty

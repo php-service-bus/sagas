@@ -25,6 +25,7 @@ final class SagaHeader
     /**
      * Saga identifier class
      *
+     * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
      * @var string|null
      */
     public $idClass;
@@ -46,7 +47,9 @@ final class SagaHeader
     public $expireDateModifier;
 
     /**
-     * @param array<string, mixed> $data
+     * @psalm-param array<string, mixed> $data
+     *
+     * @param array $data
      *
      * @throws \InvalidArgumentException
      */
