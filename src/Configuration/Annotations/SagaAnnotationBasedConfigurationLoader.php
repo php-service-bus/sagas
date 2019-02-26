@@ -170,7 +170,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             /**
              * @var callable $processor
-             * @var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
+             * @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
              */
             $closure = \Closure::fromCallable($processor);
 
