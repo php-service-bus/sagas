@@ -48,4 +48,19 @@ final class InvalidSagaEventListenerMethod extends \LogicException
             )
         );
     }
+
+    /**
+     * @param string $expected
+     * @param string $actual
+     *
+     * @return self
+     */
+    public static function unexpectedName(string $expected, string $actual): self
+    {
+        return new self( \sprintf(
+            'Invalid method name of the event listener: "%s". Expected: %s',
+            $actual,
+            $expected
+        ));
+    }
 }

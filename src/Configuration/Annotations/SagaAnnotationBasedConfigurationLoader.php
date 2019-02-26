@@ -163,27 +163,20 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
             /** @var \ReflectionMethod $reflectionMethod */
             $reflectionMethod = $annotation->reflectionMethod;
 
+            /** @var callable $processor */
             $processor = $this->eventListenerProcessorFactory->createProcessor(
                 $eventClass,
                 $listenerOptions
             );
 
-            /**
-             * @var callable $processor
-             * @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure
-             */
             $closure = \Closure::fromCallable($processor);
+
+            /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure */
 
             return MessageHandler::create($closure, $reflectionMethod, $listenerOptions);
         }
 
-        throw new InvalidSagaEventListenerMethod(
-            \sprintf(
-                'Invalid method name of the event listener: "%s". Expected: %s',
-                $eventListenerReflectionMethod->name,
-                $expectedMethodName
-            )
-        );
+        throw InvalidSagaEventListenerMethod::unexpectedName($expectedMethodName, $eventListenerReflectionMethod->name);
     }
 
     /**

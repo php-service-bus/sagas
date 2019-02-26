@@ -34,4 +34,21 @@ final class InvalidSagaIdentifier extends \RuntimeException
     {
         return new self(\sprintf('Invalid saga class specified ("%s")', $sagaClass));
     }
+
+    /**
+     * @param string $expectedSagaClass
+     * @param string $actualSagaClass
+     *
+     * @return self
+     */
+    public static function sagaClassMismatch(string $expectedSagaClass, string $actualSagaClass): self
+    {
+        return new self(
+            \sprintf(
+                'The class of the saga in the identifier ("%s") differs from the saga to which it was transmitted ("%s")',
+                $actualSagaClass,
+                $expectedSagaClass
+            )
+        );
+    }
 }

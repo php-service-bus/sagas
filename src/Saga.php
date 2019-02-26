@@ -451,13 +451,7 @@ abstract class Saga
 
         if($currentSagaClass !== $id->sagaClass)
         {
-            throw new InvalidSagaIdentifier(
-                \sprintf(
-                    'The class of the saga in the identifier ("%s") differs from the saga to which it was transmitted ("%s")',
-                    $currentSagaClass,
-                    $id->sagaClass
-                )
-            );
+            throw InvalidSagaIdentifier::sagaClassMismatch($currentSagaClass, $id->sagaClass);
         }
     }
 
@@ -476,9 +470,7 @@ abstract class Saga
 
         if($currentDate > $dateTime)
         {
-            throw new InvalidExpireDateInterval(
-                'The expiration date of the saga can not be less than the current date'
-            );
+            throw InvalidExpireDateInterval::create();
         }
     }
 
