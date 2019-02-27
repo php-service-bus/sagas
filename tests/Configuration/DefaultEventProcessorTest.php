@@ -72,7 +72,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')));
 
-        foreach(\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
+        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {
             wait($this->adapter->execute($indexQuery));
         }

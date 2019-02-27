@@ -52,8 +52,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
         string $containingIdentifierSource,
         string $containingIdentifierProperty,
         SagaMetadata $metadata
-    ): self
-    {
+    ): self {
         $self = new self($metadata);
 
         $self->containingIdentifierSource   = $containingIdentifierSource;
@@ -103,7 +102,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
      */
     public function containingIdentifierProperty(): string
     {
-        if(null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierProperty)
+        if (null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierProperty)
         {
             return (string) $this->containingIdentifierProperty;
         }
@@ -118,7 +117,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
      */
     public function containingIdentifierSource(): string
     {
-        if(null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierSource)
+        if (null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierSource)
         {
             return (string) $this->containingIdentifierSource;
         }
