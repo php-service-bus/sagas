@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "95550366dfb62cc6b79ba919731b46dc",
-    "content-hash": "26d0e3ce09a6ffd2c972e8b645bcc1ff",
+    "hash": "1d6f7c5072fbf2da4553c56c2e5e1813",
+    "content-hash": "845ed0fb5f2015dcf44da41ef4bf087f",
     "packages": [
         {
             "name": "amphp/amp",
@@ -130,7 +130,7 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
@@ -3970,9 +3970,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "php-service-bus/common": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
