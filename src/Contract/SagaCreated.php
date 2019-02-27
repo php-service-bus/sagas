@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -15,40 +15,40 @@ namespace ServiceBus\Sagas\Contract;
 use ServiceBus\Sagas\SagaId;
 
 /**
- * New saga created
+ * New saga created.
  */
 final class SagaCreated
 {
     /**
-     * Saga identifier
+     * Saga identifier.
      *
      * @var string
      */
     public $id;
 
     /**
-     * Saga identifier class
+     * Saga identifier class.
      *
      * @var string
      */
     public $idClass;
 
     /**
-     * Saga class
+     * Saga class.
      *
      * @var string
      */
     public $sagaClass;
 
     /**
-     * Date of creation
+     * Date of creation.
      *
      * @var \DateTimeImmutable
      */
     public $datetime;
 
     /**
-     * Date of expiration
+     * Date of expiration.
      *
      * @var \DateTimeImmutable
      */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -16,54 +16,54 @@ use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaStatus;
 
 /**
- * The status of the saga was changed
+ * The status of the saga was changed.
  */
 final class SagaStatusChanged
 {
     /**
-     * Saga identifier
+     * Saga identifier.
      *
      * @var string
      */
     public $id;
 
     /**
-     * Saga identifier class
+     * Saga identifier class.
      *
      * @var string
      */
     public $idClass;
 
     /**
-     * Saga class
+     * Saga class.
      *
      * @var string
      */
     public $sagaClass;
 
     /**
-     * Previous saga status
+     * Previous saga status.
      *
      * @var string
      */
     public $previousStatus;
 
     /**
-     * Previous saga status
+     * Previous saga status.
      *
      * @var string
      */
     public $newStatus;
 
     /**
-     * Reason for changing the status of the saga
+     * Reason for changing the status of the saga.
      *
      * @var string|null
      */
     public $withReason;
 
     /**
-     * Operation datetime
+     * Operation datetime.
      *
      * @var \DateTimeImmutable
      */
@@ -75,7 +75,7 @@ final class SagaStatusChanged
      * @param SagaId     $sagaId
      * @param SagaStatus  $currentStatus
      * @param SagaStatus  $newStatus
-     * @param null|string $withReason
+     * @param string|null $withReason
      *
      * @return self
      */
@@ -84,8 +84,7 @@ final class SagaStatusChanged
         SagaStatus $currentStatus,
         SagaStatus $newStatus,
         ?string $withReason = null
-    ): self
-    {
+    ): self {
         $self = new self();
 
         $self->id             = (string) $sagaId;

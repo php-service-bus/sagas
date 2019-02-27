@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,25 +13,33 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Configuration\Annotations;
 
 /**
- * Saga listener marker
+ * Saga listener marker.
  *
  * @Annotation
  * @Target("METHOD")
  *
+ * @property-read string|null $containingIdSource
  * @property-read string|null $containingIdProperty
  */
 final class SagaEventListener
 {
     /**
+     * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string|null
+     */
+    public $containingIdSource;
+
+    /**
      * The event property that contains the saga ID
-     * In the context of executing the handler, it overrides the value set for the saga globally
+     * In the context of executing the handler, it overrides the value set for the saga globally.
      *
      * @var string|null
      */
     public $containingIdProperty;
 
     /**
-     * @psalm-param array<string, mixed> $data
+     * @psalm-param array<string, string|null> $data
      *
      * @param array $data
      *
@@ -40,9 +48,9 @@ final class SagaEventListener
     public function __construct(array $data)
     {
         /** @var string|null $value */
-        foreach($data as $key => $value)
+        foreach ($data as $key => $value)
         {
-            if(false === \property_exists($this, $key))
+            if (false === \property_exists($this, $key))
             {
                 throw new \InvalidArgumentException(
                     \sprintf('Unknown property "%s" on annotation "%s"', $key, \get_class($this))
@@ -54,7 +62,7 @@ final class SagaEventListener
     }
 
     /**
-     * Has specified event property that contains the saga ID
+     * Has specified event property that contains the saga ID.
      *
      * @return bool
      */

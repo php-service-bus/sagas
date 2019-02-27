@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -12,8 +12,8 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations\stubs;
 
-use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
 use ServiceBus\Sagas\Configuration\Annotations\SagaEventListener;
+use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\Tests\stubs\EmptyCommand;
 use ServiceBus\Sagas\Tests\stubs\EmptyEvent;
@@ -28,11 +28,10 @@ use ServiceBus\Sagas\Tests\stubs\EmptyEvent;
 final class SagaWithMultipleListenerArgs extends Saga
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function start(object $command): void
     {
-
     }
 
     /**
@@ -47,6 +46,5 @@ final class SagaWithMultipleListenerArgs extends Saga
      */
     public function onEmptyEvent(EmptyEvent $firstEmptyEvent, EmptyCommand $command): void
     {
-
     }
 }

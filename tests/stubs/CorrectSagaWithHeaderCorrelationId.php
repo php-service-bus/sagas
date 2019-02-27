@@ -20,11 +20,12 @@ use ServiceBus\Sagas\Saga;
 /**
  * @SagaHeader(
  *     idClass="ServiceBus\Sagas\Tests\stubs\TestSagaId",
- *     containingIdProperty="requestId",
+ *     containingIdSource="headers",
+ *     containingIdProperty="saga-correlation-id",
  *     expireDateModifier="+1 year"
  * )
  */
-final class CorrectSaga extends Saga
+final class CorrectSagaWithHeaderCorrelationId extends Saga
 {
     /**
      * @var string|null
@@ -105,10 +106,6 @@ final class CorrectSaga extends Saga
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @SagaEventListener(
-     *     containingIdProperty="key"
-     * )
-     *
      * @param EventWithKey $event
      *
      * @throws \Throwable
@@ -123,10 +120,6 @@ final class CorrectSaga extends Saga
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
-     *
-     * @SagaEventListener(
-     *     containingIdProperty="key"
-     * )
      *
      * @param SecondEventWithKey $event
      *

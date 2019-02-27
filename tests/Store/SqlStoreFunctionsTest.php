@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -12,9 +12,9 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Store;
 
+use function ServiceBus\Sagas\Store\Sql\unserializeSaga;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Sagas\Store\Exceptions\SagaSerializationError;
-use function ServiceBus\Sagas\Store\Sql\unserializeSaga;
 
 /**
  *
@@ -24,9 +24,9 @@ final class SqlStoreFunctionsTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function incorrectBase64(): void
     {
@@ -38,9 +38,9 @@ final class SqlStoreFunctionsTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function incorrectSerializedObject(): void
     {

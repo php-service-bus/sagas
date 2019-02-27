@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,20 +13,20 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Configuration;
 
 /**
- * Retrieving saga configuration and event handlers
+ * Retrieving saga configuration and event handlers.
  */
 interface SagaConfigurationLoader
 {
     /**
-     * Retrieving saga configuration and event handlers
+     * Retrieving saga configuration and event handlers.
      *
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
      * @param string $sagaClass
      *
-     * @return SagaConfiguration
-     *
      * @throws \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
+     *
+     * @return SagaConfiguration
      */
     public function load(string $sagaClass): SagaConfiguration;
 }

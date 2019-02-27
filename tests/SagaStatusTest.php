@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -24,9 +24,9 @@ final class SagaStatusTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function withInvalidStatus(): void
     {
@@ -39,57 +39,57 @@ final class SagaStatusTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function expired(): void
     {
-        static::assertEquals('expired', (string) SagaStatus::expired());
+        static::assertSame('expired', (string) SagaStatus::expired());
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function failed(): void
     {
-        static::assertEquals('failed', (string) SagaStatus::failed());
+        static::assertSame('failed', (string) SagaStatus::failed());
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function completed(): void
     {
-        static::assertEquals('completed', (string) SagaStatus::completed());
+        static::assertSame('completed', (string) SagaStatus::completed());
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function created(): void
     {
-        static::assertEquals('in_progress', (string) SagaStatus::created());
+        static::assertSame('in_progress', (string) SagaStatus::created());
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function equals(): void
     {

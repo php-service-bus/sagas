@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -38,7 +38,7 @@ final class SQLSagaStoreTest extends TestCase
     private $store;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -55,7 +55,7 @@ final class SQLSagaStoreTest extends TestCase
         wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/extensions.sql')));
         wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')));
 
-        foreach(\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
+        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {
             wait($this->adapter->execute($indexQuery));
         }
@@ -64,7 +64,7 @@ final class SQLSagaStoreTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -78,9 +78,9 @@ final class SQLSagaStoreTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function obtain(): void
     {
@@ -94,15 +94,15 @@ final class SQLSagaStoreTest extends TestCase
 
         static::assertNotNull($loadedSaga);
         static::assertInstanceOf(CorrectSaga::class, $loadedSaga);
-        static::assertEquals($id, $loadedSaga->id());
+        static::assertSame($id->id, $loadedSaga->id()->id);
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function remove(): void
     {
@@ -121,9 +121,9 @@ final class SQLSagaStoreTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function removeUnExistsSaga(): void
     {
@@ -133,9 +133,9 @@ final class SQLSagaStoreTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function saveDuplicate(): void
     {
@@ -151,9 +151,9 @@ final class SQLSagaStoreTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function update(): void
     {
@@ -169,15 +169,15 @@ final class SQLSagaStoreTest extends TestCase
         /** @var CorrectSaga|null $loadedSaga */
         $loadedSaga = wait($this->store->obtain($id));
 
-        static::assertEquals($loadedSaga->value(), 'qwerty');
+        static::assertSame($loadedSaga->value(), 'qwerty');
     }
 
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function updateUnExistsSaga(): void
     {

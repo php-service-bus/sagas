@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -25,10 +25,9 @@ use ServiceBus\Sagas\Saga;
 final class CorrectSagaWithoutListeners extends Saga
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function start(object $command): void
     {
-
     }
 }

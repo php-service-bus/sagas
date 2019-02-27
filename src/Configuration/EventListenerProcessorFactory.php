@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -18,7 +18,7 @@ namespace ServiceBus\Sagas\Configuration;
 interface EventListenerProcessorFactory
 {
     /**
-     * Create handler for event
+     * Create handler for event.
      *
      * @param string              $event
      * @param SagaListenerOptions $listenerOptions

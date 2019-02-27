@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -33,7 +33,7 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function createProcessor(string $event, SagaListenerOptions $listenerOptions): EventProcessor
     {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -22,5 +22,4 @@ use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
  */
 final class SagaWrongIdClassSpecified
 {
-
 }

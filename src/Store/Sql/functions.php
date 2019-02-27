@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -36,9 +36,10 @@ function serializeSaga(Saga $saga): string
  *
  * @param string $serializedContent
  *
+ * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
+ *
  * @return Saga
  *
- * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
  */
 function unserializeSaga(string $serializedContent): Saga
 {
@@ -47,23 +48,23 @@ function unserializeSaga(string $serializedContent): Saga
         $decoded = \base64_decode($serializedContent);
 
         // @codeCoverageIgnoreStart
-        if(false === $decoded)
+        if (false === $decoded)
         {
             throw new \LogicException('Incorrect base64 content');
         }
         // @codeCoverageIgnoreEnd
 
-        /** @var Saga|bool $unserialized */
+        /** @var bool|Saga $unserialized */
         $unserialized = \unserialize($decoded, ['allowed_classes' => true]);
 
-        if($unserialized instanceof Saga)
+        if ($unserialized instanceof Saga)
         {
             return $unserialized;
         }
 
         throw new \LogicException('Content must be a serialized saga object');
     }
-    catch(\Throwable $throwable)
+    catch (\Throwable $throwable)
     {
         throw SagaSerializationError::fromThrowable($throwable);
     }

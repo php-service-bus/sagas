@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -15,26 +15,29 @@ namespace ServiceBus\Sagas;
 use ServiceBus\Sagas\Exceptions\InvalidSagaStatus;
 
 /**
- * SagaStatus of the saga
+ * SagaStatus of the saga.
  *
  * @internal
  */
 final class SagaStatus
 {
     private const STATUS_IN_PROGRESS = 'in_progress';
+
     private const STATUS_COMPLETED   = 'completed';
+
     private const STATUS_FAILED      = 'failed';
+
     private const STATUS_EXPIRED     = 'expired';
 
     private const LIST               = [
         self::STATUS_IN_PROGRESS,
         self::STATUS_COMPLETED,
         self::STATUS_FAILED,
-        self::STATUS_EXPIRED
+        self::STATUS_EXPIRED,
     ];
 
     /**
-     * SagaStatus ID
+     * SagaStatus ID.
      *
      * @var string
      */
@@ -43,13 +46,14 @@ final class SagaStatus
     /**
      * @param string $value
      *
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaStatus
+     *
      * @return self
      *
-     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaStatus
      */
     public static function create(string $value): self
     {
-        if(false === \in_array($value, self::LIST, true))
+        if (false === \in_array($value, self::LIST, true))
         {
             throw InvalidSagaStatus::create($value);
         }
@@ -58,7 +62,7 @@ final class SagaStatus
     }
 
     /**
-     * Create a new saga status
+     * Create a new saga status.
      *
      * @return self
      */
@@ -68,7 +72,7 @@ final class SagaStatus
     }
 
     /**
-     * Creating the status of a successfully completed saga
+     * Creating the status of a successfully completed saga.
      *
      * @return self
      */
@@ -78,7 +82,7 @@ final class SagaStatus
     }
 
     /**
-     * Creating the status of an error-complete saga
+     * Creating the status of an error-complete saga.
      *
      * @return self
      */
@@ -88,7 +92,7 @@ final class SagaStatus
     }
 
     /**
-     * Creation of the status of the expired life of the saga
+     * Creation of the status of the expired life of the saga.
      *
      * @return self
      */
@@ -98,7 +102,7 @@ final class SagaStatus
     }
 
     /**
-     * Is processing status
+     * Is processing status.
      *
      * @return bool
      */

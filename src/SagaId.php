@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -16,7 +16,7 @@ use function ServiceBus\Common\uuid;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 
 /**
- * Base saga id class
+ * Base saga id class.
  *
  * @property-read string $id
  * @property-read string $sagaClass
@@ -24,16 +24,17 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 abstract class SagaId
 {
     /**
-     * Identifier
+     * Identifier.
      *
      * @var string
      */
     public $id;
 
     /**
-     * Saga class
+     * Saga class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
+     *
      * @var string
      */
     public $sagaClass;
@@ -43,9 +44,10 @@ abstract class SagaId
      *
      * @param string $sagaClass
      *
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
+     *
      * @return static
      *
-     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     public static function new(string $sagaClass): self
     {
@@ -63,13 +65,13 @@ abstract class SagaId
      */
     final public function __construct(string $id, string $sagaClass)
     {
-        if('' === $id)
+        if ('' === $id)
         {
             throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 
         /** @psalm-suppress DocblockTypeContradiction */
-        if('' === $sagaClass || false === \class_exists($sagaClass))
+        if ('' === $sagaClass || false === \class_exists($sagaClass))
         {
             throw InvalidSagaIdentifier::invalidSagaClass($sagaClass);
         }

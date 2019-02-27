@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,7 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Exceptions;
 
 /**
- * Incorrect saga status indicated
+ * Incorrect saga status indicated.
  */
 class InvalidSagaStatus extends \InvalidArgumentException
 {

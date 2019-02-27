@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -16,19 +16,19 @@ use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
 
 /**
- * Saga event listener processor
+ * Saga event listener processor.
  */
 interface EventProcessor
 {
     /**
-     * Receipt of the event for which the handler was created
+     * Receipt of the event for which the handler was created.
      *
      * @return string
      */
     public function event(): string;
 
     /**
-     * Invoke saga listener
+     * Invoke saga listener.
      *
      * @param object             $event
      * @param ServiceBusContext $context

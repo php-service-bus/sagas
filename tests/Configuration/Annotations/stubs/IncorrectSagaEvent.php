@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -17,5 +17,4 @@ namespace ServiceBus\Sagas\Tests\Configuration\Annotations\stubs;
  */
 final class IncorrectSagaEvent
 {
-
 }

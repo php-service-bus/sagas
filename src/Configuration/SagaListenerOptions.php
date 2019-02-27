@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -15,35 +15,48 @@ namespace ServiceBus\Sagas\Configuration;
 use ServiceBus\Common\MessageExecutor\MessageHandlerOptions;
 
 /**
- * Specified for each listener options
+ * Specified for each listener options.
  */
 final class SagaListenerOptions implements MessageHandlerOptions
 {
     /**
+     * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string|null
+     */
+    private $containingIdentifierSource;
+
+    /**
      * If a value is specified for a particular listener, then it will be used. Otherwise, the value will be obtained
-     * from the global parameters of the saga
+     * from the global parameters of the saga.
      *
      * @var string|null
      */
     private $containingIdentifierProperty;
 
     /**
-     * Basic information about saga
+     * Basic information about saga.
      *
      * @var SagaMetadata
      */
     private $sagaMetadata;
 
     /**
+     * @param string       $containingIdentifierSource
      * @param string       $containingIdentifierProperty
      * @param SagaMetadata $metadata
      *
      * @return self
      */
-    public static function withCustomContainingIdentifierProperty(string $containingIdentifierProperty, SagaMetadata $metadata): self
+    public static function withCustomContainingIdentifierProperty(
+        string $containingIdentifierSource,
+        string $containingIdentifierProperty,
+        SagaMetadata $metadata
+    ): self
     {
         $self = new self($metadata);
 
+        $self->containingIdentifierSource   = $containingIdentifierSource;
         $self->containingIdentifierProperty = $containingIdentifierProperty;
 
         return $self;
@@ -60,9 +73,10 @@ final class SagaListenerOptions implements MessageHandlerOptions
     }
 
     /**
-     * Receive saga class
+     * Receive saga class.
      *
      * @psalm-return class-string<\ServiceBus\Sagas\Saga>
+     *
      * @return string
      */
     public function sagaClass(): string
@@ -71,9 +85,10 @@ final class SagaListenerOptions implements MessageHandlerOptions
     }
 
     /**
-     * Receive identifier class
+     * Receive identifier class.
      *
      * @psalm-return class-string<\ServiceBus\Sagas\SagaId>
+     *
      * @return string
      */
     public function identifierClass(): string
@@ -82,7 +97,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
     }
 
     /**
-     * Receive the name of the event property that contains the saga ID
+     * Receive the name of the event property that contains the saga ID.
      *
      * @return string
      */
@@ -90,10 +105,25 @@ final class SagaListenerOptions implements MessageHandlerOptions
     {
         if(null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierProperty)
         {
-            return $this->containingIdentifierProperty;
+            return (string) $this->containingIdentifierProperty;
         }
 
         return $this->sagaMetadata->containingIdentifierProperty;
+    }
+
+    /**
+     * Receive place to look for a correlation identifier.
+     *
+     * @return string
+     */
+    public function containingIdentifierSource(): string
+    {
+        if(null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierSource)
+        {
+            return (string) $this->containingIdentifierSource;
+        }
+
+        return $this->sagaMetadata->containingIdentifierSource;
     }
 
     /**

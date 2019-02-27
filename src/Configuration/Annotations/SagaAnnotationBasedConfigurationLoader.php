@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration\Annotations;
 
+use function ServiceBus\Sagas\createEventListenerName;
 use ServiceBus\AnnotationsReader\Annotation;
 use ServiceBus\AnnotationsReader\AnnotationCollection;
 use ServiceBus\AnnotationsReader\AnnotationsReader;
@@ -24,16 +25,15 @@ use ServiceBus\Sagas\Configuration\SagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
 use ServiceBus\Sagas\Configuration\SagaListenerOptions;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
-use function ServiceBus\Sagas\createEventListenerName;
 
 /**
- * Annotation based saga configuration loader
+ * Annotation based saga configuration loader.
  */
 final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationLoader
 {
     private const SUPPORTED_TYPES = [
         SagaHeader::class,
-        SagaEventListener::class
+        SagaEventListener::class,
     ];
 
     /**
@@ -55,21 +55,19 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     public function __construct(
         EventListenerProcessorFactory $eventListenerProcessorFactory,
         ?AnnotationsReader $annotationReader = null
-    )
-    {
+    ) {
         $this->eventListenerProcessorFactory = $eventListenerProcessorFactory;
         $this->annotationReader              = $annotationReader ?? new DoctrineAnnotationsReader(null, ['psalm']);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function load(string $sagaClass): SagaConfiguration
     {
         try
         {
             /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
-
             $annotations = $this->annotationReader
                 ->extract($sagaClass)
                 ->filter(
@@ -92,22 +90,23 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             return SagaConfiguration::create($sagaMetadata, $handlersCollection);
         }
-        catch(\Throwable $throwable)
+        catch (\Throwable $throwable)
         {
             throw InvalidSagaConfiguration::fromThrowable($throwable);
         }
     }
 
     /**
-     * Collect a saga event handlers
+     * Collect a saga event handlers.
      *
      * @param AnnotationCollection $annotationCollection
      * @param SagaMetadata         $sagaMetadata
      *
      * @psalm-return \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
-     * @return \SplObjectStorage
      *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
+     *
+     * @return \SplObjectStorage
      */
     private function collectSagaEventHandlers(AnnotationCollection $annotationCollection, SagaMetadata $sagaMetadata): \SplObjectStorage
     {
@@ -121,7 +120,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         );
 
         /** @var Annotation $methodAnnotation */
-        foreach($methodAnnotations as $methodAnnotation)
+        foreach ($methodAnnotations as $methodAnnotation)
         {
             $handlersCollection->attach(
                 $this->createMessageHandler($methodAnnotation, $sagaMetadata)
@@ -134,14 +133,14 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     }
 
     /**
-     * Create a saga event handler
+     * Create a saga event handler.
      *
      * @param Annotation   $annotation
      * @param SagaMetadata $sagaMetadata
      *
-     * @return MessageHandler
-     *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
+     *
+     * @return MessageHandler
      */
     private function createMessageHandler(Annotation $annotation, SagaMetadata $sagaMetadata): MessageHandler
     {
@@ -150,6 +149,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         $listenerOptions = true === $listenerAnnotation->hasContainingIdProperty()
             ? SagaListenerOptions::withCustomContainingIdentifierProperty(
+                (string) $listenerAnnotation->containingIdSource,
                 (string) $listenerAnnotation->containingIdProperty,
                 $sagaMetadata
             )
@@ -158,10 +158,11 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         /** @var \ReflectionMethod $eventListenerReflectionMethod */
         $eventListenerReflectionMethod = $annotation->reflectionMethod;
 
-        $eventClass         = $this->extractEventClass($eventListenerReflectionMethod);
+        $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
+
         $expectedMethodName = createEventListenerName($eventClass);
 
-        if($expectedMethodName === $eventListenerReflectionMethod->name)
+        if ($expectedMethodName === $eventListenerReflectionMethod->name)
         {
             /** @var \ReflectionMethod $reflectionMethod */
             $reflectionMethod = $annotation->reflectionMethod;
@@ -176,32 +177,34 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure */
 
-            return MessageHandler::create($closure, $reflectionMethod, $listenerOptions);
+            return MessageHandler::create($eventClass, $closure, $reflectionMethod, $listenerOptions);
         }
 
         throw InvalidSagaEventListenerMethod::unexpectedName($expectedMethodName, $eventListenerReflectionMethod->name);
     }
 
     /**
-     * Search for an event class among method arguments
+     * Search for an event class among method arguments.
+     *
+     * @psalm-return class-string
      *
      * @param \ReflectionMethod $reflectionMethod
      *
-     * @return string
-     *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
+     *
+     * @return string
      */
     private function extractEventClass(\ReflectionMethod $reflectionMethod): string
     {
         $reflectionParameters = $reflectionMethod->getParameters();
 
-        if(1 === \count($reflectionParameters))
+        if (1 === \count($reflectionParameters))
         {
             $firstArgumentClass = true === isset($reflectionParameters[0]) && null !== $reflectionParameters[0]->getClass()
                 ? $reflectionParameters[0]->getClass()
                 : null;
 
-            if(null !== $firstArgumentClass)
+            if (null !== $firstArgumentClass)
             {
                 /** @var \ReflectionClass $reflectionClass */
                 $reflectionClass = $reflectionParameters[0]->getClass();
@@ -222,59 +225,68 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     }
 
     /**
-     * Collect metadata information
+     * Collect metadata information.
      *
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
      * @param string     $sagaClass
      * @param SagaHeader $sagaHeader
      *
-     * @return SagaMetadata
-     *
      * @throws \InvalidArgumentException
+     *
+     * @return SagaMetadata
      */
     private static function createSagaMetadata(string $sagaClass, SagaHeader $sagaHeader): SagaMetadata
     {
-        if(
+        if (
             false === $sagaHeader->hasIdClass() ||
             false === \class_exists((string) $sagaHeader->idClass)
-        )
-        {
+        ) {
             throw new \InvalidArgumentException(
                 \sprintf(
-                    'In the meta data of the saga "%s" an incorrect value of the "idClass"', $sagaClass
+                    'In the meta data of the saga "%s" an incorrect value of the "idClass"',
+                    $sagaClass
                 )
             );
+        }
+
+        $containingIdentifierSource = SagaMetadata::CORRELATION_ID_SOURCE_EVENT;
+
+        if ('' !== (string) $sagaHeader->containingIdSource)
+        {
+            /** @psalm-suppress PossiblyNullArgument */
+            $containingIdentifierSource = \strtolower($sagaHeader->containingIdSource);
         }
 
         return SagaMetadata::create(
             $sagaClass,
             $sagaHeader->idClass,
+            $containingIdentifierSource,
             (string) $sagaHeader->containingIdProperty,
             (string) $sagaHeader->expireDateModifier
         );
     }
 
     /**
-     * Search saga header information
+     * Search saga header information.
      *
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
      * @param string               $sagaClass
      * @param AnnotationCollection $annotationCollection
      *
-     * @return SagaHeader
-     *
      * @throws \InvalidArgumentException
+     *
+     * @return SagaHeader
      */
     private static function searchSagaHeader(string $sagaClass, AnnotationCollection $annotationCollection): SagaHeader
     {
         /** @var \ServiceBus\AnnotationsReader\Annotation $annotation */
-        foreach($annotationCollection->classLevelAnnotations() as $annotation)
+        foreach ($annotationCollection->classLevelAnnotations() as $annotation)
         {
             $annotationObject = $annotation->annotationObject;
 
-            if($annotationObject instanceof SagaHeader)
+            if ($annotationObject instanceof SagaHeader)
             {
                 return $annotationObject;
             }

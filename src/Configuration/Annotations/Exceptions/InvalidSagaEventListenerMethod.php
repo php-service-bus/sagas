@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -57,7 +57,7 @@ final class InvalidSagaEventListenerMethod extends \LogicException
      */
     public static function unexpectedName(string $expected, string $actual): self
     {
-        return new self( \sprintf(
+        return new self(\sprintf(
             'Invalid method name of the event listener: "%s". Expected: %s',
             $actual,
             $expected

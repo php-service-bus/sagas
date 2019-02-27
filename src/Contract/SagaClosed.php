@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -15,40 +15,40 @@ namespace ServiceBus\Sagas\Contract;
 use ServiceBus\Sagas\SagaId;
 
 /**
- * The saga was completed
+ * The saga was completed.
  */
 final class SagaClosed
 {
     /**
-     * Saga identifier
+     * Saga identifier.
      *
      * @var string
      */
     public $id;
 
     /**
-     * Saga identifier class
+     * Saga identifier class.
      *
      * @var string
      */
     public $idClass;
 
     /**
-     * Saga class
+     * Saga class.
      *
      * @var string
      */
     public $sagaClass;
 
     /**
-     * Reason for closing the saga
+     * Reason for closing the saga.
      *
      * @var string|null
      */
     public $withReason;
 
     /**
-     * Operation datetime
+     * Operation datetime.
      *
      * @var \DateTimeImmutable
      */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -24,9 +24,9 @@ final class SagaIdTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function createWithEmptyIdValue(): void
     {
@@ -35,7 +35,6 @@ final class SagaIdTest extends TestCase
 
         new class('', __METHOD__) extends SagaId
         {
-
         };
     }
 
@@ -50,7 +49,6 @@ final class SagaIdTest extends TestCase
 
         new class('qwerty', __METHOD__) extends SagaId
         {
-
         };
     }
 
@@ -65,7 +63,6 @@ final class SagaIdTest extends TestCase
 
         new class('qwerty', '') extends SagaId
         {
-
         };
     }
 }

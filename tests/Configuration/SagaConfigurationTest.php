@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -26,7 +26,10 @@ final class SagaConfigurationTest extends TestCase
     /**
      * @test
      *
+     * @throws \Throwable
+     *
      * @return void
+     *
      */
     public function successCreate(): void
     {
@@ -34,6 +37,7 @@ final class SagaConfigurationTest extends TestCase
             SagaMetadata::create(
                 Saga::class,
                 SagaId::class,
+                'event',
                 'correlationId',
                 '+1 days'
             ),

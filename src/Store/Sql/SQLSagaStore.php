@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,9 +13,15 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Store\Sql;
 
 use function Amp\call;
-use Amp\Promise;
 use function ServiceBus\Common\datetimeToString;
 use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Storage\Sql\deleteQuery;
+use function ServiceBus\Storage\Sql\equalsCriteria;
+use function ServiceBus\Storage\Sql\fetchOne;
+use function ServiceBus\Storage\Sql\insertQuery;
+use function ServiceBus\Storage\Sql\selectQuery;
+use function ServiceBus\Storage\Sql\updateQuery;
+use Amp\Promise;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\Exceptions\DuplicateSaga;
@@ -23,15 +29,9 @@ use ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed;
 use ServiceBus\Sagas\Store\SagasStore;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
-use function ServiceBus\Storage\Sql\deleteQuery;
-use function ServiceBus\Storage\Sql\equalsCriteria;
-use function ServiceBus\Storage\Sql\fetchOne;
-use function ServiceBus\Storage\Sql\insertQuery;
-use function ServiceBus\Storage\Sql\selectQuery;
-use function ServiceBus\Storage\Sql\updateQuery;
 
 /**
- * Sql sagas storage
+ * Sql sagas storage.
  */
 final class SQLSagaStore implements SagasStore
 {
@@ -53,7 +53,7 @@ final class SQLSagaStore implements SagasStore
     /**
      * @psalm-suppress MixedTypeCoercion
      *
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function obtain(SagaId $id): Promise
     {
@@ -64,7 +64,7 @@ final class SQLSagaStore implements SagasStore
                 /** @var array{payload:string}|null $result */
                 $result = yield from $this->doLoadEntry($id);
 
-                if(null === $result)
+                if (null === $result)
                 {
                     return null;
                 }
@@ -80,7 +80,7 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function save(Saga $saga): Promise
     {
@@ -102,7 +102,7 @@ final class SQLSagaStore implements SagasStore
                     'state_id'         => (string) $status,
                     'created_at'       => datetimeToString($saga->createdAt()),
                     'expiration_date'  => datetimeToString($saga->expireDate()),
-                    'closed_at'        => datetimeToString($saga->closedAt())
+                    'closed_at'        => datetimeToString($saga->closedAt()),
                 ]);
 
                 $compiledQuery = $insertQuery->compile();
@@ -117,7 +117,7 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(Saga $saga): Promise
     {
@@ -131,7 +131,7 @@ final class SQLSagaStore implements SagasStore
                 $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
                     'payload'   => serializeSaga($saga),
                     'state_id'  => (string) $status,
-                    'closed_at' => datetimeToString($saga->closedAt())
+                    'closed_at' => datetimeToString($saga->closedAt()),
                 ])
                     ->where(equalsCriteria('id', $saga->id()))
                     ->andWhere(equalsCriteria('identifier_class', \get_class($saga->id())));
@@ -148,7 +148,7 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function remove(SagaId $id): Promise
     {
@@ -172,13 +172,14 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
-     * Load saga entry
+     * Load saga entry.
      *
      * @param SagaId $id
      *
+     * @throws SagasStoreInteractionFailed
+     *
      * @return \Generator
      *
-     * @throws SagasStoreInteractionFailed
      */
     private function doLoadEntry(SagaId $id): \Generator
     {
@@ -201,7 +202,7 @@ final class SQLSagaStore implements SagasStore
 
             return $result;
         }
-        catch(\Throwable $throwable)
+        catch (\Throwable $throwable)
         {
             throw SagasStoreInteractionFailed::fromThrowable($throwable);
         }
@@ -211,10 +212,11 @@ final class SQLSagaStore implements SagasStore
      * @param string $query
      * @param array  $parameters
      *
-     * @return \Generator
-     *
      * @throws \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
+     *
+     * @return \Generator
+     *
      */
     private function doExecuteQuery(string $query, array $parameters): \Generator
     {
@@ -222,17 +224,19 @@ final class SQLSagaStore implements SagasStore
         {
             /**
              * @psalm-suppress TooManyTemplateParams Wrong Promise template
+             * @psalm-suppress MixedTypeCoercion Invalid params() docblock
+             *
              * @var \ServiceBus\Storage\Common\ResultSet $resultSet
              */
             $resultSet = yield $this->adapter->execute($query, $parameters);
 
             return $resultSet;
         }
-        catch(UniqueConstraintViolationCheckFailed $exception)
+        catch (UniqueConstraintViolationCheckFailed $exception)
         {
             throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
         }
-        catch(\Throwable $throwable)
+        catch (\Throwable $throwable)
         {
             throw SagasStoreInteractionFailed::fromThrowable($throwable);
         }

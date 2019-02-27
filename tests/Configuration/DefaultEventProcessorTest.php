@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -13,8 +13,8 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests\Configuration;
 
 use function Amp\Promise\wait;
-use PHPUnit\Framework\TestCase;
 use function ServiceBus\Common\invokeReflectionMethod;
+use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
@@ -22,6 +22,7 @@ use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
+use ServiceBus\Sagas\Tests\stubs\CorrectSagaWithHeaderCorrelationId;
 use ServiceBus\Sagas\Tests\stubs\EmptyEvent;
 use ServiceBus\Sagas\Tests\stubs\EventWithKey;
 use ServiceBus\Sagas\Tests\stubs\SecondEventWithKey;
@@ -57,7 +58,7 @@ final class DefaultEventProcessorTest extends TestCase
     private $configLoader;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -84,7 +85,7 @@ final class DefaultEventProcessorTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -98,9 +99,9 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function successExecute(): void
     {
@@ -109,7 +110,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait($this->store->save($saga));
 
-        $context = new TestContext;
+        $context = new TestContext();
 
         $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
@@ -130,15 +131,80 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      *
+     * @throws \Throwable
+     *
      * @return void
+     */
+    public function successExecuteWithHeaderValue(): void
+    {
+        $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
+        $saga = new CorrectSagaWithHeaderCorrelationId($id);
+
+        wait($this->store->save($saga));
+
+        $context                                 = new TestContext();
+        $context->headers['saga-correlation-id'] = (string) $id;
+
+        $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
+
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
+
+        wait(($handler->closure)(new EventWithKey('qwerty'), $context));
+
+        $messages = $context->messages;
+
+        /** @var SecondEventWithKey $event */
+        $event = \end($messages);
+
+        static::assertInstanceOf(SecondEventWithKey::class, $event);
+        static::assertSame('qwerty', $event->key);
+    }
+
+    /**
+     * @test
      *
      * @throws \Throwable
+     *
+     * @return void
+     */
+    public function executeWithoutHeaderValue(): void
+    {
+        $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
+        $saga = new CorrectSagaWithHeaderCorrelationId($id);
+
+        wait($this->store->save($saga));
+
+        $context = new TestContext();
+
+        $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
+
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[0];
+
+        wait(($handler->closure)(new EventWithKey('qwerty'), $context));
+
+        $records = $context->logger->records;
+
+        static::assertCount(1, $records);
+        static::assertSame(
+            'The value of the "saga-correlation-id" header key can\'t be empty, since it is the saga id',
+            $records[0]['context']['throwableMessage']
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
      */
     public function executeWithoutSaga(): void
     {
         $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
 
-        $context = new TestContext;
+        $context = new TestContext();
 
         $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
@@ -151,8 +217,8 @@ final class DefaultEventProcessorTest extends TestCase
 
         static::assertSame(EventWithKey::class, $handler->messageClass);
         static::assertCount(1, $records);
-        static::assertEquals('Error in applying event to saga: "{throwableMessage}"', $records[0]['message']);
-        static::assertEquals(
+        static::assertSame('Error in applying event to saga: "{throwableMessage}"', $records[0]['message']);
+        static::assertSame(
             'Attempt to apply event to non-existent saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
             $records[0]['context']['throwableMessage']
         );
@@ -161,9 +227,9 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function executeWithoutCorrelationId(): void
     {
@@ -172,7 +238,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait($this->store->save($saga));
 
-        $context = new TestContext;
+        $context = new TestContext();
 
         $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
@@ -193,9 +259,9 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function executeWithEmptyCorrelationId(): void
     {
@@ -204,7 +270,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait($this->store->save($saga));
 
-        $context = new TestContext;
+        $context = new TestContext();
 
         $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
@@ -225,9 +291,9 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function executeWithCompletedSaga(): void
     {
@@ -238,7 +304,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait($this->store->save($saga));
 
-        $context = new TestContext;
+        $context = new TestContext();
 
         $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 

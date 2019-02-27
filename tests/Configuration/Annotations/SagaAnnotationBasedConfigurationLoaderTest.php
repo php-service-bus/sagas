@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Saga pattern implementation
+ * Saga pattern implementation.
  *
  * @author  Maksim Masiukevich <dev@async-php.com>
  * @license MIT
@@ -54,7 +54,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     private $listenerFactory;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -68,7 +68,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
         wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../../src/Store/Sql/schema/sagas_store.sql')));
 
-        foreach(\file(__DIR__ . '/../../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
+        foreach (\file(__DIR__ . '/../../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {
             wait($this->adapter->execute($indexQuery));
         }
@@ -78,7 +78,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @throws \Throwable
      */
@@ -92,9 +92,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithoutAnnotations(): void
     {
@@ -102,7 +102,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
         $object = new class()
         {
-
         };
 
         (new SagaAnnotationBasedConfigurationLoader($this->listenerFactory))->load(\get_class($object));
@@ -111,16 +110,17 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithIncorrectHeaderAnnotationData(): void
     {
         $this->expectException(InvalidSagaConfiguration::class);
         $this->expectExceptionMessage(
             \sprintf(
-                'In the meta data of the saga "%s" an incorrect value of the "idClass"', SagaWrongIdClassSpecified::class
+                'In the meta data of the saga "%s" an incorrect value of the "idClass"',
+                SagaWrongIdClassSpecified::class
             )
         );
 
@@ -131,9 +131,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithoutListeners(): void
     {
@@ -147,9 +147,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function correctSagaWithListeners(): void
     {
@@ -160,7 +160,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
         static::assertNotEmpty($result);
         static::assertCount(3, $result);
 
-        foreach($result as $messageHandler)
+        foreach ($result as $messageHandler)
         {
             static::assertInstanceOf(MessageHandler::class, $messageHandler);
         }
@@ -169,9 +169,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithUnExistsEventClass(): void
     {
@@ -184,9 +184,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithToManyListenerArguments(): void
     {
@@ -199,9 +199,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithIncorrectListenerClass(): void
     {
@@ -212,9 +212,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithMultipleListenerArgs(): void
     {
@@ -234,9 +234,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithInvalidListenerArgument(): void
     {
@@ -250,9 +250,9 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      *
-     * @return void
-     *
      * @throws \Throwable
+     *
+     * @return void
      */
     public function sagaWithIncorrectListenerName(): void
     {
