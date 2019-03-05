@@ -99,7 +99,11 @@ final class DefaultEventProcessor implements EventProcessor
 
                     $mutex = $this->mutexFactory->create(createMutexKey($id));
 
-                    /** @var Lock $lock */
+                    /**
+                     * @psalm-suppress TooManyTemplateParams
+                     *
+                     * @var Lock $lock
+                     */
                     $lock = yield $mutex->acquire();
 
                     /** @var \ServiceBus\Sagas\Saga $saga */
