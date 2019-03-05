@@ -29,3 +29,15 @@ function createEventListenerName(string $event): string
         \end($eventListenerMethodNameParts)
     );
 }
+
+/**
+ * Create mutex key for saga.
+ *
+ * @param SagaId $id
+ *
+ * @return string
+ */
+function createMutexKey(SagaId $id): string
+{
+    return \sha1(\sprintf('%s:%s', $id->id, $id->sagaClass));
+}

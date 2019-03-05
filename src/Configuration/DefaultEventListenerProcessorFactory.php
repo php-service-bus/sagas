@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Mutex\InMemoryMutexFactory;
 use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Sagas\Store\SagasStore;
 
@@ -31,15 +32,13 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
     private $mutexFactory;
 
     /**
-     * DefaultEventListenerProcessorFactory constructor.
-     *
      * @param SagasStore        $sagaStore
      * @param MutexFactory|null $mutexFactory
      */
     public function __construct(SagasStore $sagaStore, ?MutexFactory $mutexFactory = null)
     {
         $this->sagaStore    = $sagaStore;
-        $this->mutexFactory = $mutexFactory;
+        $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
     /**
