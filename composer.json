@@ -41,7 +41,8 @@
   "require": {
     "php": ">=7.2",
     "php-service-bus/common": "v3.0.8",
-    "php-service-bus/storage-common": "v3.0.8"
+    "php-service-bus/storage-common": "v3.0.8",
+    "php-service-bus/mutex": "v3.0.x-dev"
   },
   "require-dev": {
     "php-service-bus/code-style-config": "^v0.1",

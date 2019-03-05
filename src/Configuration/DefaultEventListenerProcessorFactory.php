@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Sagas\Store\SagasStore;
 
 /**
@@ -25,11 +26,20 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
     private $sagaStore;
 
     /**
-     * @param SagasStore $sagaStore
+     * @var MutexFactory
      */
-    public function __construct(SagasStore $sagaStore)
+    private $mutexFactory;
+
+    /**
+     * DefaultEventListenerProcessorFactory constructor.
+     *
+     * @param SagasStore        $sagaStore
+     * @param MutexFactory|null $mutexFactory
+     */
+    public function __construct(SagasStore $sagaStore, ?MutexFactory $mutexFactory = null)
     {
-        $this->sagaStore = $sagaStore;
+        $this->sagaStore    = $sagaStore;
+        $this->mutexFactory = $mutexFactory;
     }
 
     /**
@@ -38,6 +48,6 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
     public function createProcessor(string $event, SagaListenerOptions $listenerOptions): EventProcessor
     {
         /** @var class-string $event */
-        return new DefaultEventProcessor($event, $this->sagaStore, $listenerOptions);
+        return new DefaultEventProcessor($event, $this->sagaStore, $listenerOptions, $this->mutexFactory);
     }
 }
