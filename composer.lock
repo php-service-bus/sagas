@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f4e691d3678bef981a6e8f2f973866c",
+    "content-hash": "7357f47d324d765795e9aabbf087fc65",
     "packages": [
         {
             "name": "amphp/amp",
@@ -533,16 +533,16 @@
         },
         {
             "name": "php-service-bus/mutex",
-            "version": "v3.0.x-dev",
+            "version": "v3.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "03bdc8ee73593960ec69646107dcb41f95328125"
+                "reference": "95ee90e99b8a052f306c62ec34d862d073060d51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/03bdc8ee73593960ec69646107dcb41f95328125",
-                "reference": "03bdc8ee73593960ec69646107dcb41f95328125",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/95ee90e99b8a052f306c62ec34d862d073060d51",
+                "reference": "95ee90e99b8a052f306c62ec34d862d073060d51",
                 "shasum": ""
             },
             "require": {
@@ -579,7 +579,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-03-06T07:52:53+00:00"
+            "time": "2019-03-06T08:23:46+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
@@ -4311,9 +4311,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "php-service-bus/mutex": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
