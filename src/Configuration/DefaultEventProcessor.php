@@ -127,7 +127,7 @@ final class DefaultEventProcessor implements EventProcessor
 
                     yield from $this->deliveryMessages($context, $commands, $events);
 
-                    $lock->release();
+                    yield $lock->release();
                 }
                 catch (\Throwable $throwable)
                 {
@@ -200,13 +200,12 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     *
      * @param SagaId $id $event
      *
-     * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      * @throws \RuntimeException
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
+     * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      *
      * @return \Generator
      */

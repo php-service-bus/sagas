@@ -537,12 +537,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "696cd8a618238e5f726fc84505495432cf5fb1e4"
+                "reference": "03bdc8ee73593960ec69646107dcb41f95328125"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/696cd8a618238e5f726fc84505495432cf5fb1e4",
-                "reference": "696cd8a618238e5f726fc84505495432cf5fb1e4",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/03bdc8ee73593960ec69646107dcb41f95328125",
+                "reference": "03bdc8ee73593960ec69646107dcb41f95328125",
                 "shasum": ""
             },
             "require": {
@@ -579,7 +579,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-03-05T12:40:19+00:00"
+            "time": "2019-03-06T07:52:53+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
