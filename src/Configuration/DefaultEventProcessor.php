@@ -136,6 +136,7 @@ final class DefaultEventProcessor implements EventProcessor
                         [
                             'eventClass'     => \get_class($event),
                             'throwablePoint' => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
+                            'throwableMessage' => $throwable->getMessage(),
                         ],
                         LogLevel::INFO
                     );
