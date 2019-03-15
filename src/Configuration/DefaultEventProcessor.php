@@ -69,7 +69,8 @@ final class DefaultEventProcessor implements EventProcessor
         SagasStore $sagasStore,
         SagaListenerOptions $sagaListenerOptions,
         MutexFactory $mutexFactory
-    ) {
+    )
+    {
         $this->forEvent            = $forEvent;
         $this->sagasStore          = $sagasStore;
         $this->sagaListenerOptions = $sagaListenerOptions;
@@ -129,16 +130,14 @@ final class DefaultEventProcessor implements EventProcessor
 
                     yield $lock->release();
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     $context->logContextMessage(
-                        'Error in applying event to saga: "{throwableMessage}"',
-                        [
-                            'eventClass'       => \get_class($event),
-                            'throwableMessage' => $throwable->getMessage(),
-                            'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
-                        ],
-                        LogLevel::ERROR
+                        $throwable->getMessage(), [
+                        'eventClass'     => \get_class($event),
+                        'throwablePoint' => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
+                    ],
+                        LogLevel::INFO
                     );
                 }
                 finally
@@ -168,13 +167,13 @@ final class DefaultEventProcessor implements EventProcessor
         $promises = [];
 
         /** @var object $command */
-        foreach ($commands as $command)
+        foreach($commands as $command)
         {
             $promises[] = $context->delivery($command);
         }
 
         /** @var object $event */
-        foreach ($events as $event)
+        foreach($events as $event)
         {
             $promises[] = $context->delivery($event);
         }
@@ -202,12 +201,12 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * @param SagaId $id $event
      *
-     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
+     * @return \Generator
      * @throws \RuntimeException
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      *
-     * @return \Generator
+     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      */
     private function loadSaga(SagaId $id): \Generator
     {
@@ -217,7 +216,7 @@ final class DefaultEventProcessor implements EventProcessor
         /** @var \ServiceBus\Sagas\Saga|null $saga */
         $saga = yield $this->sagasStore->obtain($id);
 
-        if (null === $saga)
+        if(null === $saga)
         {
             throw new \RuntimeException(
                 \sprintf(
@@ -228,7 +227,7 @@ final class DefaultEventProcessor implements EventProcessor
         }
 
         /** Non-expired saga */
-        if ($saga->expireDate() > $currentDatetime)
+        if($saga->expireDate() > $currentDatetime)
         {
             unset($currentDatetime, $id);
 
@@ -245,9 +244,9 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @param array $headers
      *
+     * @return SagaId
      * @throws \RuntimeException
      *
-     * @return SagaId
      */
     private function searchSagaIdentifierInHeaders(array $headers): SagaId
     {
@@ -255,7 +254,7 @@ final class DefaultEventProcessor implements EventProcessor
 
         $headerKeyValue = $headers[$this->sagaListenerOptions->containingIdentifierProperty()] ?? '';
 
-        if ('' !== (string) $headerKeyValue)
+        if('' !== (string) $headerKeyValue)
         {
             /** @var SagaId $id */
             $id = self::identifierInstantiator(
@@ -280,9 +279,9 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @param object $event
      *
+     * @return SagaId
      * @throws \RuntimeException
      *
-     * @return SagaId
      */
     private function searchSagaIdentifierInEvent(object $event): SagaId
     {
@@ -294,7 +293,7 @@ final class DefaultEventProcessor implements EventProcessor
         {
             $propertyValue = self::readEventProperty($event, $propertyName);
         }
-        catch (\Throwable $throwable)
+        catch(\Throwable $throwable)
         {
             throw new \RuntimeException(
                 \sprintf(
@@ -305,7 +304,7 @@ final class DefaultEventProcessor implements EventProcessor
             );
         }
 
-        if ('' !== $propertyValue)
+        if('' !== $propertyValue)
         {
             /** @var SagaId $id */
             $id = self::identifierInstantiator(
@@ -329,16 +328,16 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * @psalm-return class-string<\ServiceBus\Sagas\SagaId>
      *
+     * @return string
      * @throws \RuntimeException
      *
-     * @return string
      */
     private function getSagaIdentifierClass(): string
     {
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
         /** @psalm-suppress RedundantConditionGivenDocblockType */
-        if (true === \class_exists($identifierClass))
+        if(true === \class_exists($identifierClass))
         {
             return $identifierClass;
         }
@@ -362,16 +361,16 @@ final class DefaultEventProcessor implements EventProcessor
      * @param string $idValue
      * @param string $sagaClass
      *
+     * @return SagaId
      * @throws \RuntimeException
      *
-     * @return SagaId
      */
     private static function identifierInstantiator(string $idClass, string $idValue, string $sagaClass): SagaId
     {
         /** @var object|SagaId $identifier */
         $identifier = new $idClass($idValue, $sagaClass);
 
-        if ($identifier instanceof SagaId)
+        if($identifier instanceof SagaId)
         {
             return $identifier;
         }
@@ -391,13 +390,13 @@ final class DefaultEventProcessor implements EventProcessor
      * @param object $event
      * @param string $propertyName
      *
+     * @return string
      * @throws \Throwable Reflection property not found
      *
-     * @return string
      */
     private static function readEventProperty(object $event, string $propertyName): string
     {
-        if (true === isset($event->{$propertyName}))
+        if(true === isset($event->{$propertyName}))
         {
             return (string) $event->{$propertyName};
         }
