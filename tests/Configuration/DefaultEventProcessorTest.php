@@ -217,7 +217,6 @@ final class DefaultEventProcessorTest extends TestCase
 
         static::assertSame(EventWithKey::class, $handler->messageClass);
         static::assertCount(1, $records);
-        static::assertSame('Error in applying event to saga: "{throwableMessage}"', $records[0]['message']);
         static::assertSame(
             'Attempt to apply event to non-existent saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
             $records[0]['context']['throwableMessage']
