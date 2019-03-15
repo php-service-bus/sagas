@@ -16,6 +16,12 @@ use ServiceBus\Sagas\SagaId;
 
 /**
  * New saga created.
+ *
+ * @property-read string             $id
+ * @property-read string             $idClass
+ * @property-read string             $sagaClass
+ * @property-read \DateTimeImmutable $datetime
+ * @property-read \DateTimeImmutable $expirationDate
  */
 final class SagaCreated
 {
@@ -65,14 +71,27 @@ final class SagaCreated
      */
     public static function create(SagaId $sagaId, \DateTimeImmutable $dateTime, \DateTimeImmutable $expirationDate): self
     {
-        $self = new self();
+        return new self((string) $sagaId, \get_class($sagaId), $sagaId->sagaClass, $dateTime, $expirationDate);
+    }
 
-        $self->id             = (string) $sagaId;
-        $self->idClass        = \get_class($sagaId);
-        $self->sagaClass      = $sagaId->sagaClass;
-        $self->datetime       = $dateTime;
-        $self->expirationDate = $expirationDate;
-
-        return $self;
+    /**
+     * @param string             $id
+     * @param string             $idClass
+     * @param string             $sagaClass
+     * @param \DateTimeImmutable $datetime
+     * @param \DateTimeImmutable $expirationDate
+     */
+    private function __construct(
+        string $id,
+        string $idClass,
+        string $sagaClass,
+        \DateTimeImmutable $datetime,
+        \DateTimeImmutable $expirationDate
+    ) {
+        $this->id             = $id;
+        $this->idClass        = $idClass;
+        $this->sagaClass      = $sagaClass;
+        $this->datetime       = $datetime;
+        $this->expirationDate = $expirationDate;
     }
 }

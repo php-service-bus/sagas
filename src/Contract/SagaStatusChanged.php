@@ -17,6 +17,14 @@ use ServiceBus\Sagas\SagaStatus;
 
 /**
  * The status of the saga was changed.
+ *
+ * @property-read string             $id
+ * @property-read string             $idClass
+ * @property-read string             $sagaClass
+ * @property-read string             $previousStatus
+ * @property-read string             $newStatus
+ * @property-read string|null        $withReason
+ * @property-read \DateTimeImmutable $datetime
  */
 final class SagaStatusChanged
 {
@@ -72,7 +80,7 @@ final class SagaStatusChanged
     /**
      * @noinspection PhpDocMissingThrowsInspection
      *
-     * @param SagaId     $sagaId
+     * @param SagaId      $sagaId
      * @param SagaStatus  $currentStatus
      * @param SagaStatus  $newStatus
      * @param string|null $withReason
@@ -85,17 +93,42 @@ final class SagaStatusChanged
         SagaStatus $newStatus,
         ?string $withReason = null
     ): self {
-        $self = new self();
-
-        $self->id             = (string) $sagaId;
-        $self->idClass        = \get_class($sagaId);
-        $self->sagaClass      = $sagaId->sagaClass;
-        $self->previousStatus = (string) $currentStatus;
-        $self->newStatus      = (string) $newStatus;
-        $self->withReason     = $withReason;
         /** @noinspection PhpUnhandledExceptionInspection */
-        $self->datetime = new \DateTimeImmutable('NOW');
+        return new self(
+            (string) $sagaId,
+            \get_class($sagaId),
+            $sagaId->sagaClass,
+            (string) $currentStatus,
+            (string) $newStatus,
+            $withReason,
+            new \DateTimeImmutable('NOW')
+        );
+    }
 
-        return $self;
+    /**
+     * @param string             $id
+     * @param string             $idClass
+     * @param string             $sagaClass
+     * @param string             $previousStatus
+     * @param string             $newStatus
+     * @param string|null        $withReason
+     * @param \DateTimeImmutable $datetime
+     */
+    private function __construct(
+        string $id,
+        string $idClass,
+        string $sagaClass,
+        string $previousStatus,
+        string $newStatus,
+        ?string $withReason,
+        \DateTimeImmutable $datetime
+    ) {
+        $this->id             = $id;
+        $this->idClass        = $idClass;
+        $this->sagaClass      = $sagaClass;
+        $this->previousStatus = $previousStatus;
+        $this->newStatus      = $newStatus;
+        $this->withReason     = $withReason;
+        $this->datetime       = $datetime;
     }
 }
