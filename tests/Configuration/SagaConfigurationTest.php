@@ -29,7 +29,6 @@ final class SagaConfigurationTest extends TestCase
      * @throws \Throwable
      *
      * @return void
-     *
      */
     public function successCreate(): void
     {

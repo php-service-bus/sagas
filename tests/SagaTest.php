@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests;
 
+use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\readReflectionPropertyValue;
 use function ServiceBus\Common\uuid;
@@ -20,6 +21,7 @@ use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
 use ServiceBus\Sagas\Contract\SagaStatusChanged;
 use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
+use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\SagaStatus;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
@@ -251,5 +253,55 @@ class SagaTest extends TestCase
 
         static::assertInstanceOf(SagaClosed::class, $latest);
         static::assertNotNull($saga->closedAt());
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function compareStateVersion(): void
+    {
+        $id   = new TestSagaId('123456789', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+        $saga->start(new EmptyCommand());
+
+        $startHash = $saga->stateHash();
+
+        static::assertSame(\sha1(\serialize($saga)), $startHash);
+
+        $saga->changeValue(\str_repeat('x', 100000));
+
+        $newHash = $saga->stateHash();
+
+        static::assertNotSame($startHash, $newHash);
+        static::assertSame(\sha1(\serialize($saga)), $newHash);
+
+        $saga->changeValue(\str_repeat('x', 10000000));
+
+        $latestHash = $saga->stateHash();
+
+        static::assertNotSame($newHash, $latestHash);
+        static::assertSame(\sha1(\serialize($saga)), $latestHash);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function createWithIncorrectExpireInterval(): void
+    {
+        $this->expectException(InvalidExpireDateInterval::class);
+        $this->expectExceptionMessage('The expiration date of the saga can not be less than the current date');
+
+        new CorrectSaga(
+            new TestSagaId('123456789', CorrectSaga::class),
+            datetimeInstantiator('-1 hour')
+        );
     }
 }

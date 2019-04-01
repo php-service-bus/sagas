@@ -18,7 +18,6 @@ use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\readReflectionPropertyValue;
 use function ServiceBus\Sagas\createMutexKey;
 use Amp\Promise;
-use Psr\Log\LogLevel;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Mutex\Lock;
 use ServiceBus\Mutex\MutexFactory;
@@ -109,7 +108,17 @@ final class DefaultEventProcessor implements EventProcessor
                     /** @var \ServiceBus\Sagas\Saga $saga */
                     $saga = yield from $this->loadSaga($id);
 
+                    $stateHash = $saga->stateHash();
+
                     invokeReflectionMethod($saga, 'applyEvent', $event);
+
+                    /** The saga has not been updated */
+                    if ($stateHash === $saga->stateHash())
+                    {
+                        yield $lock->release();
+
+                        return false;
+                    }
 
                     /**
                      * @var object[] $commands
@@ -128,18 +137,21 @@ final class DefaultEventProcessor implements EventProcessor
                     yield from $this->deliveryMessages($context, $commands, $events);
 
                     yield $lock->release();
+
+                    return true;
                 }
                 catch (\Throwable $throwable)
                 {
                     $context->logContextMessage(
                         $throwable->getMessage(),
                         [
-                            'eventClass'     => \get_class($event),
-                            'throwablePoint' => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
+                            'eventClass'       => $this->forEvent,
+                            'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
                             'throwableMessage' => $throwable->getMessage(),
-                        ],
-                        LogLevel::INFO
+                        ]
                     );
+
+                    return false;
                 }
                 finally
                 {
@@ -190,6 +202,8 @@ final class DefaultEventProcessor implements EventProcessor
      * @param object $event
      * @param array  $headers
      *
+     * @throws \RuntimeException A property that contains an identifier was not found
+     *
      * @return SagaId
      */
     private function obtainSagaId(object $event, array $headers): SagaId
@@ -230,8 +244,6 @@ final class DefaultEventProcessor implements EventProcessor
         /** Non-expired saga */
         if ($saga->expireDate() > $currentDatetime)
         {
-            unset($currentDatetime, $id);
-
             return $saga;
         }
 

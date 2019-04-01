@@ -179,6 +179,16 @@ abstract class Saga
     }
 
     /**
+     * Receive current state hash.
+     *
+     * @return string
+     */
+    final public function stateHash(): string
+    {
+        return \sha1(\serialize($this));
+    }
+
+    /**
      * Raise (apply event).
      *
      * @param object $event

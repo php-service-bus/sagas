@@ -14,17 +14,21 @@ namespace ServiceBus\Sagas\Tests\Configuration;
 
 use function Amp\Promise\wait;
 use function ServiceBus\Common\invokeReflectionMethod;
+use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Common\writeReflectionPropertyValue;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
+use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\CorrectSagaWithHeaderCorrelationId;
 use ServiceBus\Sagas\Tests\stubs\EmptyEvent;
 use ServiceBus\Sagas\Tests\stubs\EventWithKey;
+use ServiceBus\Sagas\Tests\stubs\IncorrectSagaIdType;
 use ServiceBus\Sagas\Tests\stubs\SecondEventWithKey;
 use ServiceBus\Sagas\Tests\stubs\TestContext;
 use ServiceBus\Sagas\Tests\stubs\TestSagaId;
@@ -117,7 +121,10 @@ final class DefaultEventProcessorTest extends TestCase
         /** @var MessageHandler $handler */
         $handler = \iterator_to_array($handlers)[0];
 
-        wait(($handler->closure)(new EventWithKey((string) $id), $context));
+        /** @var bool $saved */
+        $saved = wait(($handler->closure)(new EventWithKey((string) $id), $context));
+
+        static::assertTrue($saved);
 
         $messages = $context->messages;
 
@@ -211,6 +218,8 @@ final class DefaultEventProcessorTest extends TestCase
         /** @var MessageHandler $handler */
         $handler = \iterator_to_array($handlers)[0];
 
+        static::assertSame(EventWithKey::class, $handler->messageClass);
+
         wait(($handler->closure)(new EventWithKey((string) $id), $context));
 
         $records = $context->logger->records;
@@ -244,6 +253,8 @@ final class DefaultEventProcessorTest extends TestCase
         /** @var MessageHandler $handler */
         $handler = \iterator_to_array($handlers)[2];
 
+        static::assertSame(EmptyEvent::class, $handler->messageClass);
+
         wait(($handler->closure)(new EmptyEvent(), $context));
 
         $records = $context->logger->records;
@@ -275,6 +286,8 @@ final class DefaultEventProcessorTest extends TestCase
 
         /** @var MessageHandler $handler */
         $handler = \iterator_to_array($handlers)[0];
+
+        static::assertSame(EventWithKey::class, $handler->messageClass);
 
         wait(($handler->closure)(new EventWithKey(''), $context));
 
@@ -310,6 +323,8 @@ final class DefaultEventProcessorTest extends TestCase
         /** @var MessageHandler $handler */
         $handler = \iterator_to_array($handlers)[0];
 
+        static::assertSame(EventWithKey::class, $handler->messageClass);
+
         wait(($handler->closure)(new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
 
         $records = $context->logger->records;
@@ -318,6 +333,127 @@ final class DefaultEventProcessorTest extends TestCase
         static::assertSame(
             'Attempt to apply event to completed saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
             $records[0]['context']['throwableMessage']
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function executeWithNoChanges(): void
+    {
+        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+
+        wait($this->store->save($saga));
+
+        $context = new TestContext();
+
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[1];
+
+        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+        /** @var bool $stored */
+        $stored = wait(($handler->closure)(new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
+
+        static::assertFalse($stored);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function executeWithUnknownIdClass(): void
+    {
+        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+
+        wait($this->store->save($saga));
+
+        $context = new TestContext();
+
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[1];
+
+        /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+        $options = readReflectionPropertyValue($handler, 'options');
+
+        /** @var SagaMetadata $metadata */
+        $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
+
+        writeReflectionPropertyValue($metadata, 'identifierClass', 'SomeUnknownClass');
+
+        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+        wait(($handler->closure)(new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
+
+        $records = $context->logger->records;
+
+        static::assertCount(1, $records);
+
+        /** @var array $record */
+        $record = \reset($records);
+
+        static::assertSame(
+            'Identifier class "SomeUnknownClass" specified in the saga "ServiceBus\Sagas\Tests\stubs\CorrectSaga" not found',
+            $record['message']
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function executeWithIncorrectIdClassType(): void
+    {
+        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+        $saga = new CorrectSaga($id);
+
+        wait($this->store->save($saga));
+
+        $context = new TestContext();
+
+        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+        /** @var MessageHandler $handler */
+        $handler = \iterator_to_array($handlers)[1];
+
+        /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+        $options = readReflectionPropertyValue($handler, 'options');
+
+        /** @var SagaMetadata $metadata */
+        $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
+
+        writeReflectionPropertyValue($metadata, 'identifierClass', IncorrectSagaIdType::class);
+
+        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+        wait(($handler->closure)(new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context));
+
+        $records = $context->logger->records;
+
+        static::assertCount(1, $records);
+
+        /** @var array $record */
+        $record = \reset($records);
+
+        static::assertSame(
+            'Saga identifier mus be type of "ServiceBus\Sagas\SagaId". "ServiceBus\Sagas\Tests\stubs\IncorrectSagaIdType" type specified',
+            $record['message']
         );
     }
 }

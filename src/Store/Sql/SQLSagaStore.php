@@ -136,6 +136,7 @@ final class SQLSagaStore implements SagasStore
                     ->where(equalsCriteria('id', $saga->id()))
                     ->andWhere(equalsCriteria('identifier_class', \get_class($saga->id())));
 
+                /** @var \Latitude\QueryBuilder\Query $compiledQuery */
                 $compiledQuery = $updateQuery->compile();
 
                 /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
@@ -160,6 +161,7 @@ final class SQLSagaStore implements SagasStore
                     ->where(equalsCriteria('id', $id))
                     ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
 
+                /** @var \Latitude\QueryBuilder\Query $compiledQuery */
                 $compiledQuery = $deleteQuery->compile();
 
                 /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
@@ -190,6 +192,7 @@ final class SQLSagaStore implements SagasStore
                 ->where(equalsCriteria('id', $id))
                 ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
 
+            /** @var \Latitude\QueryBuilder\Query $compiledQuery */
             $compiledQuery = $selectQuery->compile();
 
             /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */

@@ -33,7 +33,7 @@ interface EventProcessor
      * @param object             $event
      * @param ServiceBusContext $context
      *
-     * @return Promise Doesn't return result
+     * @return Promise<bool> Has the saga been preserved?
      */
     public function __invoke(object $event, ServiceBusContext $context): Promise;
 }
