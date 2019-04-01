@@ -84,6 +84,8 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
+     * @psalm-suppress MixedTypeCoercion
+     *
      * {@inheritdoc}
      */
     public function __invoke(object $event, ServiceBusContext $context): Promise
