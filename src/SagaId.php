@@ -83,7 +83,7 @@ abstract class SagaId
     /**
      * @return string
      */
-    public function toString(): string
+    final public function toString(): string
     {
         return $this->id;
     }
