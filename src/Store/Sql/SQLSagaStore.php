@@ -137,7 +137,7 @@ final class SQLSagaStore implements SagasStore
                         'identifier_class' => \get_class($id),
                         'saga_class'       => \get_class($saga),
                         'payload'          => serializeSaga($saga),
-                        'state_id'         => (string) $status,
+                        'state_id'         => $status->toString(),
                         'created_at'       => datetimeToString($saga->createdAt()),
                         'expiration_date'  => datetimeToString($saga->expireDate()),
                         'closed_at'        => datetimeToString($saga->closedAt()),
@@ -184,7 +184,7 @@ final class SQLSagaStore implements SagasStore
 
                     $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
                         'payload'   => serializeSaga($saga),
-                        'state_id'  => (string) $status,
+                        'state_id'  => $status->toString(),
                         'closed_at' => datetimeToString($saga->closedAt()),
                     ])
                         ->where(equalsCriteria('id', $id->toString()))

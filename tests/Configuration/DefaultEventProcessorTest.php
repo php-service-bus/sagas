@@ -122,7 +122,7 @@ final class DefaultEventProcessorTest extends TestCase
         $handler = \iterator_to_array($handlers)[0];
 
         /** @var bool $saved */
-        $saved = wait(($handler->closure)(new EventWithKey((string) $id), $context));
+        $saved = wait(($handler->closure)(new EventWithKey($id->toString()), $context));
 
         static::assertTrue($saved);
 
@@ -132,7 +132,7 @@ final class DefaultEventProcessorTest extends TestCase
         $event = \end($messages);
 
         static::assertInstanceOf(SecondEventWithKey::class, $event);
-        static::assertSame((string) $id, $event->key);
+        static::assertSame($id->toString(), $event->key);
     }
 
     /**
@@ -150,7 +150,7 @@ final class DefaultEventProcessorTest extends TestCase
         wait($this->store->save($saga));
 
         $context                                 = new TestContext();
-        $context->headers['saga-correlation-id'] = (string) $id;
+        $context->headers['saga-correlation-id'] = $id->toString();
 
         $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
 
@@ -220,7 +220,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         static::assertSame(EventWithKey::class, $handler->messageClass);
 
-        wait(($handler->closure)(new EventWithKey((string) $id), $context));
+        wait(($handler->closure)(new EventWithKey($id->toString()), $context));
 
         $records = $context->logger->records;
 

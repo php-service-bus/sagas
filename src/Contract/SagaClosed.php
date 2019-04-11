@@ -72,7 +72,7 @@ final class SagaClosed
     {
         /** @noinspection PhpUnhandledExceptionInspection */
         return new self(
-            (string) $sagaId,
+            $sagaId->toString(),
             \get_class($sagaId),
             $sagaId->sagaClass,
             $withReason,

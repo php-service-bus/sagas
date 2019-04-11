@@ -27,7 +27,10 @@ final class ChangeSagaStateFailed extends \RuntimeException
     public static function create(SagaStatus $currentStatus): self
     {
         return new self(
-            \sprintf('Changing the state of the saga is impossible: the saga is complete with status "%s"', $currentStatus)
+            \sprintf(
+                'Changing the state of the saga is impossible: the saga is complete with status "%s"',
+                $currentStatus->toString()
+            )
         );
     }
 }

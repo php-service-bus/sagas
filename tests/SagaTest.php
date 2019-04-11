@@ -70,7 +70,7 @@ class SagaTest extends TestCase
 
         static::assertNotFalse(\strtotime($saga->createdAt()->format('Y-m-d H:i:s')));
 
-        static::assertSame((string) $id, (string) $saga->id());
+        static::assertSame($id->toString(), $saga->id()->toString());
 
         $raisedEvents  = invokeReflectionMethod($saga, 'raisedEvents');
         $firedCommands = invokeReflectionMethod($saga, 'firedCommands');
@@ -85,8 +85,8 @@ class SagaTest extends TestCase
         static::assertCount(0, $firedCommands);
 
         static::assertSame(
-            (string) SagaStatus::create('in_progress'),
-            (string) readReflectionPropertyValue($saga, 'status')
+            SagaStatus::create('in_progress')->toString(),
+            readReflectionPropertyValue($saga, 'status')->toString()
         );
 
         $saga->doSomethingElse();
@@ -98,8 +98,8 @@ class SagaTest extends TestCase
         static::assertCount(0, $firedCommands);
 
         static::assertSame(
-            (string) SagaStatus::create('in_progress'),
-            (string) readReflectionPropertyValue($saga, 'status')
+            SagaStatus::create('in_progress')->toString(),
+            readReflectionPropertyValue($saga, 'status')->toString()
         );
     }
 
@@ -140,8 +140,8 @@ class SagaTest extends TestCase
         $saga->closeWithSuccessStatus();
 
         static::assertSame(
-            (string) SagaStatus::create('completed'),
-            (string) readReflectionPropertyValue($saga, 'status')
+            SagaStatus::create('completed')->toString(),
+            readReflectionPropertyValue($saga, 'status')->toString()
         );
 
         /** @var array<int, string> $events */
@@ -156,7 +156,7 @@ class SagaTest extends TestCase
         static::assertInstanceOf(SagaStatusChanged::class, $changedStatusEvent);
         /** @noinspection UnnecessaryAssertionInspection */
         static::assertInstanceOf(\DateTimeImmutable::class, $changedStatusEvent->datetime);
-        static::assertSame((string) $id, $changedStatusEvent->id);
+        static::assertSame($id->toString(), $changedStatusEvent->id);
         static::assertSame(\get_class($id), $changedStatusEvent->idClass);
         static::assertSame(CorrectSaga::class, $changedStatusEvent->sagaClass);
         static::assertTrue(SagaStatus::created()->equals(SagaStatus::create($changedStatusEvent->previousStatus)));
@@ -169,7 +169,7 @@ class SagaTest extends TestCase
         static::assertInstanceOf(SagaClosed::class, $sagaClosedEvent);
         /** @noinspection UnnecessaryAssertionInspection */
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaClosedEvent->datetime);
-        static::assertSame((string) $id, $sagaClosedEvent->id);
+        static::assertSame($id->toString(), $sagaClosedEvent->id);
         static::assertSame(\get_class($id), $sagaClosedEvent->idClass);
         static::assertSame(CorrectSaga::class, $sagaClosedEvent->sagaClass);
         static::assertNull($sagaClosedEvent->withReason);
@@ -202,7 +202,7 @@ class SagaTest extends TestCase
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaCreatedEvent->datetime);
         /** @noinspection UnnecessaryAssertionInspection */
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaCreatedEvent->expirationDate);
-        static::assertSame((string) $id, $sagaCreatedEvent->id);
+        static::assertSame($id->toString(), $sagaCreatedEvent->id);
         static::assertSame(\get_class($id), $sagaCreatedEvent->idClass);
         static::assertSame(CorrectSaga::class, $sagaCreatedEvent->sagaClass);
     }

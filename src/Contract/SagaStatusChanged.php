@@ -95,11 +95,11 @@ final class SagaStatusChanged
     ): self {
         /** @noinspection PhpUnhandledExceptionInspection */
         return new self(
-            (string) $sagaId,
+            $sagaId->toString(),
             \get_class($sagaId),
             $sagaId->sagaClass,
-            (string) $currentStatus,
-            (string) $newStatus,
+             $currentStatus->toString(),
+             $newStatus->toString(),
             $withReason,
             new \DateTimeImmutable('NOW')
         );

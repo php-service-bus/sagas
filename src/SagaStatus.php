@@ -23,13 +23,13 @@ final class SagaStatus
 {
     private const STATUS_IN_PROGRESS = 'in_progress';
 
-    private const STATUS_COMPLETED   = 'completed';
+    private const STATUS_COMPLETED = 'completed';
 
-    private const STATUS_FAILED      = 'failed';
+    private const STATUS_FAILED = 'failed';
 
-    private const STATUS_EXPIRED     = 'expired';
+    private const STATUS_EXPIRED = 'expired';
 
-    private const LIST               = [
+    private const LIST           = [
         self::STATUS_IN_PROGRESS,
         self::STATUS_COMPLETED,
         self::STATUS_FAILED,
@@ -53,7 +53,7 @@ final class SagaStatus
      */
     public static function create(string $value): self
     {
-        if (false === \in_array($value, self::LIST, true))
+        if(false === \in_array($value, self::LIST, true))
         {
             throw InvalidSagaStatus::create($value);
         }
@@ -122,6 +122,16 @@ final class SagaStatus
     }
 
     /**
+     * @return string
+     */
+    public function toString(): string
+    {
+        return $this->value;
+    }
+
+    /**
+     * @deprecated
+     *
      * @return string
      */
     public function __toString(): string

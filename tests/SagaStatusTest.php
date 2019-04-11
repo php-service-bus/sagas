@@ -45,7 +45,7 @@ final class SagaStatusTest extends TestCase
      */
     public function expired(): void
     {
-        static::assertSame('expired', (string) SagaStatus::expired());
+        static::assertSame('expired', SagaStatus::expired()->toString());
     }
 
     /**
@@ -57,7 +57,7 @@ final class SagaStatusTest extends TestCase
      */
     public function failed(): void
     {
-        static::assertSame('failed', (string) SagaStatus::failed());
+        static::assertSame('failed', SagaStatus::failed()->toString());
     }
 
     /**
@@ -69,7 +69,7 @@ final class SagaStatusTest extends TestCase
      */
     public function completed(): void
     {
-        static::assertSame('completed', (string) SagaStatus::completed());
+        static::assertSame('completed', SagaStatus::completed()->toString());
     }
 
     /**
@@ -81,7 +81,7 @@ final class SagaStatusTest extends TestCase
      */
     public function created(): void
     {
-        static::assertSame('in_progress', (string) SagaStatus::created());
+        static::assertSame('in_progress', SagaStatus::created()->toString());
     }
 
     /**

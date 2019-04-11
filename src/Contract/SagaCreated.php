@@ -71,7 +71,7 @@ final class SagaCreated
      */
     public static function create(SagaId $sagaId, \DateTimeImmutable $dateTime, \DateTimeImmutable $expirationDate): self
     {
-        return new self((string) $sagaId, \get_class($sagaId), $sagaId->sagaClass, $dateTime, $expirationDate);
+        return new self($sagaId->toString(), \get_class($sagaId), $sagaId->sagaClass, $dateTime, $expirationDate);
     }
 
     /**

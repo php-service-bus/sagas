@@ -238,7 +238,7 @@ final class DefaultEventProcessor implements EventProcessor
             throw new \RuntimeException(
                 \sprintf(
                     'Attempt to apply event to non-existent saga (ID: %s)',
-                    $id
+                    $id->toString()
                 )
             );
         }
@@ -250,7 +250,7 @@ final class DefaultEventProcessor implements EventProcessor
         }
 
         throw new \RuntimeException(
-            \sprintf('Attempt to apply event to completed saga (ID: %s)', $id)
+            \sprintf('Attempt to apply event to completed saga (ID: %s)', $id->toString())
         );
     }
 

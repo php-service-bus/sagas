@@ -89,11 +89,11 @@ abstract class SagaId
     }
 
     /**
-     * @deprecated use toString method
+     * @deprecated
      *
      * @return string
      */
-    final public function __toString(): string
+    public function __toString(): string
     {
         return $this->id;
     }
@@ -105,6 +105,6 @@ abstract class SagaId
      */
     public function equals(SagaId $id): bool
     {
-        return $this->id === (string) $id;
+        return $this->id === $id->id;
     }
 }
