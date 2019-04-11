@@ -98,8 +98,8 @@ final class SagaStatusChanged
             $sagaId->toString(),
             \get_class($sagaId),
             $sagaId->sagaClass,
-             $currentStatus->toString(),
-             $newStatus->toString(),
+            $currentStatus->toString(),
+            $newStatus->toString(),
             $withReason,
             new \DateTimeImmutable('NOW')
         );
