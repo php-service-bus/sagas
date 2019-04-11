@@ -23,10 +23,13 @@ function createEventListenerName(string $event): string
 {
     $eventListenerMethodNameParts = \explode('\\', $event);
 
+    /** @var string $latestPart */
+    $latestPart = \end($eventListenerMethodNameParts);
+
     return \sprintf(
         '%s%s',
         Saga::EVENT_APPLY_PREFIX,
-        \end($eventListenerMethodNameParts)
+        $latestPart
     );
 }
 

@@ -15,11 +15,11 @@ namespace ServiceBus\Sagas\Store\Sql;
 use function Amp\call;
 use function ServiceBus\Common\datetimeToString;
 use function ServiceBus\Common\readReflectionPropertyValue;
-use function ServiceBus\Storage\Sql\deleteQuery;
 use function ServiceBus\Storage\Sql\equalsCriteria;
 use function ServiceBus\Storage\Sql\fetchOne;
+use function ServiceBus\Storage\Sql\find;
 use function ServiceBus\Storage\Sql\insertQuery;
-use function ServiceBus\Storage\Sql\selectQuery;
+use function ServiceBus\Storage\Sql\remove;
 use function ServiceBus\Storage\Sql\updateQuery;
 use Amp\Promise;
 use ServiceBus\Sagas\Saga;
@@ -27,6 +27,7 @@ use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\Exceptions\DuplicateSaga;
 use ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed;
 use ServiceBus\Sagas\Store\SagasStore;
+use ServiceBus\Storage\Common\BinaryDataDecoder;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
 
@@ -57,23 +58,56 @@ final class SQLSagaStore implements SagasStore
      */
     public function obtain(SagaId $id): Promise
     {
+        $adapter = $this->adapter;
+
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(SagaId $id): \Generator
+            static function(SagaId $id) use ($adapter): \Generator
             {
-                /** @var array{payload:string}|null $result */
-                $result = yield from $this->doLoadEntry($id);
-
-                if (null === $result)
+                try
                 {
-                    return null;
+                    $criteria = [
+                        equalsCriteria('id', $id->toString()),
+                        equalsCriteria('identifier_class', \get_class($id)),
+                    ];
+
+                    /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
+                    $resultSet = yield find($adapter, self::SAGA_STORE_TABLE, $criteria);
+
+                    /**
+                     * @psalm-var array{
+                     *   id: string,
+                     *   identifier_class: string,
+                     *   saga_class: string,
+                     *   payload: string,
+                     *   state_id: string,
+                     *   created_at: string,
+                     *   expiration_date: string,
+                     *   closed_at: string|null
+                     * }|null $result
+                     *
+                     * @var array|null $result
+                     */
+                    $result = yield fetchOne($resultSet);
+
+                    if (null === $result)
+                    {
+                        return null;
+                    }
+
+                    $payload = $result['payload'];
+
+                    if ($adapter instanceof BinaryDataDecoder)
+                    {
+                        $payload = $adapter->unescapeBinary($payload);
+                    }
+
+                    return unserializeSaga($payload);
                 }
-
-                $result['payload'] = $this->adapter->unescapeBinary($result['payload']);
-
-                return unserializeSaga(
-                    $this->adapter->unescapeBinary($result['payload'])
-                );
+                catch (\Throwable $throwable)
+                {
+                    throw SagasStoreInteractionFailed::fromThrowable($throwable);
+                }
             },
             $id
         );
@@ -84,33 +118,47 @@ final class SQLSagaStore implements SagasStore
      */
     public function save(Saga $saga): Promise
     {
+        $adapter = $this->adapter;
+
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(Saga $saga): \Generator
+            static function(Saga $saga) use ($adapter): \Generator
             {
-                $id = $saga->id();
+                try
+                {
+                    $id = $saga->id();
 
-                /** @var \ServiceBus\Sagas\SagaStatus $status */
-                $status = readReflectionPropertyValue($saga, 'status');
+                    /** @var \ServiceBus\Sagas\SagaStatus $status */
+                    $status = readReflectionPropertyValue($saga, 'status');
 
-                /** @var \Latitude\QueryBuilder\Query\InsertQuery $insertQuery */
-                $insertQuery = insertQuery(self::SAGA_STORE_TABLE, [
-                    'id'               => (string) $id,
-                    'identifier_class' => \get_class($id),
-                    'saga_class'       => \get_class($saga),
-                    'payload'          => serializeSaga($saga),
-                    'state_id'         => (string) $status,
-                    'created_at'       => datetimeToString($saga->createdAt()),
-                    'expiration_date'  => datetimeToString($saga->expireDate()),
-                    'closed_at'        => datetimeToString($saga->closedAt()),
-                ]);
+                    /** @var \Latitude\QueryBuilder\Query\InsertQuery $insertQuery */
+                    $insertQuery = insertQuery(self::SAGA_STORE_TABLE, [
+                        'id'               => $id->toString(),
+                        'identifier_class' => \get_class($id),
+                        'saga_class'       => \get_class($saga),
+                        'payload'          => serializeSaga($saga),
+                        'state_id'         => (string) $status,
+                        'created_at'       => datetimeToString($saga->createdAt()),
+                        'expiration_date'  => datetimeToString($saga->expireDate()),
+                        'closed_at'        => datetimeToString($saga->closedAt()),
+                    ]);
 
-                $compiledQuery = $insertQuery->compile();
+                    $compiledQuery = $insertQuery->compile();
 
-                /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-                $resultSet = yield from $this->doExecuteQuery($compiledQuery->sql(), $compiledQuery->params());
-
-                unset($resultSet, $id, $status, $insertQuery, $compiledQuery);
+                    /**
+                     * @psalm-suppress TooManyTemplateParams
+                     * @psalm-suppress MixedTypeCoercion
+                     */
+                    yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                }
+                catch (UniqueConstraintViolationCheckFailed $exception)
+                {
+                    throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
+                }
+                catch (\Throwable $throwable)
+                {
+                    throw SagasStoreInteractionFailed::fromThrowable($throwable);
+                }
             },
             $saga
         );
@@ -121,28 +169,40 @@ final class SQLSagaStore implements SagasStore
      */
     public function update(Saga $saga): Promise
     {
+        $adapter = $this->adapter;
+
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(Saga $saga): \Generator
+            static function(Saga $saga) use ($adapter): \Generator
             {
-                /** @var \ServiceBus\Sagas\SagaStatus $status */
-                $status = readReflectionPropertyValue($saga, 'status');
+                try
+                {
+                    $id = $saga->id();
 
-                $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
-                    'payload'   => serializeSaga($saga),
-                    'state_id'  => (string) $status,
-                    'closed_at' => datetimeToString($saga->closedAt()),
-                ])
-                    ->where(equalsCriteria('id', $saga->id()))
-                    ->andWhere(equalsCriteria('identifier_class', \get_class($saga->id())));
+                    /** @var \ServiceBus\Sagas\SagaStatus $status */
+                    $status = readReflectionPropertyValue($saga, 'status');
 
-                /** @var \Latitude\QueryBuilder\Query $compiledQuery */
-                $compiledQuery = $updateQuery->compile();
+                    $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
+                        'payload'   => serializeSaga($saga),
+                        'state_id'  => (string) $status,
+                        'closed_at' => datetimeToString($saga->closedAt()),
+                    ])
+                        ->where(equalsCriteria('id', $id->toString()))
+                        ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
 
-                /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-                $resultSet = yield from $this->doExecuteQuery($compiledQuery->sql(), $compiledQuery->params());
+                    /** @var \Latitude\QueryBuilder\Query $compiledQuery */
+                    $compiledQuery = $updateQuery->compile();
 
-                unset($status, $updateQuery, $compiledQuery, $resultSet);
+                    /**
+                     * @psalm-suppress TooManyTemplateParams
+                     * @psalm-suppress MixedTypeCoercion
+                     */
+                    yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                }
+                catch (\Throwable $throwable)
+                {
+                    throw SagasStoreInteractionFailed::fromThrowable($throwable);
+                }
             },
             $saga
         );
@@ -153,95 +213,28 @@ final class SQLSagaStore implements SagasStore
      */
     public function remove(SagaId $id): Promise
     {
+        $adapter = $this->adapter;
+
         /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(SagaId $id): \Generator
+            static function(SagaId $id) use ($adapter): \Generator
             {
-                $deleteQuery = deleteQuery(self::SAGA_STORE_TABLE)
-                    ->where(equalsCriteria('id', $id))
-                    ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
+                try
+                {
+                    $criteria = [
+                        equalsCriteria('id', $id->toString()),
+                        equalsCriteria('identifier_class', \get_class($id)),
+                    ];
 
-                /** @var \Latitude\QueryBuilder\Query $compiledQuery */
-                $compiledQuery = $deleteQuery->compile();
-
-                /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-                $resultSet = yield from $this->doExecuteQuery($compiledQuery->sql(), $compiledQuery->params());
-
-                unset($deleteQuery, $compiledQuery, $resultSet);
+                    /** @psalm-suppress TooManyTemplateParams */
+                    yield remove($adapter, self::SAGA_STORE_TABLE, $criteria);
+                }
+                catch (\Throwable $throwable)
+                {
+                    throw SagasStoreInteractionFailed::fromThrowable($throwable);
+                }
             },
             $id
         );
-    }
-
-    /**
-     * Load saga entry.
-     *
-     * @param SagaId $id
-     *
-     * @throws SagasStoreInteractionFailed
-     *
-     * @return \Generator
-     *
-     */
-    private function doLoadEntry(SagaId $id): \Generator
-    {
-        try
-        {
-            /** @psalm-suppress ImplicitToStringCast */
-            $selectQuery = selectQuery(self::SAGA_STORE_TABLE, 'payload')
-                ->where(equalsCriteria('id', $id))
-                ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
-
-            /** @var \Latitude\QueryBuilder\Query $compiledQuery */
-            $compiledQuery = $selectQuery->compile();
-
-            /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-            $resultSet = yield from $this->doExecuteQuery($compiledQuery->sql(), $compiledQuery->params());
-
-            /** @var array|null $result */
-            $result = yield fetchOne($resultSet);
-
-            unset($selectQuery, $compiledQuery, $resultSet);
-
-            return $result;
-        }
-        catch (\Throwable $throwable)
-        {
-            throw SagasStoreInteractionFailed::fromThrowable($throwable);
-        }
-    }
-
-    /**
-     * @param string $query
-     * @param array  $parameters
-     *
-     * @throws \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga
-     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
-     *
-     * @return \Generator
-     *
-     */
-    private function doExecuteQuery(string $query, array $parameters): \Generator
-    {
-        try
-        {
-            /**
-             * @psalm-suppress TooManyTemplateParams Wrong Promise template
-             * @psalm-suppress MixedTypeCoercion Invalid params() docblock
-             *
-             * @var \ServiceBus\Storage\Common\ResultSet $resultSet
-             */
-            $resultSet = yield $this->adapter->execute($query, $parameters);
-
-            return $resultSet;
-        }
-        catch (UniqueConstraintViolationCheckFailed $exception)
-        {
-            throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
-        }
-        catch (\Throwable $throwable)
-        {
-            throw SagasStoreInteractionFailed::fromThrowable($throwable);
-        }
     }
 }
