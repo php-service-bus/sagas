@@ -15,8 +15,8 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Configuration details.
  *
- * @property-read SagaMetadata                                                                $metaData
- * @property-read \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
+ * @property-read SagaMetadata      $metaData
+ * @property-read \SplObjectStorage $handlerCollection
  */
 final class SagaConfiguration
 {
@@ -26,13 +26,17 @@ final class SagaConfiguration
     public $metaData;
 
     /**
-     * @var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string>
+     * @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string>
+     *
+     * @var \SplObjectStorage
      */
     public $handlerCollection;
 
     /**
-     * @param SagaMetadata                                                                $metaData
-     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
+     * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
+     *
+     * @param SagaMetadata      $metaData
+     * @param \SplObjectStorage $handlerCollection
      *
      * @return self
      */
@@ -42,8 +46,10 @@ final class SagaConfiguration
     }
 
     /**
-     * @param SagaMetadata                                                                $metaData
-     * @param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
+     * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
+     *
+     * @param SagaMetadata      $metaData
+     * @param \SplObjectStorage $handlerCollection
      */
     private function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {

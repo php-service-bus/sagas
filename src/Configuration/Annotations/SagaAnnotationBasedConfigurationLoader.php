@@ -239,7 +239,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     private static function createSagaMetadata(string $sagaClass, SagaHeader $sagaHeader): SagaMetadata
     {
         if (
-            false === $sagaHeader->hasIdClass() ||
+            null === $sagaHeader->idClass ||
             false === \class_exists((string) $sagaHeader->idClass)
         ) {
             throw new \InvalidArgumentException(
@@ -252,9 +252,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         $containingIdentifierSource = SagaMetadata::CORRELATION_ID_SOURCE_EVENT;
 
-        if ('' !== (string) $sagaHeader->containingIdSource)
+        if (null !== $sagaHeader->containingIdSource && '' !== (string) $sagaHeader->containingIdSource)
         {
-            /** @psalm-suppress PossiblyNullArgument */
             $containingIdentifierSource = \strtolower($sagaHeader->containingIdSource);
         }
 

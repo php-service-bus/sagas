@@ -26,7 +26,7 @@ final class SagaHeader
     /**
      * Saga identifier class.
      *
-     * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
+     * @psalm-var class-string<\ServiceBus\Sagas\SagaId>|null
      *
      * @var string|null
      */
@@ -86,16 +86,6 @@ final class SagaHeader
     public function hasSpecifiedExpireDateModifier(): bool
     {
         return null !== $this->expireDateModifier && '' !== $this->expireDateModifier;
-    }
-
-    /**
-     * Has specified saga identifier class.
-     *
-     * @return bool
-     */
-    public function hasIdClass(): bool
-    {
-        return null !== $this->idClass && '' !== $this->idClass;
     }
 
     /**
