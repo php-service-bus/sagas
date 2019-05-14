@@ -2785,16 +2785,16 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v3.2.3",
+            "version": "v3.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "9775f061e82fbeac929cd21b70ce2c78c520d239"
+                "reference": "5dbca430cb9975495ac7050b75d11b4f5d12c7ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/9775f061e82fbeac929cd21b70ce2c78c520d239",
-                "reference": "9775f061e82fbeac929cd21b70ce2c78c520d239",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/5dbca430cb9975495ac7050b75d11b4f5d12c7ac",
+                "reference": "5dbca430cb9975495ac7050b75d11b4f5d12c7ac",
                 "shasum": ""
             },
             "require": {
@@ -2843,7 +2843,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-05-14T16:50:56+00:00"
+            "time": "2019-05-14T19:02:22+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
