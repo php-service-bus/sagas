@@ -51,7 +51,7 @@
     "doctrine/dbal": "^v2.6",
     "phpunit/phpunit": "^8",
     "vimeo/psalm": "^v3",
-    "phpstan/phpstan": "^0.11.5"
+    "phpstan/phpstan": "^0.11"
   },
   "prefer-stable": true,
   "minimum-stability": "stable",
