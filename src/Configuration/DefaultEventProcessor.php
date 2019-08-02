@@ -175,6 +175,8 @@ final class DefaultEventProcessor implements EventProcessor
      * @param object[]          $commands
      * @param object[]          $events
      *
+     * @throws \ServiceBus\Common\Context\Exceptions\MessageDeliveryFailed
+     *
      * @return \Generator Doesn't return result
      */
     private function deliveryMessages(ServiceBusContext $context, array $commands, array $events): \Generator

@@ -130,16 +130,6 @@ final class SagaStatus
     }
 
     /**
-     * @deprecated
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
-    /**
      * @param string $value
      */
     private function __construct(string $value)

@@ -89,16 +89,6 @@ abstract class SagaId
     }
 
     /**
-     * @deprecated
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->id;
-    }
-
-    /**
      * @param SagaId $id
      *
      * @return bool
