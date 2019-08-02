@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "03d0e296debe08f364be16044bb88ef6",
+    "content-hash": "b9bff5a0a5e86f4e5607a9785b5fdc80",
     "packages": [
         {
             "name": "amphp/amp",
@@ -477,29 +477,29 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "v3.3.1",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "2b349e9d51e0a500cefa115a2b8f07d29834f98e"
+                "reference": "47562c7c13d320c4e8ba36ba83f1f20e60ffe48c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/2b349e9d51e0a500cefa115a2b8f07d29834f98e",
-                "reference": "2b349e9d51e0a500cefa115a2b8f07d29834f98e",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/47562c7c13d320c4e8ba36ba83f1f20e60ffe48c",
+                "reference": "47562c7c13d320c4e8ba36ba83f1f20e60ffe48c",
                 "shasum": ""
             },
             "require": {
-                "amphp/amp": "^2",
+                "amphp/amp": "2.1.*",
                 "php": ">=7.3",
-                "ramsey/uuid": "^3.7"
+                "ramsey/uuid": "3.8.*"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "^v0.1",
-                "phpstan/phpstan": "^0.11",
-                "phpunit/phpunit": "^8",
-                "symfony/dependency-injection": "^v4.3",
-                "vimeo/psalm": "^3"
+                "php-service-bus/code-style-config": "v0.1.*",
+                "phpstan/phpstan": "0.11.*",
+                "phpunit/phpunit": "8.3.*",
+                "symfony/dependency-injection": "v4.3.*",
+                "vimeo/psalm": "3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -528,32 +528,32 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-07-31T13:36:08+00:00"
+            "time": "2019-08-02T16:00:22+00:00"
         },
         {
             "name": "php-service-bus/mutex",
-            "version": "v3.3.0",
+            "version": "v3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "f24754171db3fe93e2e3592661445882de852af5"
+                "reference": "5e230080efeec1840e386b5bc6e10b194b80a9af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/f24754171db3fe93e2e3592661445882de852af5",
-                "reference": "f24754171db3fe93e2e3592661445882de852af5",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/5e230080efeec1840e386b5bc6e10b194b80a9af",
+                "reference": "5e230080efeec1840e386b5bc6e10b194b80a9af",
                 "shasum": ""
             },
             "require": {
-                "amphp/amp": "^2",
-                "amphp/file": "^0.3",
+                "amphp/amp": "v2.1.*",
+                "amphp/file": "v0.3.*",
                 "php": ">=7.3"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "^v0.1",
-                "phpstan/phpstan": "0.11.*",
-                "phpunit/phpunit": "^8",
-                "vimeo/psalm": "^v3"
+                "php-service-bus/code-style-config": "v0.1.*",
+                "phpstan/phpstan": "v0.11.*",
+                "phpunit/phpunit": "v8.3.*",
+                "vimeo/psalm": "v3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -579,31 +579,31 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-07-31T15:06:29+00:00"
+            "time": "2019-08-02T17:13:52+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
-            "version": "v3.3.0",
+            "version": "v3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "7011e901f6d918c2b84f2fc89b6e5627967d9157"
+                "reference": "cf14f7ae666638042ff199c9ff212aa1bb594786"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/7011e901f6d918c2b84f2fc89b6e5627967d9157",
-                "reference": "7011e901f6d918c2b84f2fc89b6e5627967d9157",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/cf14f7ae666638042ff199c9ff212aa1bb594786",
+                "reference": "cf14f7ae666638042ff199c9ff212aa1bb594786",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.3"
             },
             "require-dev": {
-                "amphp/amp": "^2",
-                "php-service-bus/code-style-config": "^v0.1",
-                "phpstan/phpstan": "^0.11",
-                "phpunit/phpunit": "^8",
-                "vimeo/psalm": "^3"
+                "amphp/amp": "2.1.*",
+                "php-service-bus/code-style-config": "v0.1.*",
+                "phpstan/phpstan": "0.11.*",
+                "phpunit/phpunit": "8.3.*",
+                "vimeo/psalm": "3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -629,7 +629,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-07-29T15:05:23+00:00"
+            "time": "2019-08-02T16:42:52+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -2642,28 +2642,28 @@
         },
         {
             "name": "php-service-bus/annotations-reader",
-            "version": "v3.3.0",
+            "version": "v3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/annotations-reader.git",
-                "reference": "2d6c2eefb0678eac40b3d7fb3d6303b7dcc43799"
+                "reference": "4ce2a15f634eb04191efafcf996650e45e5bc673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/2d6c2eefb0678eac40b3d7fb3d6303b7dcc43799",
-                "reference": "2d6c2eefb0678eac40b3d7fb3d6303b7dcc43799",
+                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/4ce2a15f634eb04191efafcf996650e45e5bc673",
+                "reference": "4ce2a15f634eb04191efafcf996650e45e5bc673",
                 "shasum": ""
             },
             "require": {
-                "doctrine/annotations": "^1.0",
-                "doctrine/cache": "^1.0",
+                "doctrine/annotations": "v1.6.*",
+                "doctrine/cache": "v1.8.*",
                 "php": ">=7.3"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "^v0.1",
-                "phpstan/phpstan": "0.11.*",
-                "phpunit/phpunit": "^8",
-                "vimeo/psalm": "^3"
+                "php-service-bus/code-style-config": "v0.1.*",
+                "phpstan/phpstan": "v0.11.*",
+                "phpunit/phpunit": "v8.3.*",
+                "vimeo/psalm": "v3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -2689,7 +2689,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-07-31T14:53:41+00:00"
+            "time": "2019-08-02T17:45:21+00:00"
         },
         {
             "name": "php-service-bus/code-style-config",
@@ -2732,32 +2732,32 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v3.3.1",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "0e995a7f733f6fb4dac2e5417f50214d0a4884f9"
+                "reference": "013c38a2abe8397905d00c1a211e1ec2659537e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/0e995a7f733f6fb4dac2e5417f50214d0a4884f9",
-                "reference": "0e995a7f733f6fb4dac2e5417f50214d0a4884f9",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/013c38a2abe8397905d00c1a211e1ec2659537e0",
+                "reference": "013c38a2abe8397905d00c1a211e1ec2659537e0",
                 "shasum": ""
             },
             "require": {
-                "amphp/postgres": "1.0.4",
+                "amphp/postgres": "v1.0.*",
                 "ext-pgsql": "*",
-                "latitude/latitude": "^3.1",
+                "latitude/latitude": "v3.3.*",
                 "php": ">=7.3",
                 "php-service-bus/storage-common": "v3.3.*",
-                "psr/log": "1.1.*"
+                "psr/log": "v1.1.*"
             },
             "require-dev": {
-                "doctrine/dbal": "^v2.6",
-                "php-service-bus/code-style-config": "^v0.1",
-                "phpstan/phpstan": "0.11.*",
-                "phpunit/phpunit": "^8",
-                "vimeo/psalm": "^3"
+                "doctrine/dbal": "v2.9.*",
+                "php-service-bus/code-style-config": "v0.1.*",
+                "phpstan/phpstan": "v0.11.*",
+                "phpunit/phpunit": "v8.3.*",
+                "vimeo/psalm": "v3.4.*"
             },
             "type": "library",
             "autoload": {
@@ -2790,7 +2790,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-07-31T13:45:19+00:00"
+            "time": "2019-08-02T16:51:13+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -3383,16 +3383,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "8.3.1",
+            "version": "8.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "21461ce5b162d0f1a0fa658e27f975517c5d4234"
+                "reference": "e77a49b6da82240f40ddd4be536d30d7dae5c168"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/21461ce5b162d0f1a0fa658e27f975517c5d4234",
-                "reference": "21461ce5b162d0f1a0fa658e27f975517c5d4234",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e77a49b6da82240f40ddd4be536d30d7dae5c168",
+                "reference": "e77a49b6da82240f40ddd4be536d30d7dae5c168",
                 "shasum": ""
             },
             "require": {
@@ -3462,7 +3462,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-08-02T07:54:25+00:00"
+            "time": "2019-08-02T13:42:49+00:00"
         },
         {
             "name": "psr/container",
