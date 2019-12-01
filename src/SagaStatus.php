@@ -38,18 +38,11 @@ final class SagaStatus
 
     /**
      * SagaStatus ID.
-     *
-     * @var string
      */
-    private $value;
+    private string $value;
 
     /**
-     * @param string $value
-     *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaStatus
-     *
-     * @return self
-     *
      */
     public static function create(string $value): self
     {
@@ -63,8 +56,6 @@ final class SagaStatus
 
     /**
      * Create a new saga status.
-     *
-     * @return self
      */
     public static function created(): self
     {
@@ -73,8 +64,6 @@ final class SagaStatus
 
     /**
      * Creating the status of a successfully completed saga.
-     *
-     * @return self
      */
     public static function completed(): self
     {
@@ -83,8 +72,6 @@ final class SagaStatus
 
     /**
      * Creating the status of an error-complete saga.
-     *
-     * @return self
      */
     public static function failed(): self
     {
@@ -93,8 +80,6 @@ final class SagaStatus
 
     /**
      * Creation of the status of the expired life of the saga.
-     *
-     * @return self
      */
     public static function expired(): self
     {
@@ -103,8 +88,6 @@ final class SagaStatus
 
     /**
      * Is processing status.
-     *
-     * @return bool
      */
     public function inProgress(): bool
     {
@@ -113,25 +96,17 @@ final class SagaStatus
 
     /**
      * @param SagaStatus $status
-     *
-     * @return bool
      */
     public function equals(SagaStatus $status): bool
     {
         return $this->value === $status->value;
     }
 
-    /**
-     * @return string
-     */
     public function toString(): string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $value
-     */
     private function __construct(string $value)
     {
         $this->value = $value;

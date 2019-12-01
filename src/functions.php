@@ -14,10 +14,6 @@ namespace ServiceBus\Sagas;
 
 /**
  * Create event listener method name by event class.
- *
- * @param string $event
- *
- * @return string
  */
 function createEventListenerName(string $event): string
 {
@@ -35,10 +31,6 @@ function createEventListenerName(string $event): string
 
 /**
  * Create mutex key for saga.
- *
- * @param SagaId $id
- *
- * @return string
  */
 function createMutexKey(SagaId $id): string
 {

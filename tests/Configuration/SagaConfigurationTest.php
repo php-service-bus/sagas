@@ -27,13 +27,11 @@ final class SagaConfigurationTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function successCreate(): void
     {
-        SagaConfiguration::create(
-            SagaMetadata::create(
+        new SagaConfiguration(
+            new SagaMetadata(
                 Saga::class,
                 SagaId::class,
                 'event',

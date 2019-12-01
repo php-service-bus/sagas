@@ -37,10 +37,6 @@ final class SagaWithIncorrectListenerName extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @SagaEventListener()
-     *
-     * @param EventWithKey $event
-     *
-     * @return void
      */
     private function wrongEventListenerName(EventWithKey $event): void
     {

@@ -17,81 +17,41 @@ use ServiceBus\Sagas\SagaId;
 /**
  * New saga created.
  *
- * @property-read string             $id
- * @property-read string             $idClass
- * @property-read string             $sagaClass
- * @property-read \DateTimeImmutable $datetime
- * @property-read \DateTimeImmutable $expirationDate
+ * @psalm-readonly
  */
 final class SagaCreated
 {
     /**
      * Saga identifier.
-     *
-     * @var string
      */
-    public $id;
+    public string $id;
 
     /**
      * Saga identifier class.
-     *
-     * @var string
      */
-    public $idClass;
+    public string $idClass;
 
     /**
      * Saga class.
-     *
-     * @var string
      */
-    public $sagaClass;
+    public string $sagaClass;
 
     /**
      * Date of creation.
-     *
-     * @var \DateTimeImmutable
      */
-    public $datetime;
+    public \DateTimeImmutable $datetime;
 
     /**
      * Date of expiration.
-     *
-     * @var \DateTimeImmutable
      */
-    public $expirationDate;
+    public \DateTimeImmutable $expirationDate;
 
-    /**
-     * @noinspection PhpDocMissingThrowsInspection
-     *
-     * @param SagaId             $sagaId
-     * @param \DateTimeImmutable $dateTime
-     * @param \DateTimeImmutable $expirationDate
-     *
-     * @return self
-     */
-    public static function create(SagaId $sagaId, \DateTimeImmutable $dateTime, \DateTimeImmutable $expirationDate): self
+    public function __construct(SagaId $sagaId, \DateTimeImmutable $dateTime, \DateTimeImmutable $expirationDate)
     {
-        return new self($sagaId->toString(), \get_class($sagaId), $sagaId->sagaClass, $dateTime, $expirationDate);
-    }
-
-    /**
-     * @param string             $id
-     * @param string             $idClass
-     * @param string             $sagaClass
-     * @param \DateTimeImmutable $datetime
-     * @param \DateTimeImmutable $expirationDate
-     */
-    private function __construct(
-        string $id,
-        string $idClass,
-        string $sagaClass,
-        \DateTimeImmutable $datetime,
-        \DateTimeImmutable $expirationDate
-    ) {
-        $this->id             = $id;
-        $this->idClass        = $idClass;
-        $this->sagaClass      = $sagaClass;
-        $this->datetime       = $datetime;
+        $this->id             = $sagaId->toString();
+        $this->idClass        = (string) \get_class($sagaId);
+        $this->sagaClass      = $sagaId->sagaClass;
+        $this->datetime       = $dateTime;
         $this->expirationDate = $expirationDate;
     }
 }

@@ -33,13 +33,7 @@ final class SagaWithIncorrectEventListenerClass extends Saga
     }
 
     /**
-     * @noinspection PhpUndefinedClassInspection
-     *
      * @SagaEventListener()
-     *
-     * @param IncorrectSagaEvent $event
-     *
-     * @return void
      */
     public function onIncorrectSagaEvent(IncorrectSagaEvent $event): void
     {

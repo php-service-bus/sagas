@@ -25,8 +25,6 @@ final class SagaIdTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function createWithEmptyIdValue(): void
     {
@@ -40,8 +38,6 @@ final class SagaIdTest extends TestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function createWithWrongSagaClass(): void
     {
@@ -54,8 +50,6 @@ final class SagaIdTest extends TestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function createWithEmptySagaClass(): void
     {

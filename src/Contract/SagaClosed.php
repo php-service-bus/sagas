@@ -13,15 +13,12 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
+use function ServiceBus\Common\datetimeInstantiator;
 
 /**
  * The saga was completed.
  *
- * @property-read string             $id
- * @property-read string             $idClass
- * @property-read string             $sagaClass
- * @property-read string|null        $withReason
- * @property-read \DateTimeImmutable $datetime
+ * @psalm-readonly
  */
 final class SagaClosed
 {
@@ -30,68 +27,48 @@ final class SagaClosed
      *
      * @var string
      */
-    public $id;
+    public string $id;
 
     /**
      * Saga identifier class.
      *
      * @var string
      */
-    public $idClass;
+    public string $idClass;
 
     /**
      * Saga class.
      *
      * @var string
      */
-    public $sagaClass;
+    public string $sagaClass;
 
     /**
      * Reason for closing the saga.
      *
      * @var string|null
      */
-    public $withReason;
+    public ?string $withReason = null;
 
     /**
      * Operation datetime.
      *
      * @var \DateTimeImmutable
      */
-    public $datetime;
+    public \DateTimeImmutable $datetime;
 
-    /**
-     * @noinspection PhpDocMissingThrowsInspection
-     *
-     * @param SagaId      $sagaId
-     * @param string|null $withReason
-     *
-     * @return self
-     */
-    public static function create(SagaId $sagaId, ?string $withReason = null): self
+    public function __construct(SagaId $sagaId, ?string $withReason = null)
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        return new self(
-            $sagaId->toString(),
-            \get_class($sagaId),
-            $sagaId->sagaClass,
-            $withReason,
-            new \DateTimeImmutable('NOW')
-        );
-    }
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         *
+         * @var \DateTimeImmutable $datetime
+         */
+        $datetime = datetimeInstantiator('NOW');
 
-    /**
-     * @param string             $id
-     * @param string             $idClass
-     * @param string             $sagaClass
-     * @param string|null        $withReason
-     * @param \DateTimeImmutable $datetime
-     */
-    private function __construct(string $id, string $idClass, string $sagaClass, ?string $withReason, \DateTimeImmutable $datetime)
-    {
-        $this->id         = $id;
-        $this->idClass    = $idClass;
-        $this->sagaClass  = $sagaClass;
+        $this->id         = $sagaId->toString();
+        $this->idClass    = (string) \get_class($sagaId);
+        $this->sagaClass  = $sagaId->sagaClass;
         $this->withReason = $withReason;
         $this->datetime   = $datetime;
     }

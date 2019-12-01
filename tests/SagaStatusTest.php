@@ -25,8 +25,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function withInvalidStatus(): void
     {
@@ -40,8 +38,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function expired(): void
     {
@@ -52,8 +48,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function failed(): void
     {
@@ -64,8 +58,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function completed(): void
     {
@@ -76,8 +68,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function created(): void
     {
@@ -88,8 +78,6 @@ final class SagaStatusTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function equals(): void
     {

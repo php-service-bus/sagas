@@ -18,36 +18,26 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 /**
  * Base saga id class.
  *
- * @property-read string $id
- * @property-read string $sagaClass
+ * @psalm-readonly
  */
 abstract class SagaId
 {
     /**
      * Identifier.
-     *
-     * @var string
      */
-    public $id;
+    public string $id;
 
     /**
      * Saga class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
-     *
-     * @var string
      */
-    public $sagaClass;
+    public string $sagaClass;
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
-     * @param string $sagaClass
-     *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
-     *
-     * @return static
-     *
      */
     public static function new(string $sagaClass): self
     {
@@ -56,9 +46,6 @@ abstract class SagaId
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
-     *
-     * @param string $id
-     * @param string $sagaClass
      *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
@@ -80,19 +67,11 @@ abstract class SagaId
         $this->sagaClass = $sagaClass;
     }
 
-    /**
-     * @return string
-     */
     final public function toString(): string
     {
         return $this->id;
     }
 
-    /**
-     * @param SagaId $id
-     *
-     * @return bool
-     */
     public function equals(SagaId $id): bool
     {
         return $this->id === $id->id;

@@ -37,8 +37,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function createWithNotEqualsSagaClass(): void
     {
@@ -51,8 +49,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function successfulStart(): void
     {
@@ -107,8 +103,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function changeStateOnClosedSaga(): void
     {
@@ -128,8 +122,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function changeStateToCompleted(): void
     {
@@ -154,7 +146,7 @@ class SagaTest extends TestCase
         $changedStatusEvent = $events[1];
 
         static::assertInstanceOf(SagaStatusChanged::class, $changedStatusEvent);
-        /** @noinspection UnnecessaryAssertionInspection */
+
         static::assertInstanceOf(\DateTimeImmutable::class, $changedStatusEvent->datetime);
         static::assertSame($id->toString(), $changedStatusEvent->id);
         static::assertSame(\get_class($id), $changedStatusEvent->idClass);
@@ -167,7 +159,7 @@ class SagaTest extends TestCase
         $sagaClosedEvent = $events[2];
 
         static::assertInstanceOf(SagaClosed::class, $sagaClosedEvent);
-        /** @noinspection UnnecessaryAssertionInspection */
+
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaClosedEvent->datetime);
         static::assertSame($id->toString(), $sagaClosedEvent->id);
         static::assertSame(\get_class($id), $sagaClosedEvent->idClass);
@@ -179,8 +171,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaCreated(): void
     {
@@ -198,9 +188,7 @@ class SagaTest extends TestCase
         $sagaCreatedEvent = \end($events);
 
         static::assertInstanceOf(SagaCreated::class, $sagaCreatedEvent);
-        /** @noinspection UnnecessaryAssertionInspection */
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaCreatedEvent->datetime);
-        /** @noinspection UnnecessaryAssertionInspection */
         static::assertInstanceOf(\DateTimeImmutable::class, $sagaCreatedEvent->expirationDate);
         static::assertSame($id->toString(), $sagaCreatedEvent->id);
         static::assertSame(\get_class($id), $sagaCreatedEvent->idClass);
@@ -211,8 +199,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function makeFailed(): void
     {
@@ -235,8 +221,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function makeExpired(): void
     {
@@ -259,8 +243,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function compareStateVersion(): void
     {
@@ -291,8 +273,6 @@ class SagaTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function createWithIncorrectExpireInterval(): void
     {

@@ -39,18 +39,18 @@
     ]
   },
   "require": {
-    "php": ">=7.3",
-    "php-service-bus/common": "v3.3.*",
-    "php-service-bus/storage-common": "v3.3.*",
-    "php-service-bus/mutex": "v3.3.*"
+    "php": ">=7.4",
+    "php-service-bus/common": "v4.0.*",
+    "php-service-bus/storage-common": "v4.0.*",
+    "php-service-bus/mutex": "v4.0.*"
   },
   "require-dev": {
-    "php-service-bus/code-style-config": "v0.1.*",
-    "php-service-bus/storage-sql": "v3.3.*",
-    "php-service-bus/annotations-reader": "v3.3.*",
-    "doctrine/dbal": "v2.9.*",
-    "phpunit/phpunit": "v8.3.*",
-    "vimeo/psalm": "v3.4.*",
+    "php-service-bus/code-style-config": "v1.2.*",
+    "php-service-bus/storage-sql": "v4.0.*",
+    "php-service-bus/annotations-reader": "v4.0.*",
+    "doctrine/dbal": "v2.10.*",
+    "phpunit/phpunit": "v8.4.*",
+    "vimeo/psalm": "v3.7.*",
     "phpstan/phpstan": "v0.11.*"
   },
   "prefer-stable": true,

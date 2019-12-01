@@ -15,15 +15,11 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Basic information about saga.
  *
- * @property-read string $sagaClass
- * @property-read string $identifierClass
- * @property-read string $containingIdentifierSource
- * @property-read string $containingIdentifierProperty
- * @property-read string $expireDateModifier
+ * @psalm-readonly
  */
 final class SagaMetadata
 {
-    public const DEFAULT_EXPIRE_INTERVAL     = '+1 hour';
+    public const DEFAULT_EXPIRE_INTERVAL = '+1 hour';
 
     public const CORRELATION_ID_SOURCE_EVENT = 'event';
 
@@ -38,81 +34,40 @@ final class SagaMetadata
      * Class namespace.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
-     *
-     * @var string
      */
-    public $sagaClass;
+    public string $sagaClass;
 
     /**
      * Identifier class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
-     *
-     * @var string
      */
-    public $identifierClass;
+    public string $identifierClass;
 
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
-     *
-     * @var string
      */
-    public $containingIdentifierSource;
+    public string $containingIdentifierSource;
 
     /**
      * The field that contains the saga identifier.
-     *
-     * @var string
      */
-    public $containingIdentifierProperty;
+    public string $containingIdentifierProperty;
 
     /**
      * Saga expire date modifier.
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
-     *
-     * @var string
      */
-    public $expireDateModifier;
+    public string $expireDateModifier;
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $identifierClass
      *
-     * @param string $sagaClass
-     * @param string $identifierClass
-     * @param string $containingIdentifierSource
-     * @param string $containingIdentifierProperty
-     * @param string $expireDateModifier
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return self
-     *
-     */
-    public static function create(
-        string $sagaClass,
-        string $identifierClass,
-        string $containingIdentifierSource,
-        string $containingIdentifierProperty,
-        string $expireDateModifier
-    ): self {
-        return new self($sagaClass, $identifierClass, $containingIdentifierSource, $containingIdentifierProperty, $expireDateModifier);
-    }
-
-    /**
-     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
-     * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $identifierClass
-     *
-     * @param string $sagaClass
-     * @param string $identifierClass
-     * @param string $containingIdentifierSource
-     * @param string $containingIdentifierProperty
-     * @param string $expireDateModifier
-     *
      * @throws \InvalidArgumentException
      */
-    private function __construct(
+    public function __construct(
         string $sagaClass,
         string $identifierClass,
         string $containingIdentifierSource,

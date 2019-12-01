@@ -38,14 +38,8 @@ final class SQLSagaStore implements SagasStore
 {
     private const SAGA_STORE_TABLE = 'sagas_store';
 
-    /**
-     * @var DatabaseAdapter
-     */
-    private $adapter;
+    private DatabaseAdapter $adapter;
 
-    /**
-     * @param DatabaseAdapter $adapter
-     */
     public function __construct(DatabaseAdapter $adapter)
     {
         $this->adapter = $adapter;
@@ -60,7 +54,6 @@ final class SQLSagaStore implements SagasStore
     {
         $adapter = $this->adapter;
 
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             static function(SagaId $id) use ($adapter): \Generator
             {
@@ -90,21 +83,21 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if (null === $result)
+                    if(null === $result)
                     {
                         return null;
                     }
 
                     $payload = $result['payload'];
 
-                    if ($adapter instanceof BinaryDataDecoder)
+                    if($adapter instanceof BinaryDataDecoder)
                     {
                         $payload = $adapter->unescapeBinary($payload);
                     }
 
                     return unserializeSaga($payload);
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -120,7 +113,6 @@ final class SQLSagaStore implements SagasStore
     {
         $adapter = $this->adapter;
 
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             static function(Saga $saga) use ($adapter): \Generator
             {
@@ -151,11 +143,11 @@ final class SQLSagaStore implements SagasStore
                      */
                     yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
-                catch (UniqueConstraintViolationCheckFailed $exception)
+                catch(UniqueConstraintViolationCheckFailed $exception)
                 {
                     throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -171,7 +163,6 @@ final class SQLSagaStore implements SagasStore
     {
         $adapter = $this->adapter;
 
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             static function(Saga $saga) use ($adapter): \Generator
             {
@@ -194,12 +185,12 @@ final class SQLSagaStore implements SagasStore
                     $compiledQuery = $updateQuery->compile();
 
                     /**
-                     * @psalm-suppress TooManyTemplateParams
                      * @psalm-suppress MixedTypeCoercion
+                     * @psalm-suppress TooManyTemplateParams
                      */
                     yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -215,7 +206,6 @@ final class SQLSagaStore implements SagasStore
     {
         $adapter = $this->adapter;
 
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
             static function(SagaId $id) use ($adapter): \Generator
             {
@@ -226,10 +216,9 @@ final class SQLSagaStore implements SagasStore
                         equalsCriteria('identifier_class', \get_class($id)),
                     ];
 
-                    /** @psalm-suppress TooManyTemplateParams */
                     yield remove($adapter, self::SAGA_STORE_TABLE, $criteria);
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }

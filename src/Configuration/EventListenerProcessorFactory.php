@@ -19,11 +19,6 @@ interface EventListenerProcessorFactory
 {
     /**
      * Create handler for event.
-     *
-     * @param string              $event
-     * @param SagaListenerOptions $listenerOptions
-     *
-     * @return EventProcessor
      */
     public function createProcessor(string $event, SagaListenerOptions $listenerOptions): EventProcessor;
 }

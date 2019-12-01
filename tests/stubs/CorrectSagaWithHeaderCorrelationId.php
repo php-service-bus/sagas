@@ -30,7 +30,7 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
     /**
      * @var string|null
      */
-    private $value;
+    private ?string $value = null;
 
     /**
      * {@inheritdoc}
@@ -41,9 +41,6 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function doSomething(): void
     {
@@ -52,9 +49,6 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function doSomethingElse(): void
     {
@@ -63,28 +57,17 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function closeWithSuccessStatus(): void
     {
         $this->makeCompleted();
     }
 
-    /**
-     * @return string|null
-     */
     public function value(): ?string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $newValue
-     *
-     * @return void
-     */
     public function changeValue(string $newValue): void
     {
         $this->value = $newValue;
@@ -94,9 +77,6 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     private function onSomeFirstEvent(): void
     {
@@ -106,12 +86,7 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @param EventWithKey $event
-     *
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     private function onEventWithKey(EventWithKey $event): void
     {
@@ -120,10 +95,6 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
 
     /**
      * @noinspection PhpUnusedPrivateMethodInspection
-     *
-     * @param SecondEventWithKey $event
-     *
-     * @return void
      */
     private function onSecondEventWithKey(SecondEventWithKey $event): void
     {
@@ -133,10 +104,6 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @SagaEventListener()
-     *
-     * @param EmptyEvent $event
-     *
-     * @return void
      */
     private function onEmptyEvent(EmptyEvent $event): void
     {

@@ -19,10 +19,6 @@ use ServiceBus\Sagas\Store\Exceptions\SagaSerializationError;
  * @internal
  *
  * Serialize saga payload
- *
- * @param Saga $saga
- *
- * @return string
  */
 function serializeSaga(Saga $saga): string
 {
@@ -34,12 +30,7 @@ function serializeSaga(Saga $saga): string
  *
  * Unserialize saga
  *
- * @param string $serializedContent
- *
  * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
- *
- * @return Saga
- *
  */
 function unserializeSaga(string $serializedContent): Saga
 {

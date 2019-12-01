@@ -28,15 +28,9 @@ use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
  */
 final class SQLSagaStoreTest extends TestCase
 {
-    /**
-     * @var DatabaseAdapter
-     */
-    private $adapter;
+    private DatabaseAdapter $adapter;
 
-    /**
-     * @var SQLSagaStore
-     */
-    private $store;
+    private SQLSagaStore $store;
 
     /**
      * {@inheritdoc}
@@ -80,8 +74,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function obtain(): void
     {
@@ -89,7 +81,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -111,8 +103,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function remove(): void
     {
@@ -120,7 +110,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -141,8 +131,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function removeUnExistsSaga(): void
     {
@@ -150,7 +138,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     yield $store->remove(TestSagaId::new(CorrectSaga::class));
                 }
@@ -162,8 +150,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function saveDuplicate(): void
     {
@@ -173,7 +159,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -189,8 +175,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function update(): void
     {
@@ -198,7 +182,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -222,8 +206,6 @@ final class SQLSagaStoreTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function updateUnExistsSaga(): void
     {
@@ -231,7 +213,7 @@ final class SQLSagaStoreTest extends TestCase
 
         wait(
             call(
-                static function() use ($store): \Generator
+                static function () use ($store): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);

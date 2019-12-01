@@ -26,14 +26,12 @@ final class SagaMetadataTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function createWithIncorrectContainingIdentifierSource(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        SagaMetadata::create(
+        new  SagaMetadata(
             CorrectSaga::class,
             TestSagaId::class,
             'qwerty',

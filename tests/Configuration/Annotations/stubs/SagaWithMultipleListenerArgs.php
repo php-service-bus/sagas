@@ -35,14 +35,7 @@ final class SagaWithMultipleListenerArgs extends Saga
     }
 
     /**
-     * @noinspection PhpUndefinedClassInspection
-     *
      * @SagaEventListener()
-     *
-     * @param EmptyEvent    $firstEmptyEvent
-     * @param EmptyCommand $command
-     *
-     * @return void
      */
     public function onEmptyEvent(EmptyEvent $firstEmptyEvent, EmptyCommand $command): void
     {

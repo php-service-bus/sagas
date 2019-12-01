@@ -22,11 +22,7 @@ interface SagaConfigurationLoader
      *
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
-     * @param string $sagaClass
-     *
      * @throws \ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration
-     *
-     * @return SagaConfiguration
      */
     public function load(string $sagaClass): SagaConfiguration;
 }

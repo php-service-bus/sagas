@@ -14,17 +14,12 @@ namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaStatus;
+use function ServiceBus\Common\datetimeInstantiator;
 
 /**
  * The status of the saga was changed.
  *
- * @property-read string             $id
- * @property-read string             $idClass
- * @property-read string             $sagaClass
- * @property-read string             $previousStatus
- * @property-read string             $newStatus
- * @property-read string|null        $withReason
- * @property-read \DateTimeImmutable $datetime
+ * @psalm-readonly
  */
 final class SagaStatusChanged
 {
@@ -33,101 +28,68 @@ final class SagaStatusChanged
      *
      * @var string
      */
-    public $id;
+    public string $id;
 
     /**
      * Saga identifier class.
      *
      * @var string
      */
-    public $idClass;
+    public string $idClass;
 
     /**
      * Saga class.
      *
      * @var string
      */
-    public $sagaClass;
+    public string $sagaClass;
 
     /**
      * Previous saga status.
      *
      * @var string
      */
-    public $previousStatus;
+    public string $previousStatus;
 
     /**
      * Previous saga status.
      *
      * @var string
      */
-    public $newStatus;
+    public string $newStatus;
 
     /**
      * Reason for changing the status of the saga.
      *
      * @var string|null
      */
-    public $withReason;
+    public ?string $withReason = null;
 
     /**
      * Operation datetime.
      *
      * @var \DateTimeImmutable
      */
-    public $datetime;
+    public \DateTimeImmutable $datetime;
 
-    /**
-     * @noinspection PhpDocMissingThrowsInspection
-     *
-     * @param SagaId      $sagaId
-     * @param SagaStatus  $currentStatus
-     * @param SagaStatus  $newStatus
-     * @param string|null $withReason
-     *
-     * @return self
-     */
-    public static function create(
+    public function __construct(
         SagaId $sagaId,
         SagaStatus $currentStatus,
         SagaStatus $newStatus,
         ?string $withReason = null
-    ): self {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        return new self(
-            $sagaId->toString(),
-            \get_class($sagaId),
-            $sagaId->sagaClass,
-            $currentStatus->toString(),
-            $newStatus->toString(),
-            $withReason,
-            new \DateTimeImmutable('NOW')
-        );
-    }
-
-    /**
-     * @param string             $id
-     * @param string             $idClass
-     * @param string             $sagaClass
-     * @param string             $previousStatus
-     * @param string             $newStatus
-     * @param string|null        $withReason
-     * @param \DateTimeImmutable $datetime
-     */
-    private function __construct(
-        string $id,
-        string $idClass,
-        string $sagaClass,
-        string $previousStatus,
-        string $newStatus,
-        ?string $withReason,
-        \DateTimeImmutable $datetime
     ) {
-        $this->id             = $id;
-        $this->idClass        = $idClass;
-        $this->sagaClass      = $sagaClass;
-        $this->previousStatus = $previousStatus;
-        $this->newStatus      = $newStatus;
+        /**
+         * @noinspection PhpUnhandledExceptionInspection
+         *
+         * @var \DateTimeImmutable $datetime
+         */
+        $datetime = datetimeInstantiator('NOW');
+
+        $this->id             = $sagaId->toString();
+        $this->idClass        = (string) \get_class($sagaId);
+        $this->sagaClass      = $sagaId->sagaClass;
+        $this->previousStatus = $currentStatus->toString();
+        $this->newStatus      = $newStatus->toString();
         $this->withReason     = $withReason;
         $this->datetime       = $datetime;
     }

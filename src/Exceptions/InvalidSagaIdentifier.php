@@ -17,30 +17,16 @@ namespace ServiceBus\Sagas\Exceptions;
  */
 final class InvalidSagaIdentifier extends \RuntimeException
 {
-    /**
-     * @return self
-     */
     public static function idValueCantBeEmpty(): self
     {
         return new self('The saga identifier can\'t be empty');
     }
 
-    /**
-     * @param string $sagaClass
-     *
-     * @return self
-     */
     public static function invalidSagaClass(string $sagaClass): self
     {
         return new self(\sprintf('Invalid saga class specified ("%s")', $sagaClass));
     }
 
-    /**
-     * @param string $expectedSagaClass
-     * @param string $actualSagaClass
-     *
-     * @return self
-     */
     public static function sagaClassMismatch(string $expectedSagaClass, string $actualSagaClass): self
     {
         return new self(

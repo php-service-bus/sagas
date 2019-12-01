@@ -38,11 +38,6 @@ final class SagaWithToManyArguments extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @SagaEventListener()
-     *
-     * @param EventWithKey      $event
-     * @param ServiceBusContext $context
-     *
-     * @return void
      */
     private function onSomeSagaEvent(EventWithKey $event, ServiceBusContext $context): void
     {

@@ -17,10 +17,6 @@ namespace ServiceBus\Sagas\Tests\stubs;
  */
 final class IncorrectSagaIdType
 {
-    /**
-     * @param string $id
-     * @param string $sagaClass
-     */
     public function __construct(string $id, string $sagaClass)
     {
     }

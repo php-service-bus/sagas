@@ -22,16 +22,11 @@ interface EventProcessor
 {
     /**
      * Receipt of the event for which the handler was created.
-     *
-     * @return string
      */
     public function event(): string;
 
     /**
      * Invoke saga listener.
-     *
-     * @param object             $event
-     * @param ServiceBusContext $context
      *
      * @return Promise<bool> Has the saga been preserved?
      */

@@ -17,14 +17,8 @@ namespace ServiceBus\Sagas\Tests\stubs;
  */
 final class SecondEventWithKey
 {
-    /**
-     * @var string
-     */
-    public $key;
+    public string $key;
 
-    /**
-     * @param string $key
-     */
     public function __construct(string $key)
     {
         $this->key = $key;

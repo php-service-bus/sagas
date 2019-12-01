@@ -28,8 +28,6 @@ abstract class Saga
 {
     /**
      * The prefix from which all names of methods-listeners of events should begin.
-     *
-     * @var string
      */
     public const EVENT_APPLY_PREFIX = 'on';
 
@@ -38,59 +36,44 @@ abstract class Saga
      *
      * @var SagaId
      */
-    private $id;
+    private SagaId $id;
 
     /**
      * List of events that should be published while saving.
      *
      * @psalm-var array<int, object>
-     *
-     * @var array
      */
-    private $events;
+    private array $events;
 
     /**
      * List of commands that should be fired while saving.
      *
      * @psalm-var array<int, object>
-     *
-     * @var array
      */
-    private $commands;
+    private array $commands;
 
     /**
      * SagaStatus of the saga.
-     *
-     * @var SagaStatus
      */
-    private $status;
+    private SagaStatus $status;
 
     /**
      * Date of saga creation.
-     *
-     * @var \DateTimeImmutable
      */
-    private $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * Saga expiration date.
-     *
-     * @var \DateTimeImmutable
      */
-    private $expireDate;
+    private \DateTimeImmutable $expireDate;
 
     /**
      * Saga closing date.
-     *
-     * @var \DateTimeImmutable|null
      */
-    private $closedAt;
+    private ?\DateTimeImmutable $closedAt = null;
 
     /**
      * @noinspection PhpDocMissingThrowsInspection
-     *
-     * @param SagaId                  $id
-     * @param \DateTimeImmutable|null $expireDate
      *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
@@ -116,13 +99,11 @@ abstract class Saga
         $this->expireDate = $expireDate;
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->raise(SagaCreated::create($id, $currentDatetime, $expireDate));
+        $this->raise(new SagaCreated($id, $currentDatetime, $expireDate));
     }
 
     /**
      * Flush commands/events on wakeup.
-     *
-     * @return void
      */
     final public function __wakeup(): void
     {
@@ -131,17 +112,11 @@ abstract class Saga
 
     /**
      * Start saga flow.
-     *
-     * @param object $command
-     *
-     * @return void
      */
     abstract public function start(object $command): void;
 
     /**
      * Receive saga id.
-     *
-     * @return SagaId
      */
     final public function id(): SagaId
     {
@@ -150,8 +125,6 @@ abstract class Saga
 
     /**
      * Date of creation.
-     *
-     * @return \DateTimeImmutable
      */
     final public function createdAt(): \DateTimeImmutable
     {
@@ -160,8 +133,6 @@ abstract class Saga
 
     /**
      * Date of expiration.
-     *
-     * @return \DateTimeImmutable
      */
     final public function expireDate(): \DateTimeImmutable
     {
@@ -170,8 +141,6 @@ abstract class Saga
 
     /**
      * Saga closing date.
-     *
-     * @return \DateTimeImmutable|null
      */
     final public function closedAt(): ?\DateTimeImmutable
     {
@@ -180,8 +149,6 @@ abstract class Saga
 
     /**
      * Receive current state hash.
-     *
-     * @return string
      */
     final public function stateHash(): string
     {
@@ -191,12 +158,7 @@ abstract class Saga
     /**
      * Raise (apply event).
      *
-     * @param object $event
-     *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     *
-     * @return void
-     *
      */
     final protected function raise(object $event): void
     {
@@ -209,12 +171,7 @@ abstract class Saga
     /**
      * Fire command.
      *
-     * @param object $command
-     *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     *
-     * @return void
-     *
      */
     final protected function fire(object $command): void
     {
@@ -228,12 +185,7 @@ abstract class Saga
      *
      * @see SagaStatus::STATUS_COMPLETED
      *
-     * @param string|null $withReason
-     *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     *
-     * @return void
-     *
      */
     final protected function makeCompleted(string $withReason = null): void
     {
@@ -248,12 +200,7 @@ abstract class Saga
      *
      * @see SagaStatus::STATUS_FAILED
      *
-     * @param string|null $withReason
-     *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     *
-     * @return void
-     *
      */
     final protected function makeFailed(string $withReason = null): void
     {
@@ -270,8 +217,6 @@ abstract class Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @psalm-return array<int, object>
-     *
-     * @return array
      */
     private function firedCommands(): array
     {
@@ -289,8 +234,6 @@ abstract class Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @psalm-return array<int, object>
-     *
-     * @return array
      */
     private function raisedEvents(): array
     {
@@ -303,10 +246,6 @@ abstract class Saga
 
     /**
      * Apply event.
-     *
-     * @param object $event
-     *
-     * @return void
      */
     private function applyEvent(object $event): void
     {
@@ -319,7 +258,7 @@ abstract class Saga
          *
          * @return void
          */
-        $closure = function(object $event) use ($eventListenerMethodName): void
+        $closure = function (object $event) use ($eventListenerMethodName): void
         {
             if (true === \method_exists($this, $eventListenerMethodName))
             {
@@ -333,11 +272,9 @@ abstract class Saga
     /**
      * Change saga status to expired.
      *
-     * @noinspection PhpDocMissingThrowsInspection PhpUnusedPrivateMethodInspection
+     * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @see          SagaStatus::STATUS_EXPIRED
-     *
-     * @return void
      */
     private function makeExpired(): void
     {
@@ -356,14 +293,10 @@ abstract class Saga
 
     /**
      * Close saga.
-     *
-     * @param string|null $withReason
-     *
-     * @return void
      */
     private function doClose(string $withReason = null): void
     {
-        $event = SagaClosed::create($this->id, $withReason);
+        $event = new SagaClosed($this->id, $withReason);
 
         $this->closedAt = $event->datetime;
 
@@ -372,16 +305,11 @@ abstract class Saga
 
     /**
      * Change saga state.
-     *
-     * @param SagaStatus  $toState
-     * @param string|null $withReason
-     *
-     * @return void
      */
     private function doChangeState(SagaStatus $toState, string $withReason = null): void
     {
         $this->attachEvent(
-            SagaStatusChanged::create(
+            new SagaStatusChanged(
                 $this->id,
                 $this->status,
                 $toState,
@@ -394,8 +322,6 @@ abstract class Saga
 
     /**
      * Clear raised events and fired commands.
-     *
-     * @return void
      */
     private function clear(): void
     {
@@ -405,8 +331,6 @@ abstract class Saga
 
     /**
      * Clear raised events.
-     *
-     * @return void
      */
     private function clearRaisedEvents(): void
     {
@@ -415,29 +339,17 @@ abstract class Saga
 
     /**
      * Clear fired commands.
-     *
-     * @return void
      */
     private function clearFiredCommands(): void
     {
         $this->commands = [];
     }
 
-    /**
-     * @param object $event
-     *
-     * @return void
-     */
     private function attachEvent(object $event): void
     {
         $this->events[] = $event;
     }
 
-    /**
-     * @param object $command
-     *
-     * @return void
-     */
     private function attachCommand(object $command): void
     {
         $this->commands[] = $command;
@@ -447,9 +359,6 @@ abstract class Saga
      * Checking the possibility of changing the state of the saga.
      *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
-     *
-     * @return void
-     *
      */
     private function assertNotClosedSaga(): void
     {
@@ -460,12 +369,7 @@ abstract class Saga
     }
 
     /**
-     * @param SagaId $id
-     *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
-     *
-     * @return void
-     *
      */
     private function assertSagaClassEqualsWithId(SagaId $id): void
     {
@@ -478,13 +382,8 @@ abstract class Saga
     }
 
     /**
-     * @param \DateTimeImmutable $dateTime
-     *
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
-     *
-     * @return void
-     *
      */
     private function assertExpirationDateIsCorrect(\DateTimeImmutable $dateTime): void
     {
@@ -498,8 +397,6 @@ abstract class Saga
     }
 
     /**
-     * Close clone method.
-     *
      * @codeCoverageIgnore
      */
     private function __clone()

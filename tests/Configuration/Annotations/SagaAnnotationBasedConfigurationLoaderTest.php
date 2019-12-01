@@ -38,20 +38,11 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
  */
 final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 {
-    /**
-     * @var DatabaseAdapter
-     */
-    private $adapter;
+    private DatabaseAdapter $adapter;
 
-    /**
-     * @var SQLSagaStore
-     */
-    private $store;
+    private SQLSagaStore $store;
 
-    /**
-     * @var EventListenerProcessorFactory
-     */
-    private $listenerFactory;
+    private EventListenerProcessorFactory $listenerFactory;
 
     /**
      * {@inheritdoc}
@@ -93,8 +84,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithoutAnnotations(): void
     {
@@ -111,8 +100,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithIncorrectHeaderAnnotationData(): void
     {
@@ -132,8 +119,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithoutListeners(): void
     {
@@ -148,8 +133,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function correctSagaWithListeners(): void
     {
@@ -170,8 +153,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithUnExistsEventClass(): void
     {
@@ -185,8 +166,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithToManyListenerArguments(): void
     {
@@ -200,8 +179,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithIncorrectListenerClass(): void
     {
@@ -213,8 +190,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithMultipleListenerArgs(): void
     {
@@ -235,8 +210,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithInvalidListenerArgument(): void
     {
@@ -251,8 +224,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function sagaWithIncorrectListenerName(): void
     {

@@ -19,11 +19,6 @@ use ServiceBus\Sagas\SagaStatus;
  */
 final class ChangeSagaStateFailed extends \RuntimeException
 {
-    /**
-     * @param SagaStatus $currentStatus
-     *
-     * @return self
-     */
     public static function create(SagaStatus $currentStatus): self
     {
         return new self(

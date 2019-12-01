@@ -36,10 +36,6 @@ final class SagaWithUnExistsEventListenerClass extends Saga
      * @noinspection PhpUndefinedClassInspection
      *
      * @SagaEventListener()
-     *
-     * @param SomeEvent $event
-     *
-     * @return void
      */
     public function onSomeEvent(/** @noinspection PhpUndefinedClassInspection */
         SomeEvent $event

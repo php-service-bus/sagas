@@ -17,11 +17,6 @@ namespace ServiceBus\Sagas\Exceptions;
  */
 class InvalidSagaStatus extends \InvalidArgumentException
 {
-    /**
-     * @param string $status
-     *
-     * @return self
-     */
     public static function create(string $status): self
     {
         return new self(\sprintf('Incorrect saga status specified: %s', $status));

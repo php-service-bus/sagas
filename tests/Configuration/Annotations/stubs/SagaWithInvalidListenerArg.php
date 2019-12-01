@@ -34,13 +34,7 @@ final class SagaWithInvalidListenerArg extends Saga
     }
 
     /**
-     * @noinspection PhpUndefinedClassInspection
-     *
      * @SagaEventListener()
-     *
-     * @param EmptyCommand $command
-     *
-     * @return void
      */
     public function onSomeEvent(EmptyCommand $command): void
     {

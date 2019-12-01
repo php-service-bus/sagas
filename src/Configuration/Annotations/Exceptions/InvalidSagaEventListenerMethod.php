@@ -17,11 +17,6 @@ namespace ServiceBus\Sagas\Configuration\Annotations\Exceptions;
  */
 final class InvalidSagaEventListenerMethod extends \LogicException
 {
-    /**
-     * @param \ReflectionMethod $reflectionMethod
-     *
-     * @return self
-     */
     public static function tooManyArguments(\ReflectionMethod $reflectionMethod): self
     {
         return new self(
@@ -33,11 +28,6 @@ final class InvalidSagaEventListenerMethod extends \LogicException
         );
     }
 
-    /**
-     * @param \ReflectionMethod $reflectionMethod
-     *
-     * @return self
-     */
     public static function wrongEventArgument(\ReflectionMethod $reflectionMethod): self
     {
         return new self(
@@ -49,12 +39,6 @@ final class InvalidSagaEventListenerMethod extends \LogicException
         );
     }
 
-    /**
-     * @param string $expected
-     * @param string $actual
-     *
-     * @return self
-     */
     public static function unexpectedName(string $expected, string $actual): self
     {
         return new self(\sprintf(

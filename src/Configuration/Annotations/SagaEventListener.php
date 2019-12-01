@@ -18,30 +18,23 @@ namespace ServiceBus\Sagas\Configuration\Annotations;
  * @Annotation
  * @Target("METHOD")
  *
- * @property-read string|null $containingIdSource
- * @property-read string|null $containingIdProperty
+ * @psalm-readonly
  */
 final class SagaEventListener
 {
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
-     *
-     * @var string|null
      */
-    public $containingIdSource;
+    public ?string $containingIdSource = null;
 
     /**
      * The event property that contains the saga ID
      * In the context of executing the handler, it overrides the value set for the saga globally.
-     *
-     * @var string|null
      */
-    public $containingIdProperty;
+    public ?string  $containingIdProperty = null;
 
     /**
      * @psalm-param array<string, string|null> $data
-     *
-     * @param array $data
      *
      * @throws \InvalidArgumentException
      */
@@ -63,8 +56,6 @@ final class SagaEventListener
 
     /**
      * Has specified event property that contains the saga ID.
-     *
-     * @return bool
      */
     public function hasContainingIdProperty(): bool
     {

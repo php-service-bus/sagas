@@ -42,25 +42,13 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
  */
 final class DefaultEventProcessorTest extends TestCase
 {
-    /**
-     * @var DatabaseAdapter
-     */
-    private $adapter;
+    private DatabaseAdapter $adapter;
 
-    /**
-     * @var SQLSagaStore
-     */
-    private $store;
+    private SQLSagaStore $store;
 
-    /**
-     * @var EventListenerProcessorFactory
-     */
-    private $listenerFactory;
+    private EventListenerProcessorFactory $listenerFactory;
 
-    /**
-     * @var SagaConfigurationLoader
-     */
-    private $configLoader;
+    private SagaConfigurationLoader $configLoader;
 
     /**
      * {@inheritdoc}
@@ -105,8 +93,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function successExecute(): void
     {
@@ -115,7 +101,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -150,8 +136,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function successExecuteWithHeaderValue(): void
     {
@@ -160,7 +144,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                     $saga = new CorrectSagaWithHeaderCorrelationId($id);
@@ -193,8 +177,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithoutHeaderValue(): void
     {
@@ -203,7 +185,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                     $saga = new CorrectSagaWithHeaderCorrelationId($id);
@@ -235,8 +217,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithoutSaga(): void
     {
@@ -244,7 +224,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($configLoader): \Generator
+                static function () use ($configLoader): \Generator
                 {
                     $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
 
@@ -276,8 +256,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithoutCorrelationId(): void
     {
@@ -286,7 +264,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -320,8 +298,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithEmptyCorrelationId(): void
     {
@@ -330,7 +306,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = TestSagaId::new(CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -364,8 +340,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithCompletedSaga(): void
     {
@@ -374,7 +348,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -410,8 +384,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithNoChanges(): void
     {
@@ -420,7 +392,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -453,8 +425,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithUnknownIdClass(): void
     {
@@ -463,7 +433,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                     $saga = new CorrectSaga($id);
@@ -509,8 +479,6 @@ final class DefaultEventProcessorTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function executeWithIncorrectIdClassType(): void
     {
@@ -519,7 +487,7 @@ final class DefaultEventProcessorTest extends TestCase
 
         wait(
             call(
-                static function() use ($store, $configLoader): \Generator
+                static function () use ($store, $configLoader): \Generator
                 {
                     $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                     $saga = new CorrectSaga($id);

@@ -25,8 +25,6 @@ final class SqlStoreFunctionsTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function incorrectBase64(): void
     {
@@ -39,8 +37,6 @@ final class SqlStoreFunctionsTest extends TestCase
      * @test
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function incorrectSerializedObject(): void
     {

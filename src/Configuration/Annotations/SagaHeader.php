@@ -16,10 +16,7 @@ namespace ServiceBus\Sagas\Configuration\Annotations;
  * @Annotation
  * @Target("CLASS")
  *
- * @property-read string|null $idClass
- * @property-read string|null $containingIdentifierSource
- * @property-read string|null $containingIdProperty
- * @property-read string|null $expireDateModifier
+ * @psalm-readonly
  */
 final class SagaHeader
 {
@@ -27,38 +24,28 @@ final class SagaHeader
      * Saga identifier class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\SagaId>|null
-     *
-     * @var string|null
      */
-    public $idClass;
+    public ?string $idClass = null;
 
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
-     *
-     * @var string|null
      */
-    public $containingIdSource;
+    public ?string $containingIdSource = null;
 
     /**
      * The event property (or header key) that contains the saga ID.
-     *
-     * @var string|null
      */
-    public $containingIdProperty;
+    public ?string $containingIdProperty = null;
 
     /**
      * Saga expire date modifier.
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
-     *
-     * @var string|null
      */
-    public $expireDateModifier;
+    public ?string $expireDateModifier = null;
 
     /**
      * @psalm-param array<string, string|null> $data
-     *
-     * @param array $data
      *
      * @throws \InvalidArgumentException
      */
@@ -80,8 +67,6 @@ final class SagaHeader
 
     /**
      * Has specified expire date interval.
-     *
-     * @return bool
      */
     public function hasSpecifiedExpireDateModifier(): bool
     {
@@ -90,8 +75,6 @@ final class SagaHeader
 
     /**
      * Has specified event property that contains the saga ID.
-     *
-     * @return bool
      */
     public function hasContainingIdProperty(): bool
     {

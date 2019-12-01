@@ -15,43 +15,21 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Configuration details.
  *
- * @property-read SagaMetadata      $metaData
- * @property-read \SplObjectStorage $handlerCollection
+ * @psalm-readonly
  */
 final class SagaConfiguration
 {
-    /**
-     * @var SagaMetadata
-     */
-    public $metaData;
+    public SagaMetadata $metaData;
 
     /**
      * @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string>
-     *
-     * @var \SplObjectStorage
      */
-    public $handlerCollection;
+    public \SplObjectStorage $handlerCollection;
 
     /**
      * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
-     *
-     * @param SagaMetadata      $metaData
-     * @param \SplObjectStorage $handlerCollection
-     *
-     * @return self
      */
-    public static function create(SagaMetadata $metaData, \SplObjectStorage $handlerCollection): self
-    {
-        return new self($metaData, $handlerCollection);
-    }
-
-    /**
-     * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
-     *
-     * @param SagaMetadata      $metaData
-     * @param \SplObjectStorage $handlerCollection
-     */
-    private function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
+    public function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {
         $this->metaData          = $metaData;
         $this->handlerCollection = $handlerCollection;

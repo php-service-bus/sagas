@@ -26,10 +26,7 @@ use ServiceBus\Sagas\Saga;
  */
 final class CorrectSaga extends Saga
 {
-    /**
-     * @var string|null
-     */
-    private $value;
+    private ?string $value = null;
 
     /**
      * {@inheritdoc}
@@ -40,9 +37,6 @@ final class CorrectSaga extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function doSomething(): void
     {
@@ -51,9 +45,6 @@ final class CorrectSaga extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function doSomethingElse(): void
     {
@@ -62,28 +53,17 @@ final class CorrectSaga extends Saga
 
     /**
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     public function closeWithSuccessStatus(): void
     {
         $this->makeCompleted();
     }
 
-    /**
-     * @return string|null
-     */
     public function value(): ?string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $newValue
-     *
-     * @return void
-     */
     public function changeValue(string $newValue): void
     {
         $this->value = $newValue;
@@ -93,9 +73,6 @@ final class CorrectSaga extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     private function onSomeFirstEvent(): void
     {
@@ -109,12 +86,7 @@ final class CorrectSaga extends Saga
      *     containingIdProperty="key"
      * )
      *
-     * @param EventWithKey $event
-     *
      * @throws \Throwable
-     *
-     * @return void
-     *
      */
     private function onEventWithKey(EventWithKey $event): void
     {
@@ -127,10 +99,6 @@ final class CorrectSaga extends Saga
      * @SagaEventListener(
      *     containingIdProperty="key"
      * )
-     *
-     * @param SecondEventWithKey $event
-     *
-     * @return void
      */
     private function onSecondEventWithKey(SecondEventWithKey $event): void
     {
@@ -140,10 +108,6 @@ final class CorrectSaga extends Saga
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @SagaEventListener()
-     *
-     * @param EmptyEvent $event
-     *
-     * @return void
      */
     private function onEmptyEvent(EmptyEvent $event): void
     {

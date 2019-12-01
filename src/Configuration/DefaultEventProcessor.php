@@ -33,35 +33,20 @@ final class DefaultEventProcessor implements EventProcessor
      * The event for which the handler is registered.
      *
      * @psalm-var class-string
-     *
-     * @var string
      */
-    private $forEvent;
+    private string $forEvent;
 
-    /**
-     * @var SagasStore
-     */
-    private $sagasStore;
+    private SagasStore $sagasStore;
 
     /**
      * Listener options.
-     *
-     * @var SagaListenerOptions
      */
-    private $sagaListenerOptions;
+    private SagaListenerOptions $sagaListenerOptions;
 
-    /**
-     * @var MutexFactory
-     */
-    private $mutexFactory;
+    private MutexFactory $mutexFactory;
 
     /**
      * @psalm-param class-string $forEvent
-     *
-     * @param string              $forEvent
-     * @param SagasStore          $sagasStore
-     * @param SagaListenerOptions $sagaListenerOptions
-     * @param MutexFactory        $mutexFactory
      */
     public function __construct(
         string $forEvent,
@@ -90,9 +75,8 @@ final class DefaultEventProcessor implements EventProcessor
      */
     public function __invoke(object $event, ServiceBusContext $context): Promise
     {
-        /** @psalm-suppress InvalidArgument Incorrect psalm unpack parameters (...$args) */
         return call(
-            function(object $event, ServiceBusContext $context): \Generator
+            function (object $event, ServiceBusContext $context): \Generator
             {
                 try
                 {
@@ -157,6 +141,7 @@ final class DefaultEventProcessor implements EventProcessor
                 }
                 finally
                 {
+                    /** @psalm-suppress PossiblyUndefinedVariable */
                     unset($lock);
                 }
             },
@@ -170,8 +155,6 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @psalm-param array<int, object> $commands
      * @psalm-param array<int, object> $events
-     *
-     * @param ServiceBusContext $context
      * @param object[]          $commands
      * @param object[]          $events
      *
@@ -203,12 +186,7 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @psalm-param array<string, string|float|int> $headers
      *
-     * @param object $event
-     * @param array  $headers
-     *
      * @throws \RuntimeException A property that contains an identifier was not found
-     *
-     * @return SagaId
      */
     private function obtainSagaId(object $event, array $headers): SagaId
     {
@@ -218,14 +196,10 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     * @param SagaId $id $event
-     *
      * @throws \RuntimeException
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
-     *
-     * @return \Generator
      */
     private function loadSaga(SagaId $id): \Generator
     {
@@ -259,11 +233,7 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * @psalm-param array<string, string|float|int> $headers
      *
-     * @param array $headers
-     *
      * @throws \RuntimeException
-     *
-     * @return SagaId
      */
     private function searchSagaIdentifierInHeaders(array $headers): SagaId
     {
@@ -294,11 +264,7 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Search saga identifier in the event payload.
      *
-     * @param object $event
-     *
      * @throws \RuntimeException
-     *
-     * @return SagaId
      */
     private function searchSagaIdentifierInEvent(object $event): SagaId
     {
@@ -346,8 +312,6 @@ final class DefaultEventProcessor implements EventProcessor
      * @psalm-return class-string<\ServiceBus\Sagas\SagaId>
      *
      * @throws \RuntimeException
-     *
-     * @return string
      */
     private function getSagaIdentifierClass(): string
     {
@@ -374,13 +338,7 @@ final class DefaultEventProcessor implements EventProcessor
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
      *
-     * @param string $idClass
-     * @param string $idValue
-     * @param string $sagaClass
-     *
      * @throws \RuntimeException
-     *
-     * @return SagaId
      */
     private static function identifierInstantiator(string $idClass, string $idValue, string $sagaClass): SagaId
     {
@@ -404,12 +362,7 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Read event property value.
      *
-     * @param object $event
-     * @param string $propertyName
-     *
      * @throws \Throwable Reflection property not found
-     *
-     * @return string
      */
     private static function readEventProperty(object $event, string $propertyName): string
     {
