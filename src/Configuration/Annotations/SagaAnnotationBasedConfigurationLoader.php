@@ -12,11 +12,11 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration\Annotations;
 
+use ServiceBus\AnnotationsReader\Annotation\ClassLevel;
+use ServiceBus\AnnotationsReader\Annotation\MethodLevel;
+use ServiceBus\AnnotationsReader\DoctrineReader;
+use ServiceBus\AnnotationsReader\Reader;
 use function ServiceBus\Sagas\createEventListenerName;
-use ServiceBus\AnnotationsReader\Annotation;
-use ServiceBus\AnnotationsReader\AnnotationCollection;
-use ServiceBus\AnnotationsReader\AnnotationsReader;
-use ServiceBus\AnnotationsReader\DoctrineAnnotationsReader;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
@@ -31,12 +31,7 @@ use ServiceBus\Sagas\Configuration\SagaMetadata;
  */
 final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationLoader
 {
-    private const SUPPORTED_TYPES = [
-        SagaHeader::class,
-        SagaEventListener::class,
-    ];
-
-    private AnnotationsReader $annotationReader;
+    private Reader $annotationReader;
 
     private EventListenerProcessorFactory $eventListenerProcessorFactory;
 
@@ -45,10 +40,10 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      */
     public function __construct(
         EventListenerProcessorFactory $eventListenerProcessorFactory,
-        ?AnnotationsReader $annotationReader = null
+        ?Reader $annotationReader = null
     ) {
         $this->eventListenerProcessorFactory = $eventListenerProcessorFactory;
-        $this->annotationReader              = $annotationReader ?? new DoctrineAnnotationsReader(null, ['psalm']);
+        $this->annotationReader              = $annotationReader ?? new DoctrineReader(null, ['psalm']);
     }
 
     /**
@@ -58,26 +53,14 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     {
         try
         {
-            /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
-            $annotations = $this->annotationReader
-                ->extract($sagaClass)
-                ->filter(
-                    static function (Annotation $annotation): ?Annotation
-                    {
-                        $annotationClass = \get_class($annotation->annotationObject);
-
-                        return true === \in_array($annotationClass, self::SUPPORTED_TYPES, true)
-                            ? $annotation
-                            : null;
-                    }
-                );
+            $annotations = $this->annotationReader->extract($sagaClass);
 
             $sagaMetadata = self::createSagaMetadata(
                 $sagaClass,
-                self::searchSagaHeader($sagaClass, $annotations)
+                self::searchSagaHeader($sagaClass, $annotations->classLevelCollection)
             );
 
-            $handlersCollection = $this->collectSagaEventHandlers($annotations, $sagaMetadata);
+            $handlersCollection = $this->collectSagaEventHandlers($annotations->methodLevelCollection, $sagaMetadata);
 
             return new SagaConfiguration($sagaMetadata, $handlersCollection);
         }
@@ -90,30 +73,22 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     /**
      * Collect a saga event handlers.
      *
-     * @psalm-return \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler>
-     *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
      */
-    private function collectSagaEventHandlers(AnnotationCollection $annotationCollection, SagaMetadata $sagaMetadata): \SplObjectStorage
+    private function collectSagaEventHandlers(\SplObjectStorage $methodLevelAnnotations, SagaMetadata $sagaMetadata): \SplObjectStorage
     {
         $handlersCollection = new \SplObjectStorage();
 
-        $methodAnnotations = $annotationCollection->filter(
-            static function (Annotation $annotation): ?Annotation
-            {
-                return $annotation->annotationObject instanceof SagaEventListener ? $annotation : null;
-            }
-        );
-
-        /** @var Annotation $methodAnnotation */
-        foreach ($methodAnnotations as $methodAnnotation)
+        /** @var MethodLevel $methodAnnotation */
+        foreach ($methodLevelAnnotations as $methodAnnotation)
         {
-            $handlersCollection->attach(
-                $this->createMessageHandler($methodAnnotation, $sagaMetadata)
-            );
+            if ($methodAnnotation->annotation instanceof SagaEventListener)
+            {
+                $handlersCollection->attach(
+                    $this->createMessageHandler($methodAnnotation, $sagaMetadata)
+                );
+            }
         }
-
-        /** @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler> $handlersCollection */
 
         return $handlersCollection;
     }
@@ -123,10 +98,10 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      *
      * @throws \ServiceBus\Sagas\Configuration\Annotations\Exceptions\InvalidSagaEventListenerMethod
      */
-    private function createMessageHandler(Annotation $annotation, SagaMetadata $sagaMetadata): MessageHandler
+    private function createMessageHandler(MethodLevel $methodAnnotation, SagaMetadata $sagaMetadata): MessageHandler
     {
         /** @var SagaEventListener $listenerAnnotation */
-        $listenerAnnotation = $annotation->annotationObject;
+        $listenerAnnotation = $methodAnnotation->annotation;
 
         $listenerOptions = true === $listenerAnnotation->hasContainingIdProperty()
             ? SagaListenerOptions::withCustomContainingIdentifierProperty(
@@ -137,7 +112,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
             : SagaListenerOptions::withGlobalOptions($sagaMetadata);
 
         /** @var \ReflectionMethod $eventListenerReflectionMethod */
-        $eventListenerReflectionMethod = $annotation->reflectionMethod;
+        $eventListenerReflectionMethod = $methodAnnotation->reflectionMethod;
 
         $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
 
@@ -146,7 +121,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         if ($expectedMethodName === $eventListenerReflectionMethod->name)
         {
             /** @var \ReflectionMethod $reflectionMethod */
-            $reflectionMethod = $annotation->reflectionMethod;
+            $reflectionMethod = $methodAnnotation->reflectionMethod;
 
             /** @var callable $processor */
             $processor = $this->eventListenerProcessorFactory->createProcessor(
@@ -158,7 +133,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure */
 
-            return MessageHandler::create($eventClass, $closure, $reflectionMethod, $listenerOptions);
+            return new MessageHandler($eventClass, $closure, $reflectionMethod, $listenerOptions);
         }
 
         throw InvalidSagaEventListenerMethod::unexpectedName($expectedMethodName, $eventListenerReflectionMethod->name);
@@ -245,12 +220,12 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
      *
      * @throws \InvalidArgumentException
      */
-    private static function searchSagaHeader(string $sagaClass, AnnotationCollection $annotationCollection): SagaHeader
+    private static function searchSagaHeader(string $sagaClass, \SplObjectStorage $classLevelAnnotations): SagaHeader
     {
-        /** @var \ServiceBus\AnnotationsReader\Annotation $annotation */
-        foreach ($annotationCollection->classLevelAnnotations() as $annotation)
+        /** @var ClassLevel $annotation */
+        foreach ($classLevelAnnotations as $annotation)
         {
-            $annotationObject = $annotation->annotationObject;
+            $annotationObject = $annotation->annotation;
 
             if ($annotationObject instanceof SagaHeader)
             {

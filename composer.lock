@@ -479,25 +479,26 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "fa89465a0b4809af7dc94920dff8099c7752a8e3"
+                "reference": "ae3c1b3801039124c1ca2b5b278ad13a6f3e2801"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/fa89465a0b4809af7dc94920dff8099c7752a8e3",
-                "reference": "fa89465a0b4809af7dc94920dff8099c7752a8e3",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/ae3c1b3801039124c1ca2b5b278ad13a6f3e2801",
+                "reference": "ae3c1b3801039124c1ca2b5b278ad13a6f3e2801",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "v2.4.*",
+                "ext-json": "*",
                 "php": ">=7.4",
                 "ramsey/uuid": "v3.8.*"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "v1.1.*",
+                "php-service-bus/code-style-config": "v1.2.*",
                 "phpstan/phpstan": "v0.11.*",
                 "phpunit/phpunit": "v8.4.*",
                 "symfony/dependency-injection": "v5.0.*",
@@ -530,20 +531,20 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-11-29T20:46:17+00:00"
+            "time": "2019-12-02T14:33:55+00:00"
         },
         {
             "name": "php-service-bus/mutex",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "49a094674abedefc93d9a5bd40ccd94ec072682c"
+                "reference": "bde00488460ef588385b6937683a913fc4332d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/49a094674abedefc93d9a5bd40ccd94ec072682c",
-                "reference": "49a094674abedefc93d9a5bd40ccd94ec072682c",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/bde00488460ef588385b6937683a913fc4332d37",
+                "reference": "bde00488460ef588385b6937683a913fc4332d37",
                 "shasum": ""
             },
             "require": {
@@ -552,7 +553,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "v1.1.*",
+                "php-service-bus/code-style-config": "v1.2.*",
                 "phpstan/phpstan": "v0.11.*",
                 "phpunit/phpunit": "v8.4.*",
                 "vimeo/psalm": "v3.7.*"
@@ -581,20 +582,20 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-11-30T00:42:46+00:00"
+            "time": "2019-12-02T18:28:23+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "da9208c496116b62f34c46036e6fffcf2d0a37fd"
+                "reference": "ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/da9208c496116b62f34c46036e6fffcf2d0a37fd",
-                "reference": "da9208c496116b62f34c46036e6fffcf2d0a37fd",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3",
+                "reference": "ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3",
                 "shasum": ""
             },
             "require": {
@@ -602,7 +603,7 @@
             },
             "require-dev": {
                 "amphp/amp": "v2.4.*",
-                "php-service-bus/code-style-config": "v1.1.*",
+                "php-service-bus/code-style-config": "v1.2.*",
                 "phpstan/phpstan": "v0.11.*",
                 "phpunit/phpunit": "v8.4.*",
                 "vimeo/psalm": "v3.7.*"
@@ -631,7 +632,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-11-29T23:41:09+00:00"
+            "time": "2019-12-02T18:06:07+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -1827,9 +1828,9 @@
             "authors": [
                 {
                     "name": "Christian Weiske",
-                    "role": "Developer",
                     "email": "cweiske@cweiske.de",
-                    "homepage": "http://github.com/cweiske/jsonmapper/"
+                    "homepage": "http://github.com/cweiske/jsonmapper/",
+                    "role": "Developer"
                 }
             ],
             "description": "Map nested JSON structures onto PHP classes",
@@ -2599,18 +2600,18 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "role": "Developer",
-                    "email": "arne@blankerts.de"
+                    "email": "arne@blankerts.de",
+                    "role": "Developer"
                 },
                 {
                     "name": "Sebastian Heuer",
-                    "role": "Developer",
-                    "email": "sebastian@phpeople.de"
+                    "email": "sebastian@phpeople.de",
+                    "role": "Developer"
                 },
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "Developer",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "Developer"
                 }
             ],
             "description": "Library for handling version information and constraints",
@@ -2669,16 +2670,16 @@
         },
         {
             "name": "php-service-bus/annotations-reader",
-            "version": "v4.0.0",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/annotations-reader.git",
-                "reference": "a4e826c67e0064d8a4bfb78a2109a4db309cbc1f"
+                "reference": "ac8e027d7c5c1956f24169e39411ad297b82ca6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/a4e826c67e0064d8a4bfb78a2109a4db309cbc1f",
-                "reference": "a4e826c67e0064d8a4bfb78a2109a4db309cbc1f",
+                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/ac8e027d7c5c1956f24169e39411ad297b82ca6f",
+                "reference": "ac8e027d7c5c1956f24169e39411ad297b82ca6f",
                 "shasum": ""
             },
             "require": {
@@ -2687,7 +2688,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
-                "php-service-bus/code-style-config": "v1.1.*",
+                "php-service-bus/code-style-config": "v1.2.*",
                 "phpstan/phpstan": "v0.11.*",
                 "phpunit/phpunit": "v8.4.*",
                 "vimeo/psalm": "v3.7.*"
@@ -2716,7 +2717,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-11-29T21:05:11+00:00"
+            "time": "2019-12-02T15:35:22+00:00"
         },
         {
             "name": "php-service-bus/code-style-config",
@@ -2759,16 +2760,16 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "be20af39b444f14ece4cc7f8a7485214c649327e"
+                "reference": "894039e66abdadee7cf230565f271946c94cea51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/be20af39b444f14ece4cc7f8a7485214c649327e",
-                "reference": "be20af39b444f14ece4cc7f8a7485214c649327e",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/894039e66abdadee7cf230565f271946c94cea51",
+                "reference": "894039e66abdadee7cf230565f271946c94cea51",
                 "shasum": ""
             },
             "require": {
@@ -2781,7 +2782,7 @@
             },
             "require-dev": {
                 "doctrine/dbal": "v2.10.*",
-                "php-service-bus/code-style-config": "v1.1.*",
+                "php-service-bus/code-style-config": "v1.2.*",
                 "phpstan/phpstan": "v0.11.*",
                 "phpunit/phpunit": "v8.4.*",
                 "vimeo/psalm": "v3.7.*"
@@ -2817,7 +2818,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-11-30T00:20:34+00:00"
+            "time": "2019-12-02T18:22:48+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -3255,8 +3256,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "FilterIterator implementation that filters files based on a list of suffixes.",
@@ -3297,8 +3298,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Simple template engine.",
@@ -3346,8 +3347,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Utility class for timing",
@@ -4149,8 +4150,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Collection of value objects that represent the types of the PHP type system",
@@ -4192,8 +4193,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
@@ -4987,16 +4988,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.7.0",
+            "version": "3.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "a154191922d14dcdde8ef348520a88d735d82304"
+                "reference": "8e6aa8a07d148dcedf58cccf32ce4b602b422035"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/a154191922d14dcdde8ef348520a88d735d82304",
-                "reference": "a154191922d14dcdde8ef348520a88d735d82304",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/8e6aa8a07d148dcedf58cccf32ce4b602b422035",
+                "reference": "8e6aa8a07d148dcedf58cccf32ce4b602b422035",
                 "shasum": ""
             },
             "require": {
@@ -5026,7 +5027,7 @@
                 "phpunit/phpunit": "^7.5 || ^8.0",
                 "psalm/plugin-phpunit": "^0.6",
                 "slevomat/coding-standard": "^5.0",
-                "squizlabs/php_codesniffer": "3.4.0",
+                "squizlabs/php_codesniffer": "^3.5",
                 "symfony/process": "^4.3"
             },
             "suggest": {
@@ -5071,7 +5072,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-11-27T14:18:47+00:00"
+            "time": "2019-12-02T05:11:45+00:00"
         },
         {
             "name": "webmozart/assert",

@@ -21,14 +21,8 @@ final class SagaConfiguration
 {
     public SagaMetadata $metaData;
 
-    /**
-     * @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string>
-     */
     public \SplObjectStorage $handlerCollection;
 
-    /**
-     * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, string> $handlerCollection
-     */
     public function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {
         $this->metaData          = $metaData;

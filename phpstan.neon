@@ -1,8 +1,1 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#PHPDoc tag @return contains unresolvable type#'
-			path: %currentWorkingDirectory%/src/Store/SagasStore.php
-		-
-			message: '#PHPDoc tag @return contains unresolvable type#'
-			path: %currentWorkingDirectory%/src/Configuration/EventProcessor.php

@@ -46,8 +46,6 @@ final class SQLSagaStore implements SagasStore
     }
 
     /**
-     * @psalm-suppress MixedTypeCoercion
-     *
      * {@inheritdoc}
      */
     public function obtain(SagaId $id): Promise
