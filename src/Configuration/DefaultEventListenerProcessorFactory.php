@@ -21,9 +21,11 @@ use ServiceBus\Sagas\Store\SagasStore;
  */
 final class DefaultEventListenerProcessorFactory implements EventListenerProcessorFactory
 {
-    private SagasStore $sagaStore;
+    /** @var SagasStore */
+    private $sagaStore;
 
-    private MutexFactory $mutexFactory;
+    /** @var MutexFactory */
+    private $mutexFactory;
 
     public function __construct(SagasStore $sagaStore, ?MutexFactory $mutexFactory = null)
     {

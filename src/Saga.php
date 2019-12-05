@@ -36,41 +36,53 @@ abstract class Saga
      *
      * @var SagaId
      */
-    private SagaId $id;
+    private $id;
 
     /**
      * List of events that should be published while saving.
      *
      * @psalm-var array<int, object>
+     *
+     * @var object[]
      */
-    private array $events;
+    private $events;
 
     /**
      * List of commands that should be fired while saving.
      *
      * @psalm-var array<int, object>
+     *
+     * @var object[]
      */
-    private array $commands;
+    private $commands;
 
     /**
      * SagaStatus of the saga.
+     *
+     * @var SagaStatus
      */
-    private SagaStatus $status;
+    private $status;
 
     /**
      * Date of saga creation.
+     *
+     * @var \DateTimeImmutable
      */
-    private \DateTimeImmutable $createdAt;
+    private $createdAt;
 
     /**
      * Saga expiration date.
+     *
+     * @var \DateTimeImmutable
      */
-    private \DateTimeImmutable $expireDate;
+    private $expireDate;
 
     /**
      * Saga closing date.
+     *
+     * @var \DateTimeImmutable|null
      */
-    private ?\DateTimeImmutable $closedAt = null;
+    private $closedAt = null;
 
     /**
      * @noinspection PhpDocMissingThrowsInspection

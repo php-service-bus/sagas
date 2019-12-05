@@ -28,11 +28,13 @@ final class TestContext implements ServiceBusContext
     /**
      * @var object[]
      */
-    public array $messages = [];
+    public $messages = [];
 
-    public array $headers = [];
+    /** @var array */
+    public $headers = [];
 
-    public TestLogger $logger;
+    /** @var TestLogger */
+    public $logger;
 
     public function __construct()
     {
@@ -78,6 +80,7 @@ final class TestContext implements ServiceBusContext
      */
     public function logContextMessage(string $logMessage, array $extra = [], string $level = LogLevel::INFO): void
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         $this->logger->log($level, $logMessage, $extra);
     }
 
@@ -86,6 +89,7 @@ final class TestContext implements ServiceBusContext
      */
     public function logContextThrowable(\Throwable $throwable, array $extra = [], string $level = LogLevel::ERROR): void
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         $this->logger->log($level, $throwable->getMessage(), $extra);
     }
 

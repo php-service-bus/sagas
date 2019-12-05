@@ -38,8 +38,10 @@ final class SagaStatus
 
     /**
      * SagaStatus ID.
+     *
+     * @var string
      */
-    private string $value;
+    private $value;
 
     /**
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaStatus

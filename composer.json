@@ -39,7 +39,7 @@
     ]
   },
   "require": {
-    "php": ">=7.4",
+    "php": ">=7.3",
     "php-service-bus/common": "v4.0.*",
     "php-service-bus/storage-common": "v4.0.*",
     "php-service-bus/mutex": "v4.0.*"

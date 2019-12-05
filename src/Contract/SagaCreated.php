@@ -23,28 +23,38 @@ final class SagaCreated
 {
     /**
      * Saga identifier.
+     *
+     * @var string
      */
-    public string $id;
+    public $id;
 
     /**
      * Saga identifier class.
+     *
+     * @var string
      */
-    public string $idClass;
+    public $idClass;
 
     /**
      * Saga class.
+     *
+     * @var string
      */
-    public string $sagaClass;
+    public $sagaClass;
 
     /**
      * Date of creation.
+     *
+     * @var \DateTimeImmutable
      */
-    public \DateTimeImmutable $datetime;
+    public $datetime;
 
     /**
      * Date of expiration.
+     *
+     * @var \DateTimeImmutable
      */
-    public \DateTimeImmutable $expirationDate;
+    public $expirationDate;
 
     public function __construct(SagaId $sagaId, \DateTimeImmutable $dateTime, \DateTimeImmutable $expirationDate)
     {

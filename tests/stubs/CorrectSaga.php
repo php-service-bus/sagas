@@ -26,7 +26,8 @@ use ServiceBus\Sagas\Saga;
  */
 final class CorrectSaga extends Saga
 {
-    private ?string $value = null;
+    /** @var string|null  */
+    private $value = null;
 
     /**
      * {@inheritdoc}

@@ -33,17 +33,23 @@ final class DefaultEventProcessor implements EventProcessor
      * The event for which the handler is registered.
      *
      * @psalm-var class-string
+     *
+     * @var string
      */
-    private string $forEvent;
+    private $forEvent;
 
-    private SagasStore $sagasStore;
+    /** @var SagasStore */
+    private $sagasStore;
 
     /**
      * Listener options.
+     *
+     * @var SagaListenerOptions
      */
-    private SagaListenerOptions $sagaListenerOptions;
+    private $sagaListenerOptions;
 
-    private MutexFactory $mutexFactory;
+    /** @var MutexFactory */
+    private $mutexFactory;
 
     /**
      * @psalm-param class-string $forEvent
@@ -153,8 +159,9 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @psalm-param array<int, object> $commands
      * @psalm-param array<int, object> $events
-     * @param object[]          $commands
-     * @param object[]          $events
+     *
+     * @param object[] $commands
+     * @param object[] $events
      *
      * @throws \ServiceBus\Common\Context\Exceptions\MessageDeliveryFailed
      *

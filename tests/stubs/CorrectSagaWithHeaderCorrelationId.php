@@ -30,7 +30,7 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
     /**
      * @var string|null
      */
-    private ?string $value = null;
+    private $value = null;
 
     /**
      * {@inheritdoc}

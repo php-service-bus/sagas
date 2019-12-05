@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d719491c0ab989ac4b48db712f85b082",
+    "content-hash": "a16d336d800332b8af03e4b6e9c27996",
     "packages": [
         {
             "name": "amphp/amp",
@@ -479,22 +479,22 @@
         },
         {
             "name": "php-service-bus/common",
-            "version": "v4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/common.git",
-                "reference": "ae3c1b3801039124c1ca2b5b278ad13a6f3e2801"
+                "reference": "baa7c41700d09b66ee7c131590bb0c2f39bff8f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/common/zipball/ae3c1b3801039124c1ca2b5b278ad13a6f3e2801",
-                "reference": "ae3c1b3801039124c1ca2b5b278ad13a6f3e2801",
+                "url": "https://api.github.com/repos/php-service-bus/common/zipball/baa7c41700d09b66ee7c131590bb0c2f39bff8f6",
+                "reference": "baa7c41700d09b66ee7c131590bb0c2f39bff8f6",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "v2.4.*",
                 "ext-json": "*",
-                "php": ">=7.4",
+                "php": ">=7.3",
                 "ramsey/uuid": "v3.8.*"
             },
             "require-dev": {
@@ -531,26 +531,26 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-12-02T14:33:55+00:00"
+            "time": "2019-12-03T22:21:56+00:00"
         },
         {
             "name": "php-service-bus/mutex",
-            "version": "v4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "bde00488460ef588385b6937683a913fc4332d37"
+                "reference": "9688de92bc29debe26c637e5e253c01a5599d0e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/bde00488460ef588385b6937683a913fc4332d37",
-                "reference": "bde00488460ef588385b6937683a913fc4332d37",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/9688de92bc29debe26c637e5e253c01a5599d0e7",
+                "reference": "9688de92bc29debe26c637e5e253c01a5599d0e7",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "v2.4.*",
                 "amphp/file": "v1.0.*",
-                "php": ">=7.4"
+                "php": ">=7.3"
             },
             "require-dev": {
                 "php-service-bus/code-style-config": "v1.2.*",
@@ -582,24 +582,24 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-12-02T18:28:23+00:00"
+            "time": "2019-12-03T23:36:05+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
-            "version": "v4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-common.git",
-                "reference": "ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3"
+                "reference": "f593cc64775c5867d35e97cf3ff388dd85f08246"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3",
-                "reference": "ab0b3096e9eb034b2acbc3e8788a7fbe70c0ccd3",
+                "url": "https://api.github.com/repos/php-service-bus/storage-common/zipball/f593cc64775c5867d35e97cf3ff388dd85f08246",
+                "reference": "f593cc64775c5867d35e97cf3ff388dd85f08246",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=7.3"
             },
             "require-dev": {
                 "amphp/amp": "v2.4.*",
@@ -632,7 +632,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-12-02T18:06:07+00:00"
+            "time": "2019-12-04T00:00:45+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -2670,22 +2670,22 @@
         },
         {
             "name": "php-service-bus/annotations-reader",
-            "version": "4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/annotations-reader.git",
-                "reference": "ac8e027d7c5c1956f24169e39411ad297b82ca6f"
+                "reference": "a7323838308971f3b8e67c759a8eab865917d3c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/ac8e027d7c5c1956f24169e39411ad297b82ca6f",
-                "reference": "ac8e027d7c5c1956f24169e39411ad297b82ca6f",
+                "url": "https://api.github.com/repos/php-service-bus/annotations-reader/zipball/a7323838308971f3b8e67c759a8eab865917d3c7",
+                "reference": "a7323838308971f3b8e67c759a8eab865917d3c7",
                 "shasum": ""
             },
             "require": {
                 "doctrine/annotations": "v1.8.*",
                 "doctrine/cache": "v1.10.*",
-                "php": ">=7.4"
+                "php": ">=7.3"
             },
             "require-dev": {
                 "php-service-bus/code-style-config": "v1.2.*",
@@ -2717,25 +2717,25 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-12-02T15:35:22+00:00"
+            "time": "2019-12-03T23:20:16+00:00"
         },
         {
             "name": "php-service-bus/code-style-config",
-            "version": "v1.2.0",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/code-style-config.git",
-                "reference": "ab89a1963973c3639e2e43aa61addb694ede44fa"
+                "reference": "dff63007fe0fa3c7c0fb67c4dccbeedaac1a14c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/code-style-config/zipball/ab89a1963973c3639e2e43aa61addb694ede44fa",
-                "reference": "ab89a1963973c3639e2e43aa61addb694ede44fa",
+                "url": "https://api.github.com/repos/php-service-bus/code-style-config/zipball/dff63007fe0fa3c7c0fb67c4dccbeedaac1a14c3",
+                "reference": "dff63007fe0fa3c7c0fb67c4dccbeedaac1a14c3",
                 "shasum": ""
             },
             "require": {
                 "friendsofphp/php-cs-fixer": "v2.16.*",
-                "php": ">=7.4"
+                "php": ">=7.3"
             },
             "type": "library",
             "autoload": {
@@ -2756,27 +2756,27 @@
                 }
             ],
             "description": "PHP Service Bus code style config",
-            "time": "2019-12-01T19:26:37+00:00"
+            "time": "2019-12-03T22:09:48+00:00"
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "894039e66abdadee7cf230565f271946c94cea51"
+                "reference": "a838ebdb86ba68ab184d12730d20167fef6abf1b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/894039e66abdadee7cf230565f271946c94cea51",
-                "reference": "894039e66abdadee7cf230565f271946c94cea51",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/a838ebdb86ba68ab184d12730d20167fef6abf1b",
+                "reference": "a838ebdb86ba68ab184d12730d20167fef6abf1b",
                 "shasum": ""
             },
             "require": {
                 "amphp/postgres": "v1.1.*",
                 "ext-pgsql": "*",
                 "latitude/latitude": "v4.0.*",
-                "php": ">=7.4",
+                "php": ">=7.3",
                 "php-service-bus/storage-common": "v4.0.*",
                 "psr/log": "v1.1.*"
             },
@@ -2818,7 +2818,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-12-02T18:22:48+00:00"
+            "time": "2019-12-04T00:28:03+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -4988,16 +4988,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.7.1",
+            "version": "3.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "8e6aa8a07d148dcedf58cccf32ce4b602b422035"
+                "reference": "d9cae720c1af31db9ba27c2bc1fcf9b0dd092fb0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/8e6aa8a07d148dcedf58cccf32ce4b602b422035",
-                "reference": "8e6aa8a07d148dcedf58cccf32ce4b602b422035",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/d9cae720c1af31db9ba27c2bc1fcf9b0dd092fb0",
+                "reference": "d9cae720c1af31db9ba27c2bc1fcf9b0dd092fb0",
                 "shasum": ""
             },
             "require": {
@@ -5072,7 +5072,7 @@
                 "inspection",
                 "php"
             ],
-            "time": "2019-12-02T05:11:45+00:00"
+            "time": "2019-12-03T13:33:31+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -5222,7 +5222,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4"
+        "php": ">=7.3"
     },
     "platform-dev": []
 }

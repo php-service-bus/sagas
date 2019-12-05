@@ -24,25 +24,33 @@ final class SagaHeader
      * Saga identifier class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\SagaId>|null
+     *
+     * @var string|null
      */
-    public ?string $idClass = null;
+    public $idClass = null;
 
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string|null
      */
-    public ?string $containingIdSource = null;
+    public $containingIdSource = null;
 
     /**
      * The event property (or header key) that contains the saga ID.
+     *
+     * @var string|null
      */
-    public ?string $containingIdProperty = null;
+    public $containingIdProperty = null;
 
     /**
      * Saga expire date modifier.
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
+     *
+     * @var string|null
      */
-    public ?string $expireDateModifier = null;
+    public $expireDateModifier = null;
 
     /**
      * @psalm-param array<string, string|null> $data

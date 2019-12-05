@@ -12,7 +12,6 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Store;
 
-use function Amp\call;
 use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Sagas\Store\Exceptions\DuplicateSaga;
@@ -28,9 +27,11 @@ use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
  */
 final class SQLSagaStoreTest extends TestCase
 {
-    private DatabaseAdapter $adapter;
+    /** @var DatabaseAdapter */
+    private $adapter;
 
-    private SQLSagaStore $store;
+    /** @var SQLSagaStore */
+    private $store;
 
     /**
      * {@inheritdoc}
@@ -75,28 +76,19 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function obtain(): void
+    public function obtain(): \Generator
     {
-        $store = $this->store;
+        $id   = TestSagaId::new(CorrectSaga::class);
+        $saga = new CorrectSaga($id);
 
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    $id   = TestSagaId::new(CorrectSaga::class);
-                    $saga = new CorrectSaga($id);
+        yield $this->store->save($saga);
 
-                    yield $store->save($saga);
+        /** @var CorrectSaga $loadedSaga */
+        $loadedSaga = yield $this->store->obtain($id);
 
-                    /** @var CorrectSaga $loadedSaga */
-                    $loadedSaga = yield $store->obtain($id);
-
-                    static::assertNotNull($loadedSaga);
-                    static::assertInstanceOf(CorrectSaga::class, $loadedSaga);
-                    static::assertSame($id->id, $loadedSaga->id()->id);
-                }
-            )
-        );
+        static::assertNotNull($loadedSaga);
+        static::assertInstanceOf(CorrectSaga::class, $loadedSaga);
+        static::assertSame($id->id, $loadedSaga->id()->id);
     }
 
     /**
@@ -104,27 +96,18 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function remove(): void
+    public function remove(): \Generator
     {
-        $store = $this->store;
+        $id   = TestSagaId::new(CorrectSaga::class);
+        $saga = new CorrectSaga($id);
 
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    $id   = TestSagaId::new(CorrectSaga::class);
-                    $saga = new CorrectSaga($id);
+        yield $this->store->save($saga);
+        yield $this->store->remove($id);
 
-                    yield $store->save($saga);
-                    yield $store->remove($id);
+        /** @var CorrectSaga|null $loadedSaga */
+        $loadedSaga = yield $this->store->obtain($id);
 
-                    /** @var CorrectSaga|null $loadedSaga */
-                    $loadedSaga = yield $store->obtain($id);
-
-                    static::assertNull($loadedSaga);
-                }
-            )
-        );
+        static::assertNull($loadedSaga);
     }
 
     /**
@@ -132,18 +115,9 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function removeUnExistsSaga(): void
+    public function removeUnExistsSaga(): \Generator
     {
-        $store = $this->store;
-
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    yield $store->remove(TestSagaId::new(CorrectSaga::class));
-                }
-            )
-        );
+        yield $this->store->remove(TestSagaId::new(CorrectSaga::class));
     }
 
     /**
@@ -151,24 +125,15 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function saveDuplicate(): void
+    public function saveDuplicate(): \Generator
     {
         $this->expectException(DuplicateSaga::class);
 
-        $store = $this->store;
+        $id   = TestSagaId::new(CorrectSaga::class);
+        $saga = new CorrectSaga($id);
 
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    $id   = TestSagaId::new(CorrectSaga::class);
-                    $saga = new CorrectSaga($id);
-
-                    yield $store->save($saga);
-                    yield $store->save($saga);
-                }
-            )
-        );
+        yield $this->store->save($saga);
+        yield $this->store->save($saga);
     }
 
     /**
@@ -176,30 +141,21 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function update(): void
+    public function update(): \Generator
     {
-        $store = $this->store;
+        $id   = TestSagaId::new(CorrectSaga::class);
+        $saga = new CorrectSaga($id);
 
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    $id   = TestSagaId::new(CorrectSaga::class);
-                    $saga = new CorrectSaga($id);
+        yield $this->store->save($saga);
 
-                    yield $store->save($saga);
+        $saga->changeValue('qwerty');
 
-                    $saga->changeValue('qwerty');
+        yield $this->store->update($saga);
 
-                    yield $store->update($saga);
+        /** @var CorrectSaga|null $loadedSaga */
+        $loadedSaga = yield $this->store->obtain($id);
 
-                    /** @var CorrectSaga|null $loadedSaga */
-                    $loadedSaga = yield $store->obtain($id);
-
-                    static::assertSame($loadedSaga->value(), 'qwerty');
-                }
-            )
-        );
+        static::assertSame($loadedSaga->value(), 'qwerty');
     }
 
     /**
@@ -207,20 +163,11 @@ final class SQLSagaStoreTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function updateUnExistsSaga(): void
+    public function updateUnExistsSaga(): \Generator
     {
-        $store = $this->store;
+        $id   = TestSagaId::new(CorrectSaga::class);
+        $saga = new CorrectSaga($id);
 
-        wait(
-            call(
-                static function () use ($store): \Generator
-                {
-                    $id   = TestSagaId::new(CorrectSaga::class);
-                    $saga = new CorrectSaga($id);
-
-                    yield $store->update($saga);
-                }
-            )
-        );
+        yield $this->store->update($saga);
     }
 }

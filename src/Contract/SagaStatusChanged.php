@@ -14,7 +14,7 @@ namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaStatus;
-use function ServiceBus\Common\datetimeInstantiator;
+use function ServiceBus\Common\now;
 
 /**
  * The status of the saga was changed.
@@ -28,49 +28,49 @@ final class SagaStatusChanged
      *
      * @var string
      */
-    public string $id;
+    public $id;
 
     /**
      * Saga identifier class.
      *
      * @var string
      */
-    public string $idClass;
+    public $idClass;
 
     /**
      * Saga class.
      *
      * @var string
      */
-    public string $sagaClass;
+    public $sagaClass;
 
     /**
      * Previous saga status.
      *
      * @var string
      */
-    public string $previousStatus;
+    public $previousStatus;
 
     /**
      * Previous saga status.
      *
      * @var string
      */
-    public string $newStatus;
+    public $newStatus;
 
     /**
      * Reason for changing the status of the saga.
      *
      * @var string|null
      */
-    public ?string $withReason = null;
+    public $withReason = null;
 
     /**
      * Operation datetime.
      *
      * @var \DateTimeImmutable
      */
-    public \DateTimeImmutable $datetime;
+    public $datetime;
 
     public function __construct(
         SagaId $sagaId,
@@ -78,19 +78,12 @@ final class SagaStatusChanged
         SagaStatus $newStatus,
         ?string $withReason = null
     ) {
-        /**
-         * @noinspection PhpUnhandledExceptionInspection
-         *
-         * @var \DateTimeImmutable $datetime
-         */
-        $datetime = datetimeInstantiator('NOW');
-
         $this->id             = $sagaId->toString();
         $this->idClass        = (string) \get_class($sagaId);
         $this->sagaClass      = $sagaId->sagaClass;
         $this->previousStatus = $currentStatus->toString();
         $this->newStatus      = $newStatus->toString();
         $this->withReason     = $withReason;
-        $this->datetime       = $datetime;
+        $this->datetime       = now();
     }
 }

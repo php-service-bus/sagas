@@ -34,32 +34,42 @@ final class SagaMetadata
      * Class namespace.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
+     *
+     * @var string
      */
-    public string $sagaClass;
+    public $sagaClass;
 
     /**
      * Identifier class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
+     *
+     * @var string
      */
-    public string $identifierClass;
+    public $identifierClass;
 
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string
      */
-    public string $containingIdentifierSource;
+    public $containingIdentifierSource;
 
     /**
      * The field that contains the saga identifier.
+     *
+     * @var string
      */
-    public string $containingIdentifierProperty;
+    public $containingIdentifierProperty;
 
     /**
      * Saga expire date modifier.
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
+     *
+     * @var string
      */
-    public string $expireDateModifier;
+    public $expireDateModifier;
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass

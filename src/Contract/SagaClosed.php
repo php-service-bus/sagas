@@ -13,7 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
-use function ServiceBus\Common\datetimeInstantiator;
+use function ServiceBus\Common\now;
 
 /**
  * The saga was completed.
@@ -27,49 +27,42 @@ final class SagaClosed
      *
      * @var string
      */
-    public string $id;
+    public $id;
 
     /**
      * Saga identifier class.
      *
      * @var string
      */
-    public string $idClass;
+    public $idClass;
 
     /**
      * Saga class.
      *
      * @var string
      */
-    public string $sagaClass;
+    public $sagaClass;
 
     /**
      * Reason for closing the saga.
      *
      * @var string|null
      */
-    public ?string $withReason = null;
+    public $withReason = null;
 
     /**
      * Operation datetime.
      *
      * @var \DateTimeImmutable
      */
-    public \DateTimeImmutable $datetime;
+    public $datetime;
 
     public function __construct(SagaId $sagaId, ?string $withReason = null)
     {
-        /**
-         * @noinspection PhpUnhandledExceptionInspection
-         *
-         * @var \DateTimeImmutable $datetime
-         */
-        $datetime = datetimeInstantiator('NOW');
-
         $this->id         = $sagaId->toString();
         $this->idClass    = (string) \get_class($sagaId);
         $this->sagaClass  = $sagaId->sagaClass;
         $this->withReason = $withReason;
-        $this->datetime   = $datetime;
+        $this->datetime   = now();
     }
 }

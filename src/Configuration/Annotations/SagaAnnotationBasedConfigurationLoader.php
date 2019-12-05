@@ -31,9 +31,11 @@ use ServiceBus\Sagas\Configuration\SagaMetadata;
  */
 final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationLoader
 {
-    private Reader $annotationReader;
+    /** @var Reader */
+    private $annotationReader;
 
-    private EventListenerProcessorFactory $eventListenerProcessorFactory;
+    /** @var EventListenerProcessorFactory */
+    private $eventListenerProcessorFactory;
 
     /**
      * @throws \ServiceBus\AnnotationsReader\Exceptions\ParserConfigurationError

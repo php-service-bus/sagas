@@ -17,7 +17,8 @@ namespace ServiceBus\Sagas\Tests\stubs;
  */
 final class EventWithKey
 {
-    public string $key;
+    /** @var string */
+    public $key;
 
     public function __construct(string $key)
     {

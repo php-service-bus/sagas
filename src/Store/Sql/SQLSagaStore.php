@@ -38,7 +38,8 @@ final class SQLSagaStore implements SagasStore
 {
     private const SAGA_STORE_TABLE = 'sagas_store';
 
-    private DatabaseAdapter $adapter;
+    /** @var DatabaseAdapter */
+    private $adapter;
 
     public function __construct(DatabaseAdapter $adapter)
     {

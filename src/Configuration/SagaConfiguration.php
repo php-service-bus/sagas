@@ -19,9 +19,11 @@ namespace ServiceBus\Sagas\Configuration;
  */
 final class SagaConfiguration
 {
-    public SagaMetadata $metaData;
+    /** @var SagaMetadata */
+    public $metaData;
 
-    public \SplObjectStorage $handlerCollection;
+    /** @var \SplObjectStorage */
+    public $handlerCollection;
 
     public function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
     {

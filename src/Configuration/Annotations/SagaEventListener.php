@@ -24,14 +24,18 @@ final class SagaEventListener
 {
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string|null
      */
-    public ?string $containingIdSource = null;
+    public $containingIdSource = null;
 
     /**
      * The event property that contains the saga ID
      * In the context of executing the handler, it overrides the value set for the saga globally.
+     *
+     * @var string|null
      */
-    public ?string  $containingIdProperty = null;
+    public $containingIdProperty = null;
 
     /**
      * @psalm-param array<string, string|null> $data

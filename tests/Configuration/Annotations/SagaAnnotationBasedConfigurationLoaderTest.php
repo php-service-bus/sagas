@@ -38,11 +38,14 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
  */
 final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 {
-    private DatabaseAdapter $adapter;
+    /** @var DatabaseAdapter */
+    private $adapter;
 
-    private SQLSagaStore $store;
+    /** @var SQLSagaStore */
+    private $store;
 
-    private EventListenerProcessorFactory $listenerFactory;
+    /** @var EventListenerProcessorFactory */
+    private $listenerFactory;
 
     /**
      * {@inheritdoc}

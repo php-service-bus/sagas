@@ -24,15 +24,19 @@ abstract class SagaId
 {
     /**
      * Identifier.
+     *
+     * @var string
      */
-    public string $id;
+    public $id;
 
     /**
      * Saga class.
      *
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
+     *
+     * @var string
      */
-    public string $sagaClass;
+    public $sagaClass;
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass

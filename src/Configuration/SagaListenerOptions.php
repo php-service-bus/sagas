@@ -21,19 +21,25 @@ final class SagaListenerOptions implements MessageHandlerOptions
 {
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
+     *
+     * @var string|null
      */
-    private ?string $containingIdentifierSource = null;
+    private $containingIdentifierSource = null;
 
     /**
      * If a value is specified for a particular listener, then it will be used. Otherwise, the value will be obtained
      * from the global parameters of the saga.
+     *
+     * @var string|null
      */
-    private ?string $containingIdentifierProperty= null;
+    private $containingIdentifierProperty = null;
 
     /**
      * Basic information about saga.
+     *
+     * @var SagaMetadata
      */
-    private SagaMetadata $sagaMetadata;
+    private $sagaMetadata;
 
     public static function withCustomContainingIdentifierProperty(
         string $containingIdentifierSource,
