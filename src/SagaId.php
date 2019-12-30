@@ -17,13 +17,13 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 
 /**
  * Base saga id class.
- *
- * @psalm-immutable
  */
 abstract class SagaId
 {
     /**
      * Identifier.
+     *
+     * @psalm-readonly
      *
      * @var string
      */
@@ -32,6 +32,7 @@ abstract class SagaId
     /**
      * Saga class.
      *
+     * @psalm-readonly
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
      *
      * @var string
