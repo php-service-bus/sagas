@@ -535,16 +535,16 @@
         },
         {
             "name": "php-service-bus/mutex",
-            "version": "v4.0.2",
+            "version": "v4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/mutex.git",
-                "reference": "9688de92bc29debe26c637e5e253c01a5599d0e7"
+                "reference": "ce1089c3e827545fb69e7b24331634a4e16d3c4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/9688de92bc29debe26c637e5e253c01a5599d0e7",
-                "reference": "9688de92bc29debe26c637e5e253c01a5599d0e7",
+                "url": "https://api.github.com/repos/php-service-bus/mutex/zipball/ce1089c3e827545fb69e7b24331634a4e16d3c4a",
+                "reference": "ce1089c3e827545fb69e7b24331634a4e16d3c4a",
                 "shasum": ""
             },
             "require": {
@@ -582,7 +582,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2019-12-03T23:36:05+00:00"
+            "time": "2019-12-30T21:03:07+00:00"
         },
         {
             "name": "php-service-bus/storage-common",
@@ -2764,16 +2764,16 @@
         },
         {
             "name": "php-service-bus/storage-sql",
-            "version": "v4.0.3",
+            "version": "v4.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage-sql.git",
-                "reference": "e53af60e6915434751c22a8404768168e745e5d6"
+                "reference": "647212166f1115fea4818881064c1fcf47d0a07a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/e53af60e6915434751c22a8404768168e745e5d6",
-                "reference": "e53af60e6915434751c22a8404768168e745e5d6",
+                "url": "https://api.github.com/repos/php-service-bus/storage-sql/zipball/647212166f1115fea4818881064c1fcf47d0a07a",
+                "reference": "647212166f1115fea4818881064c1fcf47d0a07a",
                 "shasum": ""
             },
             "require": {
@@ -2822,7 +2822,7 @@
                 "postgresql",
                 "sql"
             ],
-            "time": "2019-12-30T15:03:19+00:00"
+            "time": "2019-12-30T18:48:50+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",

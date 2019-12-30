@@ -12,6 +12,8 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Mutex\InMemoryLockCollection;
+use ServiceBus\Mutex\LockCollection;
 use function Amp\call;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -51,6 +53,9 @@ final class DefaultEventProcessor implements EventProcessor
     /** @var MutexFactory */
     private $mutexFactory;
 
+    /** @var LockCollection */
+    private $lockCollection;
+
     /**
      * @psalm-param class-string $forEvent
      */
@@ -58,12 +63,14 @@ final class DefaultEventProcessor implements EventProcessor
         string $forEvent,
         SagasStore $sagasStore,
         SagaListenerOptions $sagaListenerOptions,
-        MutexFactory $mutexFactory
+        MutexFactory $mutexFactory,
+        ?LockCollection $lockCollection = null
     ) {
         $this->forEvent            = $forEvent;
         $this->sagasStore          = $sagasStore;
         $this->sagaListenerOptions = $sagaListenerOptions;
         $this->mutexFactory        = $mutexFactory;
+        $this->lockCollection      = $lockCollection ?? new InMemoryLockCollection();
     }
 
     /**
@@ -85,15 +92,17 @@ final class DefaultEventProcessor implements EventProcessor
                 try
                 {
                     $id = $this->obtainSagaId($event, $context->headers());
+                }
+                catch (\Throwable $throwable)
+                {
+                    $this->logThrowable($throwable, $context);
 
-                    $mutex = $this->mutexFactory->create(createMutexKey($id));
+                    return false;
+                }
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams
-                     *
-                     * @var Lock $lock
-                     */
-                    $lock = yield $mutex->acquire();
+                try
+                {
+                    yield from $this->setupMutex($id);
 
                     /** @var \ServiceBus\Sagas\Saga $saga */
                     $saga = yield from $this->loadSaga($id);
@@ -112,48 +121,33 @@ final class DefaultEventProcessor implements EventProcessor
                     /** The saga has not been updated */
                     if ($stateHash === $saga->stateHash())
                     {
-                        yield $lock->release();
-
                         return false;
                     }
 
                     /**
-                     * @var object[] $commands
-                     * @psalm-var array<int, object> $commands
+                     * @psalm-suppress MixedArgument
+                     * @var object[] $messages
                      */
-                    $commands = invokeReflectionMethod($saga, 'firedCommands');
-
-                    /**
-                     * @var object[] $events
-                     * @psalm-var array<int, object> $events
-                     */
-                    $events = invokeReflectionMethod($saga, 'raisedEvents');
+                    $messages = \array_merge(
+                        invokeReflectionMethod($saga, 'firedCommands'),
+                        invokeReflectionMethod($saga, 'raisedEvents')
+                    );
 
                     yield $this->sagasStore->update($saga);
 
-                    yield from $this->deliveryMessages($context, $commands, $events);
-
-                    yield $lock->release();
+                    yield from $this->deliveryMessages($context, $messages);
 
                     return true;
                 }
                 catch (\Throwable $throwable)
                 {
-                    $context->logContextMessage(
-                        $throwable->getMessage(),
-                        [
-                            'eventClass'       => $this->forEvent,
-                            'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
-                            'throwableMessage' => $throwable->getMessage(),
-                        ]
-                    );
+                    $this->logThrowable($throwable, $context);
 
                     return false;
                 }
                 finally
                 {
-                    /** @psalm-suppress PossiblyUndefinedVariable */
-                    unset($lock);
+                    yield from $this->releaseMutex($id);
                 }
             }
         );
@@ -162,28 +156,26 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Delivery events & commands to message bus.
      *
-     * @psalm-param array<int, object> $commands
-     * @psalm-param array<int, object> $events
+     * @param object[] $messages
      *
      * @throws \ServiceBus\Common\Context\Exceptions\MessageDeliveryFailed
      */
-    private function deliveryMessages(ServiceBusContext $context, array $commands, array $events): \Generator
+    private function deliveryMessages(ServiceBusContext $context, array $messages): \Generator
     {
         $promises = [];
 
-        /** @var object $command */
-        foreach ($commands as $command)
-        {
-            $promises[] = $context->delivery($command);
-        }
-
         /** @var object $event */
-        foreach ($events as $event)
+        foreach ($messages as $message)
         {
-            $promises[] = $context->delivery($event);
+            $promises[] = $context->delivery($message);
         }
 
-        yield $promises;
+        if (\count($promises) !== 0)
+        {
+            yield $promises;
+        }
+
+        unset($promises);
     }
 
     /**
@@ -377,5 +369,54 @@ final class DefaultEventProcessor implements EventProcessor
         }
 
         return (string) readReflectionPropertyValue($event, $propertyName);
+    }
+
+    /**
+     * @throws \ServiceBus\Mutex\Exceptions\SyncException
+     */
+    private function setupMutex(SagaId $id): \Generator
+    {
+        $mutexKey = createMutexKey($id);
+
+        /** @var bool $hasLock */
+        $hasLock = yield $this->lockCollection->has($mutexKey);
+
+        if ($hasLock === false)
+        {
+            $mutex = $this->mutexFactory->create($mutexKey);
+
+            /** @var \ServiceBus\Mutex\Lock $lock */
+            $lock = yield $mutex->acquire();
+
+            yield $this->lockCollection->place($mutexKey, $lock);
+        }
+    }
+
+    /**
+     * Remove lock from saga.
+     */
+    private function releaseMutex(SagaId $id): \Generator
+    {
+        $mutexKey = createMutexKey($id);
+
+        /** @var Lock|null $lock */
+        $lock = yield $this->lockCollection->extract($mutexKey);
+
+        if ($lock !== null)
+        {
+            yield $lock->release();
+        }
+    }
+
+    private function logThrowable(\Throwable $throwable, ServiceBusContext $context): void
+    {
+        $context->logContextMessage(
+            $throwable->getMessage(),
+            [
+                'eventClass'       => $this->forEvent,
+                'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
+                'throwableMessage' => $throwable->getMessage(),
+            ]
+        );
     }
 }
