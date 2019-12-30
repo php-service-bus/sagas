@@ -20,6 +20,7 @@ use ServiceBus\Sagas\Contract\SagaStatusChanged;
 use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
 use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
+use function ServiceBus\Common\now;
 
 /**
  * Base class for all sagas.
@@ -308,7 +309,7 @@ abstract class Saga
      */
     private function doClose(string $withReason = null): void
     {
-        $event = new SagaClosed($this->id, $withReason);
+        $event = new SagaClosed($this->id, now(), $withReason);
 
         $this->closedAt = $event->datetime;
 
@@ -325,6 +326,7 @@ abstract class Saga
                 $this->id,
                 $this->status,
                 $toState,
+                now(),
                 $withReason
             )
         );

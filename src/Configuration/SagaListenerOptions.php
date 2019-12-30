@@ -41,22 +41,35 @@ final class SagaListenerOptions implements MessageHandlerOptions
      */
     private $sagaMetadata;
 
+    /**
+     * Listener description
+     *
+     * @var string|null
+     */
+    private $description;
+
     public static function withCustomContainingIdentifierProperty(
         string $containingIdentifierSource,
         string $containingIdentifierProperty,
-        SagaMetadata $metadata
+        SagaMetadata $metadata,
+        ?string $description
     ): self {
         $self = new self($metadata);
 
         $self->containingIdentifierSource   = $containingIdentifierSource;
         $self->containingIdentifierProperty = $containingIdentifierProperty;
+        $self->description                  = $description;
 
         return $self;
     }
 
-    public static function withGlobalOptions(SagaMetadata $metadata): self
+    public static function withGlobalOptions(SagaMetadata $metadata, ?string $description): self
     {
-        return new self($metadata);
+        $self = new self($metadata);
+
+        $self->description = $description;
+
+        return $self;
     }
 
     /**
@@ -77,6 +90,11 @@ final class SagaListenerOptions implements MessageHandlerOptions
     public function identifierClass(): string
     {
         return $this->sagaMetadata->identifierClass;
+    }
+
+    public function description(): ?string
+    {
+        return $this->description;
     }
 
     /**

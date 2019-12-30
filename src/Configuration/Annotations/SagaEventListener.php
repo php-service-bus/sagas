@@ -18,7 +18,7 @@ namespace ServiceBus\Sagas\Configuration\Annotations;
  * @Annotation
  * @Target("METHOD")
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaEventListener
 {
@@ -36,6 +36,14 @@ final class SagaEventListener
      * @var string|null
      */
     public $containingIdProperty = null;
+
+    /**
+     * Message description.
+     * Will be added to the log when the method is called.
+     *
+     * @var string|null
+     */
+    public $description = null;
 
     /**
      * @psalm-param array<string, string|null> $data

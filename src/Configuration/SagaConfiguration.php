@@ -15,7 +15,7 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Configuration details.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaConfiguration
 {

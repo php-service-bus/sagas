@@ -15,7 +15,7 @@ namespace ServiceBus\Sagas\Configuration;
 /**
  * Basic information about saga.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaMetadata
 {

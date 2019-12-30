@@ -18,7 +18,7 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 /**
  * Base saga id class.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 abstract class SagaId
 {

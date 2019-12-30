@@ -17,7 +17,7 @@ use ServiceBus\Sagas\SagaId;
 /**
  * New saga created.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaCreated
 {

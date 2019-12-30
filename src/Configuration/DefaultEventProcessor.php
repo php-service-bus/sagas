@@ -80,7 +80,7 @@ final class DefaultEventProcessor implements EventProcessor
     public function __invoke(object $event, ServiceBusContext $context): Promise
     {
         return call(
-            function (object $event, ServiceBusContext $context): \Generator
+            function () use ($event, $context): \Generator
             {
                 try
                 {
@@ -99,6 +99,13 @@ final class DefaultEventProcessor implements EventProcessor
                     $saga = yield from $this->loadSaga($id);
 
                     $stateHash = $saga->stateHash();
+
+                    $description = $this->sagaListenerOptions->description();
+
+                    if ($description !== null)
+                    {
+                        $context->logContextMessage($description);
+                    }
 
                     invokeReflectionMethod($saga, 'applyEvent', $event);
 
@@ -148,9 +155,7 @@ final class DefaultEventProcessor implements EventProcessor
                     /** @psalm-suppress PossiblyUndefinedVariable */
                     unset($lock);
                 }
-            },
-            $event,
-            $context
+            }
         );
     }
 
@@ -160,12 +165,7 @@ final class DefaultEventProcessor implements EventProcessor
      * @psalm-param array<int, object> $commands
      * @psalm-param array<int, object> $events
      *
-     * @param object[] $commands
-     * @param object[] $events
-     *
      * @throws \ServiceBus\Common\Context\Exceptions\MessageDeliveryFailed
-     *
-     * @return \Generator Doesn't return result
      */
     private function deliveryMessages(ServiceBusContext $context, array $commands, array $events): \Generator
     {
@@ -214,7 +214,7 @@ final class DefaultEventProcessor implements EventProcessor
         /** @var \ServiceBus\Sagas\Saga|null $saga */
         $saga = yield $this->sagasStore->obtain($id);
 
-        if (null === $saga)
+        if ($saga === null)
         {
             throw new \RuntimeException(
                 \sprintf(
@@ -246,7 +246,7 @@ final class DefaultEventProcessor implements EventProcessor
 
         $headerKeyValue = $headers[$this->sagaListenerOptions->containingIdentifierProperty()] ?? '';
 
-        if ('' !== (string) $headerKeyValue)
+        if ((string) $headerKeyValue !== '')
         {
             /** @var SagaId $id */
             $id = self::identifierInstantiator(
@@ -258,7 +258,7 @@ final class DefaultEventProcessor implements EventProcessor
             return $id;
         }
 
-        throw  new \RuntimeException(
+        throw new \RuntimeException(
             \sprintf(
                 'The value of the "%s" header key can\'t be empty, since it is the saga id',
                 $this->sagaListenerOptions->containingIdentifierProperty()
@@ -292,7 +292,7 @@ final class DefaultEventProcessor implements EventProcessor
             );
         }
 
-        if ('' !== $propertyValue)
+        if ($propertyValue !== '')
         {
             /** @var SagaId $id */
             $id = self::identifierInstantiator(
@@ -323,7 +323,7 @@ final class DefaultEventProcessor implements EventProcessor
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
         /** @psalm-suppress RedundantConditionGivenDocblockType */
-        if (true === \class_exists($identifierClass))
+        if (\class_exists($identifierClass) === true)
         {
             return $identifierClass;
         }
@@ -371,7 +371,7 @@ final class DefaultEventProcessor implements EventProcessor
      */
     private static function readEventProperty(object $event, string $propertyName): string
     {
-        if (true === isset($event->{$propertyName}))
+        if (isset($event->{$propertyName}) === true)
         {
             return (string) $event->{$propertyName};
         }

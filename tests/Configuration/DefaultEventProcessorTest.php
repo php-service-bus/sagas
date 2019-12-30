@@ -12,6 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\Configuration;
 
+use Amp\Loop;
 use function Amp\call;
 use function Amp\Promise\wait;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -98,92 +99,36 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function successExecute(): \Generator
+    public function successExecute(): void
     {
-        $id   = TestSagaId::new(CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = TestSagaId::new(CorrectSaga::class);
+                $saga = new CorrectSaga($id);
 
-        yield $this->store->save($saga);
+                yield $this->store->save($saga);
 
-        $context = new TestContext();
+                $context = new TestContext();
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        /** @var bool $saved */
-        $saved = yield call($handler->closure, new EventWithKey($id->toString()), $context);
+                /** @var bool $saved */
+                $saved = yield call($handler->closure, new EventWithKey($id->toString()), $context);
 
-        static::assertTrue($saved);
+                static::assertTrue($saved);
 
-        $messages = $context->messages;
+                $messages = $context->messages;
 
-        /** @var SecondEventWithKey $event */
-        $event = \end($messages);
+                /** @var SecondEventWithKey $event */
+                $event = \end($messages);
 
-        static::assertInstanceOf(SecondEventWithKey::class, $event);
-        static::assertSame($id->toString(), $event->key);
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Throwable
-     */
-    public function successExecuteWithHeaderValue(): \Generator
-    {
-        $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
-        $saga = new CorrectSagaWithHeaderCorrelationId($id);
-
-        yield $this->store->save($saga);
-
-        $context                                 = new TestContext();
-        $context->headers['saga-correlation-id'] = $id->toString();
-
-        $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
-
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
-
-        yield call($handler->closure, new EventWithKey('qwerty'), $context);
-
-        $messages = $context->messages;
-
-        /** @var SecondEventWithKey $event */
-        $event = \end($messages);
-
-        static::assertInstanceOf(SecondEventWithKey::class, $event);
-        static::assertSame('qwerty', $event->key);
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Throwable
-     */
-    public function executeWithoutHeaderValue(): \Generator
-    {
-        $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
-        $saga = new CorrectSagaWithHeaderCorrelationId($id);
-
-        yield $this->store->save($saga);
-
-        $context = new TestContext();
-
-        $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
-
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
-
-        yield call($handler->closure, new EventWithKey('qwerty'), $context);
-
-        $records = $context->logger->records;
-
-        static::assertCount(1, $records);
-        static::assertSame(
-            'The value of the "saga-correlation-id" header key can\'t be empty, since it is the saga id',
-            $records[0]['context']['throwableMessage']
+                static::assertInstanceOf(SecondEventWithKey::class, $event);
+                static::assertSame($id->toString(), $event->key);
+            }
         );
     }
 
@@ -192,28 +137,34 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithoutSaga(): \Generator
+    public function successExecuteWithHeaderValue(): void
     {
-        $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
+                $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
-        $context = new TestContext();
+                yield $this->store->save($saga);
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $context                                 = new TestContext();
+                $context->headers['saga-correlation-id'] = $id->toString();
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
+                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
 
-        static::assertSame(EventWithKey::class, $handler->messageClass);
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        yield call($handler->closure, new EventWithKey($id->toString()), $context);
+                yield call($handler->closure, new EventWithKey('qwerty'), $context);
 
-        $records = $context->logger->records;
+                $messages = $context->messages;
 
-        static::assertSame(EventWithKey::class, $handler->messageClass);
-        static::assertCount(1, $records);
-        static::assertSame(
-            'Attempt to apply event to non-existent saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
-            $records[0]['context']['throwableMessage']
+                /** @var SecondEventWithKey $event */
+                $event = \end($messages);
+
+                static::assertInstanceOf(SecondEventWithKey::class, $event);
+                static::assertSame('qwerty', $event->key);
+            }
         );
     }
 
@@ -222,30 +173,33 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithoutCorrelationId(): \Generator
+    public function executeWithoutHeaderValue(): void
     {
-        $id   = TestSagaId::new(CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
+                $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
-        yield $this->store->save($saga);
+                yield $this->store->save($saga);
 
-        $context = new TestContext();
+                $context = new TestContext();
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[2];
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        static::assertSame(EmptyEvent::class, $handler->messageClass);
+                yield call($handler->closure, new EventWithKey('qwerty'), $context);
 
-        yield call($handler->closure, new EmptyEvent(), $context);
+                $records = $context->logger->records;
 
-        $records = $context->logger->records;
-
-        static::assertCount(1, $records);
-        static::assertSame(
-            'A property that contains an identifier ("requestId") was not found in class "ServiceBus\\Sagas\\Tests\\stubs\\EmptyEvent"',
-            $records[0]['context']['throwableMessage']
+                static::assertCount(1, $records);
+                static::assertSame(
+                    'The value of the "saga-correlation-id" header key can\'t be empty, since it is the saga id',
+                    $records[0]['context']['throwableMessage']
+                );
+            }
         );
     }
 
@@ -254,30 +208,33 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithEmptyCorrelationId(): \Generator
+    public function executeWithoutSaga(): void
     {
-        $id   = TestSagaId::new(CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
 
-        yield $this->store->save($saga);
+                $context = new TestContext();
 
-        $context = new TestContext();
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
+                static::assertSame(EventWithKey::class, $handler->messageClass);
 
-        static::assertSame(EventWithKey::class, $handler->messageClass);
+                yield call($handler->closure, new EventWithKey($id->toString()), $context);
 
-        yield call($handler->closure, new EventWithKey(''), $context);
+                $records = $context->logger->records;
 
-        $records = $context->logger->records;
-
-        static::assertCount(1, $records);
-        static::assertSame(
-            'The value of the "key" property of the "ServiceBus\\Sagas\\Tests\\stubs\\EventWithKey" event can\'t be empty, since it is the saga id',
-            $records[0]['context']['throwableMessage']
+                static::assertSame(EventWithKey::class, $handler->messageClass);
+                static::assertCount(1, $records);
+                static::assertSame(
+                    'Attempt to apply event to non-existent saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
+                    $records[0]['context']['throwableMessage']
+                );
+            }
         );
     }
 
@@ -286,32 +243,35 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithCompletedSaga(): \Generator
+    public function executeWithoutCorrelationId(): void
     {
-        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = TestSagaId::new(CorrectSaga::class);
+                $saga = new CorrectSaga($id);
 
-        invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
+                yield $this->store->save($saga);
 
-        yield $this->store->save($saga);
+                $context = new TestContext();
 
-        $context = new TestContext();
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[2];
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[0];
+                static::assertSame(EmptyEvent::class, $handler->messageClass);
 
-        static::assertSame(EventWithKey::class, $handler->messageClass);
+                yield call($handler->closure, new EmptyEvent(), $context);
 
-        yield call($handler->closure, new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
+                $records = $context->logger->records;
 
-        $records = $context->logger->records;
-
-        static::assertCount(1, $records);
-        static::assertSame(
-            'Attempt to apply event to completed saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
-            $records[0]['context']['throwableMessage']
+                static::assertCount(1, $records);
+                static::assertSame(
+                    'A property that contains an identifier ("requestId") was not found in class "ServiceBus\\Sagas\\Tests\\stubs\\EmptyEvent"',
+                    $records[0]['context']['throwableMessage']
+                );
+            }
         );
     }
 
@@ -320,73 +280,35 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithNoChanges(): \Generator
+    public function executeWithEmptyCorrelationId(): void
     {
-        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = TestSagaId::new(CorrectSaga::class);
+                $saga = new CorrectSaga($id);
 
-        yield $this->store->save($saga);
+                yield $this->store->save($saga);
 
-        $context = new TestContext();
+                $context = new TestContext();
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[1];
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+                static::assertSame(EventWithKey::class, $handler->messageClass);
 
-        /** @var bool $stored */
-        $stored = yield call(
-            $handler->closure,
-            new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'),
-            $context
-        );
+                yield call($handler->closure, new EventWithKey(''), $context);
 
-        static::assertFalse($stored);
-    }
+                $records = $context->logger->records;
 
-    /**
-     * @test
-     *
-     * @throws \Throwable
-     */
-    public function executeWithUnknownIdClass(): \Generator
-    {
-        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
-        $saga = new CorrectSaga($id);
-
-        yield $this->store->save($saga);
-
-        $context = new TestContext();
-
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
-
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[1];
-
-        /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
-        $options = readReflectionPropertyValue($handler, 'options');
-
-        /** @var SagaMetadata $metadata */
-        $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
-
-        writeReflectionPropertyValue($metadata, 'identifierClass', 'SomeUnknownClass');
-
-        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
-
-        yield call($handler->closure, new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
-
-        $records = $context->logger->records;
-
-        static::assertCount(1, $records);
-
-        /** @var array $record */
-        $record = \reset($records);
-
-        static::assertSame(
-            'Identifier class "SomeUnknownClass" specified in the saga "ServiceBus\Sagas\Tests\stubs\CorrectSaga" not found',
-            $record['message']
+                static::assertCount(1, $records);
+                static::assertSame(
+                    'The value of the "key" property of the "ServiceBus\\Sagas\\Tests\\stubs\\EventWithKey" event can\'t be empty, since it is the saga id',
+                    $records[0]['context']['throwableMessage']
+                );
+            }
         );
     }
 
@@ -395,42 +317,171 @@ final class DefaultEventProcessorTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function executeWithIncorrectIdClassType(): \Generator
+    public function executeWithCompletedSaga(): void
     {
-        $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
-        $saga = new CorrectSaga($id);
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+                $saga = new CorrectSaga($id);
 
-        yield $this->store->save($saga);
+                invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
 
-        $context = new TestContext();
+                yield $this->store->save($saga);
 
-        $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $context = new TestContext();
 
-        /** @var MessageHandler $handler */
-        $handler = \iterator_to_array($handlers)[1];
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
 
-        /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
-        $options = readReflectionPropertyValue($handler, 'options');
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[0];
 
-        /** @var SagaMetadata $metadata */
-        $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
+                static::assertSame(EventWithKey::class, $handler->messageClass);
 
-        writeReflectionPropertyValue($metadata, 'identifierClass', IncorrectSagaIdType::class);
+                yield call($handler->closure, new EventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
 
-        static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+                $records = $context->logger->records;
 
-        yield call($handler->closure, new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
+                static::assertCount(1, $records);
+                static::assertSame(
+                    'Attempt to apply event to completed saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
+                    $records[0]['context']['throwableMessage']
+                );
+            }
+        );
+    }
 
-        $records = $context->logger->records;
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     */
+    public function executeWithNoChanges(): void
+    {
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+                $saga = new CorrectSaga($id);
 
-        static::assertCount(1, $records);
+                yield $this->store->save($saga);
 
-        /** @var array $record */
-        $record = \reset($records);
+                $context = new TestContext();
 
-        static::assertSame(
-            'Saga identifier mus be type of "ServiceBus\Sagas\SagaId". "ServiceBus\Sagas\Tests\stubs\IncorrectSagaIdType" type specified',
-            $record['message']
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[1];
+
+                static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+                /** @var bool $stored */
+                $stored = yield call(
+                    $handler->closure,
+                    new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'),
+                    $context
+                );
+
+                static::assertFalse($stored);
+            }
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     */
+    public function executeWithUnknownIdClass(): void
+    {
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+                $saga = new CorrectSaga($id);
+
+                yield $this->store->save($saga);
+
+                $context = new TestContext();
+
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[1];
+
+                /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+                $options = readReflectionPropertyValue($handler, 'options');
+
+                /** @var SagaMetadata $metadata */
+                $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
+
+                writeReflectionPropertyValue($metadata, 'identifierClass', 'SomeUnknownClass');
+
+                static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+                yield call($handler->closure, new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
+
+                $records = $context->logger->records;
+
+                static::assertCount(1, $records);
+
+                /** @var array $record */
+                $record = \reset($records);
+
+                static::assertSame(
+                    'Identifier class "SomeUnknownClass" specified in the saga "ServiceBus\Sagas\Tests\stubs\CorrectSaga" not found',
+                    $record['message']
+                );
+            }
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     */
+    public function executeWithIncorrectIdClassType(): void
+    {
+        Loop::run(
+            function (): \Generator
+            {
+                $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
+                $saga = new CorrectSaga($id);
+
+                yield $this->store->save($saga);
+
+                $context = new TestContext();
+
+                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+
+                /** @var MessageHandler $handler */
+                $handler = \iterator_to_array($handlers)[1];
+
+                /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+                $options = readReflectionPropertyValue($handler, 'options');
+
+                /** @var SagaMetadata $metadata */
+                $metadata = readReflectionPropertyValue($options, 'sagaMetadata');
+
+                writeReflectionPropertyValue($metadata, 'identifierClass', IncorrectSagaIdType::class);
+
+                static::assertSame(SecondEventWithKey::class, $handler->messageClass);
+
+                yield call($handler->closure, new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'), $context);
+
+                $records = $context->logger->records;
+
+                static::assertCount(1, $records);
+
+                /** @var array $record */
+                $record = \reset($records);
+
+                static::assertSame(
+                    'Saga identifier mus be type of "ServiceBus\Sagas\SagaId". "ServiceBus\Sagas\Tests\stubs\IncorrectSagaIdType" type specified',
+                    $record['message']
+                );
+            }
         );
     }
 }

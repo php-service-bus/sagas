@@ -51,10 +51,8 @@ final class SQLSagaStore implements SagasStore
      */
     public function obtain(SagaId $id): Promise
     {
-        $adapter = $this->adapter;
-
         return call(
-            static function (SagaId $id) use ($adapter): \Generator
+            function () use ($id): \Generator
             {
                 try
                 {
@@ -64,7 +62,7 @@ final class SQLSagaStore implements SagasStore
                     ];
 
                     /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-                    $resultSet = yield find($adapter, self::SAGA_STORE_TABLE, $criteria);
+                    $resultSet = yield find($this->adapter, self::SAGA_STORE_TABLE, $criteria);
 
                     /**
                      * @psalm-var array{
@@ -82,16 +80,16 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if (null === $result)
+                    if ($result === null)
                     {
                         return null;
                     }
 
                     $payload = $result['payload'];
 
-                    if ($adapter instanceof BinaryDataDecoder)
+                    if ($this->adapter instanceof BinaryDataDecoder)
                     {
-                        $payload = $adapter->unescapeBinary($payload);
+                        $payload = $this->adapter->unescapeBinary($payload);
                     }
 
                     return unserializeSaga($payload);
@@ -100,8 +98,7 @@ final class SQLSagaStore implements SagasStore
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
-            },
-            $id
+            }
         );
     }
 
@@ -110,10 +107,8 @@ final class SQLSagaStore implements SagasStore
      */
     public function save(Saga $saga): Promise
     {
-        $adapter = $this->adapter;
-
         return call(
-            static function (Saga $saga) use ($adapter): \Generator
+            function () use ($saga): \Generator
             {
                 try
                 {
@@ -140,7 +135,7 @@ final class SQLSagaStore implements SagasStore
                      * @psalm-suppress TooManyTemplateParams
                      * @psalm-suppress MixedTypeCoercion
                      */
-                    yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                    yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
                 catch (UniqueConstraintViolationCheckFailed $exception)
                 {
@@ -150,8 +145,7 @@ final class SQLSagaStore implements SagasStore
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
-            },
-            $saga
+            }
         );
     }
 
@@ -160,10 +154,8 @@ final class SQLSagaStore implements SagasStore
      */
     public function update(Saga $saga): Promise
     {
-        $adapter = $this->adapter;
-
         return call(
-            static function (Saga $saga) use ($adapter): \Generator
+            function () use ($saga): \Generator
             {
                 try
                 {
@@ -187,7 +179,7 @@ final class SQLSagaStore implements SagasStore
                      * @psalm-suppress MixedTypeCoercion
                      * @psalm-suppress TooManyTemplateParams
                      */
-                    yield $adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                    yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
                 catch (\Throwable $throwable)
                 {
@@ -203,10 +195,8 @@ final class SQLSagaStore implements SagasStore
      */
     public function remove(SagaId $id): Promise
     {
-        $adapter = $this->adapter;
-
         return call(
-            static function (SagaId $id) use ($adapter): \Generator
+            function () use ($id): \Generator
             {
                 try
                 {
@@ -215,7 +205,7 @@ final class SQLSagaStore implements SagasStore
                         equalsCriteria('identifier_class', \get_class($id)),
                     ];
 
-                    yield remove($adapter, self::SAGA_STORE_TABLE, $criteria);
+                    yield remove($this->adapter, self::SAGA_STORE_TABLE, $criteria);
                 }
                 catch (\Throwable $throwable)
                 {

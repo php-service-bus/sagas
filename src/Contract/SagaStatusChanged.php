@@ -14,12 +14,11 @@ namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaStatus;
-use function ServiceBus\Common\now;
 
 /**
  * The status of the saga was changed.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaStatusChanged
 {
@@ -76,6 +75,7 @@ final class SagaStatusChanged
         SagaId $sagaId,
         SagaStatus $currentStatus,
         SagaStatus $newStatus,
+        \DateTimeImmutable $datetime,
         ?string $withReason = null
     ) {
         $this->id             = $sagaId->toString();
@@ -84,6 +84,6 @@ final class SagaStatusChanged
         $this->previousStatus = $currentStatus->toString();
         $this->newStatus      = $newStatus->toString();
         $this->withReason     = $withReason;
-        $this->datetime       = now();
+        $this->datetime       = $datetime;
     }
 }

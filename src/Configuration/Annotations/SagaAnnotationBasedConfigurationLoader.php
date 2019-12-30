@@ -109,9 +109,10 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
             ? SagaListenerOptions::withCustomContainingIdentifierProperty(
                 (string) $listenerAnnotation->containingIdSource,
                 (string) $listenerAnnotation->containingIdProperty,
-                $sagaMetadata
+                $sagaMetadata,
+                $listenerAnnotation->description
             )
-            : SagaListenerOptions::withGlobalOptions($sagaMetadata);
+            : SagaListenerOptions::withGlobalOptions($sagaMetadata, $listenerAnnotation->description);
 
         /** @var \ReflectionMethod $eventListenerReflectionMethod */
         $eventListenerReflectionMethod = $methodAnnotation->reflectionMethod;

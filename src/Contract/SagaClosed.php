@@ -13,12 +13,11 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Contract;
 
 use ServiceBus\Sagas\SagaId;
-use function ServiceBus\Common\now;
 
 /**
  * The saga was completed.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaClosed
 {
@@ -57,12 +56,12 @@ final class SagaClosed
      */
     public $datetime;
 
-    public function __construct(SagaId $sagaId, ?string $withReason = null)
+    public function __construct(SagaId $sagaId, \DateTimeImmutable $datetime, ?string $withReason = null)
     {
         $this->id         = $sagaId->toString();
         $this->idClass    = (string) \get_class($sagaId);
         $this->sagaClass  = $sagaId->sagaClass;
         $this->withReason = $withReason;
-        $this->datetime   = now();
+        $this->datetime   = $datetime;
     }
 }

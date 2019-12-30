@@ -16,7 +16,7 @@ namespace ServiceBus\Sagas\Configuration\Annotations;
  * @Annotation
  * @Target("CLASS")
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaHeader
 {
