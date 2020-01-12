@@ -12,7 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
-use ServiceBus\Mutex\InMemoryMutexFactory;
+use ServiceBus\Mutex\InMemory\InMemoryMutexFactory;
 use ServiceBus\Mutex\MutexFactory;
 use ServiceBus\Sagas\Store\SagasStore;
 

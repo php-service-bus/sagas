@@ -12,8 +12,6 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
-use ServiceBus\Mutex\InMemoryLockCollection;
-use ServiceBus\Mutex\LockCollection;
 use function Amp\call;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -53,9 +51,6 @@ final class DefaultEventProcessor implements EventProcessor
     /** @var MutexFactory */
     private $mutexFactory;
 
-    /** @var LockCollection */
-    private $lockCollection;
-
     /**
      * @psalm-param class-string $forEvent
      */
@@ -63,14 +58,12 @@ final class DefaultEventProcessor implements EventProcessor
         string $forEvent,
         SagasStore $sagasStore,
         SagaListenerOptions $sagaListenerOptions,
-        MutexFactory $mutexFactory,
-        ?LockCollection $lockCollection = null
+        MutexFactory $mutexFactory
     ) {
         $this->forEvent            = $forEvent;
         $this->sagasStore          = $sagasStore;
         $this->sagaListenerOptions = $sagaListenerOptions;
         $this->mutexFactory        = $mutexFactory;
-        $this->lockCollection      = $lockCollection ?? new InMemoryLockCollection();
     }
 
     /**
@@ -100,10 +93,11 @@ final class DefaultEventProcessor implements EventProcessor
                     return false;
                 }
 
+                /** @var Lock $lock */
+                $lock = yield from $this->setupMutex($id);
+
                 try
                 {
-                    yield from $this->setupMutex($id);
-
                     /** @var \ServiceBus\Sagas\Saga $saga */
                     $saga = yield from $this->loadSaga($id);
 
@@ -147,7 +141,7 @@ final class DefaultEventProcessor implements EventProcessor
                 }
                 finally
                 {
-                    yield from $this->releaseMutex($id);
+                    yield $lock->release();
                 }
             }
         );
@@ -378,34 +372,12 @@ final class DefaultEventProcessor implements EventProcessor
     {
         $mutexKey = createMutexKey($id);
 
-        /** @var bool $hasLock */
-        $hasLock = yield $this->lockCollection->has($mutexKey);
+        $mutex = $this->mutexFactory->create($mutexKey);
 
-        if ($hasLock === false)
-        {
-            $mutex = $this->mutexFactory->create($mutexKey);
+        /** @var \ServiceBus\Mutex\Lock $lock */
+        $lock = yield $mutex->acquire();
 
-            /** @var \ServiceBus\Mutex\Lock $lock */
-            $lock = yield $mutex->acquire();
-
-            yield $this->lockCollection->place($mutexKey, $lock);
-        }
-    }
-
-    /**
-     * Remove lock from saga.
-     */
-    private function releaseMutex(SagaId $id): \Generator
-    {
-        $mutexKey = createMutexKey($id);
-
-        /** @var Lock|null $lock */
-        $lock = yield $this->lockCollection->extract($mutexKey);
-
-        if ($lock !== null)
-        {
-            yield $lock->release();
-        }
+        return $lock;
     }
 
     private function logThrowable(\Throwable $throwable, ServiceBusContext $context): void
