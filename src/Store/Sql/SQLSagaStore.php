@@ -13,7 +13,6 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Store\Sql;
 
 use function Amp\call;
-use function ServiceBus\Common\datetimeToString;
 use function ServiceBus\Common\readReflectionPropertyValue;
 use function ServiceBus\Storage\Sql\equalsCriteria;
 use function ServiceBus\Storage\Sql\fetchOne;
@@ -115,7 +114,10 @@ final class SQLSagaStore implements SagasStore
                     $id = $saga->id();
 
                     /** @var \ServiceBus\Sagas\SagaStatus $status */
-                    $status = readReflectionPropertyValue($saga, 'status');
+                    $status   = readReflectionPropertyValue($saga, 'status');
+                    $closedAt = $saga->closedAt();
+
+                    $closedDatetime = $closedAt !== null ? $closedAt->format('Y-m-d H:i:s.u') : null;
 
                     /** @var \Latitude\QueryBuilder\Query\InsertQuery $insertQuery */
                     $insertQuery = insertQuery(self::SAGA_STORE_TABLE, [
@@ -124,9 +126,9 @@ final class SQLSagaStore implements SagasStore
                         'saga_class'       => \get_class($saga),
                         'payload'          => serializeSaga($saga),
                         'state_id'         => $status->toString(),
-                        'created_at'       => datetimeToString($saga->createdAt()),
-                        'expiration_date'  => datetimeToString($saga->expireDate()),
-                        'closed_at'        => datetimeToString($saga->closedAt()),
+                        'created_at'       => $saga->createdAt()->format('Y-m-d H:i:s.u'),
+                        'expiration_date'  => $saga->expireDate()->format('Y-m-d H:i:s.u'),
+                        'closed_at'        => $closedDatetime,
                     ]);
 
                     $compiledQuery = $insertQuery->compile();
@@ -162,12 +164,15 @@ final class SQLSagaStore implements SagasStore
                     $id = $saga->id();
 
                     /** @var \ServiceBus\Sagas\SagaStatus $status */
-                    $status = readReflectionPropertyValue($saga, 'status');
+                    $status   = readReflectionPropertyValue($saga, 'status');
+                    $closedAt = $saga->closedAt();
+
+                    $closedDatetime = $closedAt !== null ? $closedAt->format('Y-m-d H:i:s.u') : null;
 
                     $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
                         'payload'   => serializeSaga($saga),
                         'state_id'  => $status->toString(),
-                        'closed_at' => datetimeToString($saga->closedAt()),
+                        'closed_at' => $closedDatetime
                     ])
                         ->where(equalsCriteria('id', $id->toString()))
                         ->andWhere(equalsCriteria('identifier_class', \get_class($id)));

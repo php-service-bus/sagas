@@ -97,8 +97,7 @@ abstract class Saga
         $this->assertSagaClassEqualsWithId($id);
         $this->clear();
 
-        /** @var \DateTimeImmutable $currentDatetime */
-        $currentDatetime = datetimeInstantiator('NOW');
+        $currentDatetime = now();
 
         /** @var \DateTimeImmutable $expireDate */
         $expireDate = $expireDate ?? datetimeInstantiator(SagaMetadata::DEFAULT_EXPIRE_INTERVAL);
@@ -294,14 +293,7 @@ abstract class Saga
         $this->doChangeState(SagaStatus::expired());
         $this->doClose('expired');
 
-        /**
-         * @noinspection PhpUnhandledExceptionInspection
-         *
-         * @var \DateTimeImmutable $currentDateTime
-         */
-        $currentDateTime = datetimeInstantiator('NOW');
-
-        $this->expireDate = $currentDateTime;
+        $this->expireDate = now();
     }
 
     /**
@@ -396,15 +388,11 @@ abstract class Saga
     }
 
     /**
-     * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      */
     private function assertExpirationDateIsCorrect(\DateTimeImmutable $dateTime): void
     {
-        /** @var \DateTimeImmutable $currentDate */
-        $currentDate = datetimeInstantiator('NOW');
-
-        if ($currentDate > $dateTime)
+        if (now() > $dateTime)
         {
             throw InvalidExpireDateInterval::create();
         }

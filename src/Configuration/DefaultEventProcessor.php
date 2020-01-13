@@ -13,8 +13,8 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Configuration;
 
 use function Amp\call;
-use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
+use function ServiceBus\Common\now;
 use function ServiceBus\Common\readReflectionPropertyValue;
 use function ServiceBus\Sagas\createMutexKey;
 use Amp\Promise;
@@ -188,15 +188,11 @@ final class DefaultEventProcessor implements EventProcessor
 
     /**
      * @throws \RuntimeException
-     * @throws \ServiceBus\Common\Exceptions\DateTimeException
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      */
     private function loadSaga(SagaId $id): \Generator
     {
-        /** @var \DateTimeImmutable $currentDatetime */
-        $currentDatetime = datetimeInstantiator('NOW');
-
         /** @var \ServiceBus\Sagas\Saga|null $saga */
         $saga = yield $this->sagasStore->obtain($id);
 
@@ -211,7 +207,7 @@ final class DefaultEventProcessor implements EventProcessor
         }
 
         /** Non-expired saga */
-        if ($saga->expireDate() > $currentDatetime)
+        if ($saga->expireDate() > now())
         {
             return $saga;
         }
