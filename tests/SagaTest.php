@@ -200,6 +200,25 @@ class SagaTest extends TestCase
      *
      * @throws \Throwable
      */
+    public function sagaCanBeCreatedAtGivenTime(): void
+    {
+        $id                 = new TestSagaId('123456789', CorrectSaga::class);
+        $createdAt          = datetimeInstantiator('2012-12-12');
+        $nonsenseExpireDate = datetimeInstantiator('+4543 days');
+        $saga               = new CorrectSaga($id, $nonsenseExpireDate, $createdAt);
+        $saga->start(new EmptyCommand());
+
+        /** @var array<int, string> $events */
+        $events = invokeReflectionMethod($saga, 'raisedEvents');
+
+        static::assertEquals([new SagaCreated($id, $createdAt, $nonsenseExpireDate)], $events);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Throwable
+     */
     public function makeFailed(): void
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
