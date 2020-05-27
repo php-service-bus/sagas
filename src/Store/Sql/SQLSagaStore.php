@@ -79,19 +79,17 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if ($result === null)
+                    if ($result !== null)
                     {
-                        return null;
+                        $payload = $result['payload'];
+
+                        if ($this->adapter instanceof BinaryDataDecoder)
+                        {
+                            $payload = $this->adapter->unescapeBinary($payload);
+                        }
+
+                        return unserializeSaga($payload);
                     }
-
-                    $payload = $result['payload'];
-
-                    if ($this->adapter instanceof BinaryDataDecoder)
-                    {
-                        $payload = $this->adapter->unescapeBinary($payload);
-                    }
-
-                    return unserializeSaga($payload);
                 }
                 catch (\Throwable $throwable)
                 {

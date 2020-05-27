@@ -36,10 +36,11 @@ function unserializeSaga(string $serializedContent): Saga
 {
     try
     {
+        /** @var string|bool $decoded */
         $decoded = \base64_decode($serializedContent);
 
         // @codeCoverageIgnoreStart
-        if (false === $decoded)
+        if (\is_string($decoded) === false)
         {
             throw new \LogicException('Incorrect base64 content');
         }

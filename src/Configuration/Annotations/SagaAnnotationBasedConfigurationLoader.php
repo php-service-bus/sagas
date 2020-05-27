@@ -114,7 +114,6 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
             )
             : SagaListenerOptions::withGlobalOptions($sagaMetadata, $listenerAnnotation->description);
 
-        /** @var \ReflectionMethod $eventListenerReflectionMethod */
         $eventListenerReflectionMethod = $methodAnnotation->reflectionMethod;
 
         $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
@@ -123,7 +122,6 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         if ($expectedMethodName === $eventListenerReflectionMethod->name)
         {
-            /** @var \ReflectionMethod $reflectionMethod */
             $reflectionMethod = $methodAnnotation->reflectionMethod;
 
             /** @var callable $processor */
@@ -134,7 +132,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             $closure = \Closure::fromCallable($processor);
 
-            /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise $closure */
+            /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<null> $closure */
 
             return new MessageHandler($eventClass, $closure, $reflectionMethod, $listenerOptions);
         }
@@ -165,8 +163,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
                 $reflectionClass = $reflectionParameters[0]->getClass();
 
                 /**
-                 * @noinspection       OneTimeUseVariablesInspection PhpUnnecessaryLocalVariableInspection
-                 * @psalm-var          class-string $eventClass
+                 * @noinspection OneTimeUseVariablesInspection PhpUnnecessaryLocalVariableInspection
+                 * @psalm-var    class-string $eventClass
                  */
                 $eventClass = $reflectionClass->getName();
 

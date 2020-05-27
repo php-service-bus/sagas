@@ -24,7 +24,7 @@ interface SagasStore
     /**
      * Obtain exists saga.
      *
-     * Returns \ServiceBus\Sagas\Saga|null
+     * @return Promise<\ServiceBus\Sagas\Saga|null>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while deserializing saga
@@ -32,7 +32,7 @@ interface SagasStore
     public function obtain(SagaId $id): Promise;
 
     /**
-     * Save the new saga.
+     * @return Promise<void>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga The specified saga has already been added
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
@@ -43,6 +43,8 @@ interface SagasStore
     /**
      * Update existing saga.
      *
+     * @return Promise<void>
+     *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while serializing saga
      */
@@ -50,6 +52,8 @@ interface SagasStore
 
     /**
      * Remove saga from database.
+     *
+     * @return Promise<void>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      */

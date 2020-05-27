@@ -50,23 +50,27 @@ abstract class SagaId
     }
 
     /**
-     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga>|string $sagaClass
      *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     final public function __construct(string $id, string $sagaClass)
     {
-        if ('' === $id)
+        if ($id === '')
         {
             throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 
-        /** @psalm-suppress DocblockTypeContradiction */
-        if ('' === $sagaClass || false === \class_exists($sagaClass))
-        {
+        if (
+            $sagaClass === '' ||
+            \class_exists($sagaClass) === false ||
+            \is_a($sagaClass, Saga::class, true) === false
+        ) {
             throw InvalidSagaIdentifier::invalidSagaClass($sagaClass);
         }
+
+        /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
 
         $this->id        = $id;
         $this->sagaClass = $sagaClass;

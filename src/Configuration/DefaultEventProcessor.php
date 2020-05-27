@@ -158,7 +158,6 @@ final class DefaultEventProcessor implements EventProcessor
     {
         $promises = [];
 
-        /** @var object $event */
         foreach ($messages as $message)
         {
             $promises[] = $context->delivery($message);

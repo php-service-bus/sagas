@@ -17,7 +17,7 @@ use ServiceBus\Sagas\SagaId;
 /**
  * The saga was completed.
  *
- * @psalm-immutable
+ * @psalm-readonly
  */
 final class SagaClosed
 {

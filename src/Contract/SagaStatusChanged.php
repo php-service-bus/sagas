@@ -18,7 +18,7 @@ use ServiceBus\Sagas\SagaStatus;
 /**
  * The status of the saga was changed.
  *
- * @psalm-immutable
+ * @psalm-readonly
  */
 final class SagaStatusChanged
 {

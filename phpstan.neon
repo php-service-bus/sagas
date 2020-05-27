@@ -1,1 +1,11 @@
 parameters:
+	ignoreErrors:
+		-
+			message: '#Unable to resolve the template type#'
+			path: %currentWorkingDirectory%/src
+		-
+			message: '#return type has no value type specified in iterable type Generator#'
+			path: %currentWorkingDirectory%/src
+		-
+			message: '#but does not specify its types#'
+			path: %currentWorkingDirectory%/src
