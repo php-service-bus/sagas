@@ -40,22 +40,13 @@ abstract class Saga
     private $id;
 
     /**
-     * List of events that should be published while saving.
+     * List of messages that should be fired while saving.
      *
      * @psalm-var array<int, object>
      *
      * @var object[]
      */
-    private $events;
-
-    /**
-     * List of commands that should be fired while saving.
-     *
-     * @psalm-var array<int, object>
-     *
-     * @var object[]
-     */
-    private $commands;
+    private $messages;
 
     /**
      * SagaStatus of the saga.
@@ -177,7 +168,7 @@ abstract class Saga
         $this->assertNotClosedSaga();
 
         $this->applyEvent($event);
-        $this->attachEvent($event);
+        $this->attachMessage($event);
     }
 
     /**
@@ -189,7 +180,7 @@ abstract class Saga
     {
         $this->assertNotClosedSaga();
 
-        $this->attachCommand($command);
+        $this->attachMessage($command);
     }
 
     /**
@@ -223,37 +214,20 @@ abstract class Saga
     }
 
     /**
-     * Receive a list of commands that should be fired while saving
+     * Receive a list of messages that should be fired while saving
      * Called using Reflection API from the infrastructure layer.
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
      * @psalm-return array<int, object>
      */
-    private function firedCommands(): array
+    private function messages(): array
     {
-        $commands = $this->commands;
+        $messages = $this->messages;
 
-        $this->clearFiredCommands();
+        $this->clear();
 
-        return $commands;
-    }
-
-    /**
-     * Receive a list of events that should be published while saving
-     * Called using Reflection API from the infrastructure layer.
-     *
-     * @noinspection PhpUnusedPrivateMethodInspection
-     *
-     * @psalm-return array<int, object>
-     */
-    private function raisedEvents(): array
-    {
-        $events = $this->events;
-
-        $this->clearRaisedEvents();
-
-        return $events;
+        return $messages;
     }
 
     /**
@@ -305,7 +279,7 @@ abstract class Saga
 
         $this->closedAt = $event->datetime;
 
-        $this->attachEvent($event);
+        $this->attachMessage($event);
     }
 
     /**
@@ -313,7 +287,7 @@ abstract class Saga
      */
     private function doChangeState(SagaStatus $toState, string $withReason = null): void
     {
-        $this->attachEvent(
+        $this->attachMessage(
             new SagaStatusChanged(
                 $this->id,
                 $this->status,
@@ -327,38 +301,17 @@ abstract class Saga
     }
 
     /**
-     * Clear raised events and fired commands.
+     * Clear fired messages.
      */
     private function clear(): void
     {
-        $this->clearFiredCommands();
-        $this->clearRaisedEvents();
+        $this->messages = [];
+
     }
 
-    /**
-     * Clear raised events.
-     */
-    private function clearRaisedEvents(): void
+    private function attachMessage(object $message): void
     {
-        $this->events = [];
-    }
-
-    /**
-     * Clear fired commands.
-     */
-    private function clearFiredCommands(): void
-    {
-        $this->commands = [];
-    }
-
-    private function attachEvent(object $event): void
-    {
-        $this->events[] = $event;
-    }
-
-    private function attachCommand(object $command): void
-    {
-        $this->commands[] = $command;
+        $this->messages[] = $message;
     }
 
     /**

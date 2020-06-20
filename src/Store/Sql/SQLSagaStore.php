@@ -131,10 +131,7 @@ final class SQLSagaStore implements SagasStore
 
                     $compiledQuery = $insertQuery->compile();
 
-                    /**
-                     * @psalm-suppress TooManyTemplateParams
-                     * @psalm-suppress MixedTypeCoercion
-                     */
+                    /** @psalm-suppress MixedTypeCoercion */
                     yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
                 catch (UniqueConstraintViolationCheckFailed $exception)
@@ -178,10 +175,7 @@ final class SQLSagaStore implements SagasStore
                     /** @var \Latitude\QueryBuilder\Query $compiledQuery */
                     $compiledQuery = $updateQuery->compile();
 
-                    /**
-                     * @psalm-suppress MixedTypeCoercion
-                     * @psalm-suppress TooManyTemplateParams
-                     */
+                    /** @psalm-suppress MixedTypeCoercion */
                     yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
                 }
                 catch (\Throwable $throwable)

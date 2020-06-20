@@ -40,13 +40,11 @@
   },
   "require": {
     "php": ">=7.4",
-    "php-service-bus/common": "v4.1.*",
-    "php-service-bus/storage-common": "v4.1.*",
+    "php-service-bus/storage": "v4.1.*",
     "php-service-bus/mutex": "v4.1.*"
   },
   "require-dev": {
     "php-service-bus/code-style-config": "v1.2.*",
-    "php-service-bus/storage-sql": "v4.1.*",
     "php-service-bus/annotations-reader": "v4.1.*",
     "doctrine/dbal": "v2.10.*",
     "phpunit/phpunit": "v9.1.*",

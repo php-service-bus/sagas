@@ -41,9 +41,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /** @var DatabaseAdapter */
     private $adapter;
 
-    /** @var SQLSagaStore */
-    private $store;
-
     /** @var EventListenerProcessorFactory */
     private $listenerFactory;
 
@@ -67,8 +64,8 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
             wait($this->adapter->execute($indexQuery));
         }
 
-        $this->store           = new SQLSagaStore($this->adapter);
-        $this->listenerFactory = new DefaultEventListenerProcessorFactory($this->store);
+        $store                 = new SQLSagaStore($this->adapter);
+        $this->listenerFactory = new DefaultEventListenerProcessorFactory($store);
     }
 
     /**

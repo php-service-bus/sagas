@@ -18,18 +18,6 @@
 
     <testsuites>
 
-        <testsuite name="PHP Service Bus common component">
-            <directory>./vendor/php-service-bus/common/tests</directory>
-        </testsuite>
-
-        <testsuite name="Common storage parts">
-            <directory>./vendor/php-service-bus/storage-common/tests</directory>
-        </testsuite>
-
-        <testsuite name="SQL databases adapters implementation">
-            <directory>./vendor/php-service-bus/storage-sql/tests</directory>
-        </testsuite>
-
         <testsuite name="Saga pattern implementation">
             <directory>./tests/</directory>
         </testsuite>
@@ -38,10 +26,9 @@
 
     <filter>
         <whitelist>
-            <directory>./</directory>
+            <directory>./src</directory>
             <exclude>
                 <directory>./tests</directory>
-                <directory>./vendor</directory>
             </exclude>
         </whitelist>
     </filter>

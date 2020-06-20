@@ -12,7 +12,7 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Configuration;
 
-use ServiceBus\Common\MessageExecutor\MessageHandlerOptions;
+use ServiceBus\Common\MessageHandler\MessageHandlerOptions;
 
 /**
  * Specified for each listener options.
