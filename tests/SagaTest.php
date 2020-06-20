@@ -68,17 +68,13 @@ class SagaTest extends TestCase
 
         static::assertSame($id->toString(), $saga->id()->toString());
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
-        $firedCommands = invokeReflectionMethod($saga, 'messages');
+        $messages = invokeReflectionMethod($saga, 'messages');
 
-        static::assertCount(1, $raisedEvents);
-        static::assertCount(1, $firedCommands);
+        static::assertCount(2, $messages);
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
-        $firedCommands = invokeReflectionMethod($saga, 'messages');
+        $messages = invokeReflectionMethod($saga, 'messages');
 
-        static::assertCount(0, $raisedEvents);
-        static::assertCount(0, $firedCommands);
+        static::assertCount(0, $messages);
 
         static::assertSame(
             SagaStatus::create('in_progress')->toString(),
@@ -87,11 +83,9 @@ class SagaTest extends TestCase
 
         $saga->doSomethingElse();
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
-        $firedCommands = invokeReflectionMethod($saga, 'messages');
+        $messages  = invokeReflectionMethod($saga, 'messages');
 
-        static::assertCount(2, $raisedEvents);
-        static::assertCount(0, $firedCommands);
+        static::assertCount(2, $messages);
 
         static::assertSame(
             SagaStatus::create('in_progress')->toString(),
