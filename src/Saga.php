@@ -306,7 +306,6 @@ abstract class Saga
     private function clear(): void
     {
         $this->messages = [];
-
     }
 
     private function attachMessage(object $message): void
