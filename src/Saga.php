@@ -232,6 +232,7 @@ abstract class Saga
 
     /**
      * Apply event.
+     * Called using Reflection API from the infrastructure layer.
      */
     private function applyEvent(object $event): void
     {
