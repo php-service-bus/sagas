@@ -68,14 +68,14 @@ class SagaTest extends TestCase
 
         static::assertSame($id->toString(), $saga->id()->toString());
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'raisedEvents');
-        $firedCommands = invokeReflectionMethod($saga, 'firedCommands');
+        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
+        $firedCommands = invokeReflectionMethod($saga, 'messages');
 
         static::assertCount(1, $raisedEvents);
         static::assertCount(1, $firedCommands);
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'raisedEvents');
-        $firedCommands = invokeReflectionMethod($saga, 'firedCommands');
+        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
+        $firedCommands = invokeReflectionMethod($saga, 'messages');
 
         static::assertCount(0, $raisedEvents);
         static::assertCount(0, $firedCommands);
@@ -87,8 +87,8 @@ class SagaTest extends TestCase
 
         $saga->doSomethingElse();
 
-        $raisedEvents  = invokeReflectionMethod($saga, 'raisedEvents');
-        $firedCommands = invokeReflectionMethod($saga, 'firedCommands');
+        $raisedEvents  = invokeReflectionMethod($saga, 'messages');
+        $firedCommands = invokeReflectionMethod($saga, 'messages');
 
         static::assertCount(2, $raisedEvents);
         static::assertCount(0, $firedCommands);
@@ -137,7 +137,7 @@ class SagaTest extends TestCase
         );
 
         /** @var array<int, string> $events */
-        $events = invokeReflectionMethod($saga, 'raisedEvents');
+        $events = invokeReflectionMethod($saga, 'messages');
 
         static::assertNotEmpty($events);
         static::assertCount(3, $events);
@@ -179,7 +179,7 @@ class SagaTest extends TestCase
         $saga->start(new EmptyCommand());
 
         /** @var array<int, string> $events */
-        $events = invokeReflectionMethod($saga, 'raisedEvents');
+        $events = invokeReflectionMethod($saga, 'messages');
 
         static::assertNotEmpty($events);
         static::assertCount(1, $events);
@@ -209,7 +209,7 @@ class SagaTest extends TestCase
         invokeReflectionMethod($saga, 'makeFailed', 'fail reason');
 
         /** @var array<int, string> $events */
-        $events = invokeReflectionMethod($saga, 'raisedEvents');
+        $events = invokeReflectionMethod($saga, 'messages');
 
         $latest = \end($events);
 
@@ -231,7 +231,7 @@ class SagaTest extends TestCase
         invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
 
         /** @var array<int, string> $events */
-        $events = invokeReflectionMethod($saga, 'raisedEvents');
+        $events = invokeReflectionMethod($saga, 'messages');
 
         $latest = \end($events);
 
