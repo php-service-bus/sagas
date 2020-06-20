@@ -122,10 +122,7 @@ final class DefaultEventProcessor implements EventProcessor
                      * @psalm-suppress MixedArgument
                      * @var object[] $messages
                      */
-                    $messages = \array_merge(
-                        invokeReflectionMethod($saga, 'firedCommands'),
-                        invokeReflectionMethod($saga, 'raisedEvents')
-                    );
+                    $messages = invokeReflectionMethod($saga, 'messages');
 
                     yield $this->sagasStore->update($saga);
 
