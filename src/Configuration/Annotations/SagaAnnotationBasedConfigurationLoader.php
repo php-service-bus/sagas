@@ -200,7 +200,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         $containingIdentifierSource = SagaMetadata::CORRELATION_ID_SOURCE_EVENT;
 
-        if ($sagaHeader->containingIdSource !== null &&  (string) $sagaHeader->containingIdSource !== '')
+        if ($sagaHeader->containingIdSource !== null && (string) $sagaHeader->containingIdSource !== '')
         {
             $containingIdentifierSource = \strtolower($sagaHeader->containingIdSource);
         }
