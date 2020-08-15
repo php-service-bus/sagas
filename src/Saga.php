@@ -85,12 +85,13 @@ abstract class Saga
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
      */
-    final public function __construct(SagaId $id, ?\DateTimeImmutable $expireDate = null)
-    {
+    final public function __construct(
+        SagaId $id,
+        ?\DateTimeImmutable $expireDate = null,
+        ?\DateTimeImmutable $createdAt = null
+    ) {
         $this->assertSagaClassEqualsWithId($id);
         $this->clear();
-
-        $currentDatetime = now();
 
         /** @var \DateTimeImmutable $expireDate */
         $expireDate = $expireDate ?? datetimeInstantiator(SagaMetadata::DEFAULT_EXPIRE_INTERVAL);
@@ -100,12 +101,12 @@ abstract class Saga
         $this->id     = $id;
         $this->status = SagaStatus::created();
 
-        $this->createdAt  = $currentDatetime;
+        $this->createdAt  = $createdAt ?? now();
         $this->expireDate = $expireDate;
 
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->raise(
-            new SagaCreated($id, $currentDatetime, $expireDate)
+            new SagaCreated($id, $this->createdAt, $this->expireDate)
         );
     }
 
