@@ -189,9 +189,10 @@ final class SQLSagaStore implements SagasStore
                     $closedDatetime = $closedAt !== null ? $closedAt->format('Y-m-d H:i:s.u') : null;
 
                     $updateQuery = updateQuery(self::SAGA_STORE_TABLE, [
-                        'payload'   => serializeSaga($saga),
-                        'state_id'  => $status->toString(),
-                        'closed_at' => $closedDatetime
+                        'payload'         => serializeSaga($saga),
+                        'state_id'        => $status->toString(),
+                        'closed_at'       => $closedDatetime,
+                        'expiration_date' => $saga->expireDate()->format('Y-m-d H:i:s.u')
                     ])
                         ->where(equalsCriteria('id', $id->toString()))
                         ->andWhere(equalsCriteria('identifier_class', \get_class($id)));

@@ -16,6 +16,7 @@ use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\now;
 use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Common\throwableMessage;
 use function ServiceBus\Sagas\createMutexKey;
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
@@ -257,7 +258,14 @@ final class DefaultEventProcessor implements EventProcessor
 
         try
         {
+            /** @psalm-suppress MixedAssignment */
             $propertyValue = self::readEventProperty($event, $propertyName);
+
+            if (\is_object($propertyValue) && \method_exists($propertyValue, 'toString'))
+            {
+                /** @psalm-suppress MixedMethodCall */
+                $propertyValue = (string) $propertyValue->toString();
+            }
         }
         catch (\Throwable $throwable)
         {
@@ -275,14 +283,14 @@ final class DefaultEventProcessor implements EventProcessor
             /** @var SagaId $id */
             $id = self::identifierInstantiator(
                 $identifierClass,
-                $propertyValue,
+                (string) $propertyValue,
                 $this->sagaListenerOptions->sagaClass()
             );
 
             return $id;
         }
 
-        throw  new \RuntimeException(
+        throw new \RuntimeException(
             \sprintf(
                 'The value of the "%s" property of the "%s" event can\'t be empty, since it is the saga id',
                 $propertyName,
@@ -301,7 +309,7 @@ final class DefaultEventProcessor implements EventProcessor
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
         /** @psalm-suppress RedundantConditionGivenDocblockType */
-        if (\class_exists($identifierClass) === true)
+        if (\class_exists($identifierClass))
         {
             return $identifierClass;
         }
@@ -345,16 +353,18 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * Read event property value.
      *
+     * @return mixed
+     *
      * @throws \Throwable Reflection property not found
      */
-    private static function readEventProperty(object $event, string $propertyName): string
+    private static function readEventProperty(object $event, string $propertyName)
     {
-        if (isset($event->{$propertyName}) === true)
+        if (isset($event->{$propertyName}))
         {
-            return (string) $event->{$propertyName};
+            return $event->{$propertyName};
         }
 
-        return (string) readReflectionPropertyValue($event, $propertyName);
+        return readReflectionPropertyValue($event, $propertyName);
     }
 
     /**
@@ -379,7 +389,7 @@ final class DefaultEventProcessor implements EventProcessor
             [
                 'eventClass'       => $this->forEvent,
                 'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
-                'throwableMessage' => $throwable->getMessage(),
+                'throwableMessage' => throwableMessage($throwable),
             ]
         );
     }

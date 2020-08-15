@@ -12,6 +12,8 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas;
 
+use ServiceBus\Sagas\Contract\SagaReopened;
+use ServiceBus\Sagas\Exceptions\ReopenFailed;
 use function ServiceBus\Common\datetimeInstantiator;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Contract\SagaClosed;
@@ -93,7 +95,7 @@ abstract class Saga
         /** @var \DateTimeImmutable $expireDate */
         $expireDate = $expireDate ?? datetimeInstantiator(SagaMetadata::DEFAULT_EXPIRE_INTERVAL);
 
-        $this->assertExpirationDateIsCorrect($expireDate);
+        $this->assertExpirationDateIsCorrect($id, $expireDate);
 
         $this->id     = $id;
         $this->status = SagaStatus::created();
@@ -102,7 +104,9 @@ abstract class Saga
         $this->expireDate = $expireDate;
 
         /** @noinspection PhpUnhandledExceptionInspection */
-        $this->raise(new SagaCreated($id, $currentDatetime, $expireDate));
+        $this->raise(
+            new SagaCreated($id, $currentDatetime, $expireDate)
+        );
     }
 
     /**
@@ -194,8 +198,8 @@ abstract class Saga
     {
         $this->assertNotClosedSaga();
 
-        $this->doChangeState(SagaStatus::completed(), $withReason);
-        $this->doClose($withReason);
+        $this->changeState(SagaStatus::completed(), $withReason);
+        $this->close($withReason);
     }
 
     /**
@@ -209,8 +213,8 @@ abstract class Saga
     {
         $this->assertNotClosedSaga();
 
-        $this->doChangeState(SagaStatus::failed(), $withReason);
-        $this->doClose($withReason);
+        $this->changeState(SagaStatus::failed(), $withReason);
+        $this->close($withReason);
     }
 
     /**
@@ -247,7 +251,7 @@ abstract class Saga
          */
         $closure = function (object $event) use ($eventListenerMethodName): void
         {
-            if (true === \method_exists($this, $eventListenerMethodName))
+            if (\method_exists($this, $eventListenerMethodName))
             {
                 $this->{$eventListenerMethodName}($event);
             }
@@ -257,16 +261,49 @@ abstract class Saga
     }
 
     /**
-     * Change saga status to expired.
+     * Reopen saga.
+     *
+     * Called using Reflection API from the infrastructure layer.
      *
      * @noinspection PhpUnusedPrivateMethodInspection
      *
-     * @see          SagaStatus::STATUS_EXPIRED
+     * @throws \ServiceBus\Sagas\Exceptions\ReopenFailed
      */
-    private function makeExpired(): void
+    private function reopen(\DateTimeImmutable $withNewExpirationDate, string $withReason = ''): void
     {
-        $this->doChangeState(SagaStatus::expired());
-        $this->doClose('expired');
+        if ($this->status->equals(SagaStatus::created()) ||   $this->status->equals(SagaStatus::reopened()))
+        {
+            throw ReopenFailed::stillALive($this->id);
+        }
+
+        $currentDate = now();
+
+        if ($currentDate > $withNewExpirationDate)
+        {
+            throw ReopenFailed::incorrectExpirationDate($this->id);
+        }
+
+        $this->changeState(SagaStatus::reopened(), $withReason);
+
+        $this->expireDate = $withNewExpirationDate;
+        $this->closedAt   = null;
+
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->raise(
+            new SagaReopened($this->id->toString(), $currentDate, $this->expireDate, $withReason)
+        );
+    }
+
+    /**
+     * Change saga status to expired.
+     * Called using Reflection API from the infrastructure layer.
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     */
+    private function expire(): void
+    {
+        $this->changeState(SagaStatus::expired());
+        $this->close('expired');
 
         $this->expireDate = now();
     }
@@ -274,7 +311,7 @@ abstract class Saga
     /**
      * Close saga.
      */
-    private function doClose(string $withReason = null): void
+    private function close(string $withReason = null): void
     {
         $event = new SagaClosed($this->id, now(), $withReason);
 
@@ -286,7 +323,7 @@ abstract class Saga
     /**
      * Change saga state.
      */
-    private function doChangeState(SagaStatus $toState, string $withReason = null): void
+    private function changeState(SagaStatus $toState, string $withReason = null): void
     {
         $this->attachMessage(
             new SagaStatusChanged(
@@ -321,7 +358,7 @@ abstract class Saga
      */
     private function assertNotClosedSaga(): void
     {
-        if (false === $this->status->inProgress())
+        if ($this->status->inProgress() === false)
         {
             throw ChangeSagaStateFailed::create($this->status);
         }
@@ -343,11 +380,11 @@ abstract class Saga
     /**
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      */
-    private function assertExpirationDateIsCorrect(\DateTimeImmutable $dateTime): void
+    private function assertExpirationDateIsCorrect(SagaId $id, \DateTimeImmutable $dateTime): void
     {
         if (now() > $dateTime)
         {
-            throw InvalidExpireDateInterval::create();
+            throw InvalidExpireDateInterval::create($id);
         }
     }
 

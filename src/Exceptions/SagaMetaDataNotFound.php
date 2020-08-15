@@ -12,17 +12,18 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Exceptions;
 
-use ServiceBus\Sagas\SagaId;
-
 /**
  *
  */
-final class InvalidExpireDateInterval extends \InvalidArgumentException
+final class SagaMetaDataNotFound extends \RuntimeException
 {
-    public static function create(SagaId $id): self
+    public static function create(string $sagaClass): self
     {
         return new self(
-            \sprintf('The expiration date of the saga `%s` can not be less than the current date', $id->toString())
+            \sprintf(
+                'Meta data of the saga "%s" not found. The saga was not configured',
+                $sagaClass
+            )
         );
     }
 }

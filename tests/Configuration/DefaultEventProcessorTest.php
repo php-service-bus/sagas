@@ -325,7 +325,7 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
+                invokeReflectionMethod($saga, 'expire', 'fail reason');
 
                 yield $this->store->save($saga);
 

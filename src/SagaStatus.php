@@ -22,18 +22,17 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaStatus;
 final class SagaStatus
 {
     private const STATUS_IN_PROGRESS = 'in_progress';
+    private const STATUS_COMPLETED   = 'completed';
+    private const STATUS_FAILED      = 'failed';
+    private const STATUS_EXPIRED     = 'expired';
+    private const STATUS_REOPENED    = 'reopened';
 
-    private const STATUS_COMPLETED = 'completed';
-
-    private const STATUS_FAILED = 'failed';
-
-    private const STATUS_EXPIRED = 'expired';
-
-    private const LIST           = [
+    private const LIST               = [
         self::STATUS_IN_PROGRESS,
         self::STATUS_COMPLETED,
         self::STATUS_FAILED,
         self::STATUS_EXPIRED,
+        self::STATUS_REOPENED
     ];
 
     /**
@@ -73,6 +72,14 @@ final class SagaStatus
     }
 
     /**
+     * Creating the status of an reopened saga
+     */
+    public static function reopened(): self
+    {
+        return new self(self::STATUS_REOPENED);
+    }
+
+    /**
      * Creating the status of an error-complete saga.
      */
     public static function failed(): self
@@ -93,7 +100,7 @@ final class SagaStatus
      */
     public function inProgress(): bool
     {
-        return self::STATUS_IN_PROGRESS === $this->value;
+        return self::STATUS_IN_PROGRESS === $this->value || self::STATUS_REOPENED === $this->value;
     }
 
     /**

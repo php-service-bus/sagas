@@ -216,13 +216,13 @@ class SagaTest extends TestCase
      *
      * @throws \Throwable
      */
-    public function makeExpired(): void
+    public function expire(): void
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
         $saga = new CorrectSaga($id);
         $saga->start(new EmptyCommand());
 
-        invokeReflectionMethod($saga, 'makeExpired', 'fail reason');
+        invokeReflectionMethod($saga, 'expire', 'fail reason');
 
         /** @var array<int, string> $events */
         $events = invokeReflectionMethod($saga, 'messages');
@@ -271,7 +271,7 @@ class SagaTest extends TestCase
     public function createWithIncorrectExpireInterval(): void
     {
         $this->expectException(InvalidExpireDateInterval::class);
-        $this->expectExceptionMessage('The expiration date of the saga can not be less than the current date');
+        $this->expectExceptionMessage('The expiration date of the saga `123456789` can not be less than the current date');
 
         new CorrectSaga(
             new TestSagaId('123456789', CorrectSaga::class),

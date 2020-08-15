@@ -105,7 +105,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
         /** @var SagaEventListener $listenerAnnotation */
         $listenerAnnotation = $methodAnnotation->annotation;
 
-        $listenerOptions = true === $listenerAnnotation->hasContainingIdProperty()
+        $listenerOptions = $listenerAnnotation->hasContainingIdProperty()
             ? SagaListenerOptions::withCustomContainingIdentifierProperty(
                 (string) $listenerAnnotation->containingIdSource,
                 (string) $listenerAnnotation->containingIdProperty,
@@ -132,7 +132,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
             $closure = \Closure::fromCallable($processor);
 
-            /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<null> $closure */
+            /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<void> $closure */
 
             return new MessageHandler($eventClass, $closure, $reflectionMethod, $listenerOptions);
         }
@@ -151,13 +151,13 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     {
         $reflectionParameters = $reflectionMethod->getParameters();
 
-        if (1 === \count($reflectionParameters))
+        if (\count($reflectionParameters) === 1)
         {
-            $firstArgumentClass = true === isset($reflectionParameters[0]) && null !== $reflectionParameters[0]->getClass()
+            $firstArgumentClass = isset($reflectionParameters[0]) && $reflectionParameters[0]->getClass() !== null
                 ? $reflectionParameters[0]->getClass()
                 : null;
 
-            if (null !== $firstArgumentClass)
+            if ($firstArgumentClass !== null)
             {
                 /** @var \ReflectionClass $reflectionClass */
                 $reflectionClass = $reflectionParameters[0]->getClass();
@@ -187,8 +187,8 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
     private static function createSagaMetadata(string $sagaClass, SagaHeader $sagaHeader): SagaMetadata
     {
         if (
-            null === $sagaHeader->idClass ||
-            false === \class_exists((string) $sagaHeader->idClass)
+             $sagaHeader->idClass === null ||
+             \class_exists((string) $sagaHeader->idClass) === false
         ) {
             throw new \InvalidArgumentException(
                 \sprintf(
@@ -200,7 +200,7 @@ final class SagaAnnotationBasedConfigurationLoader implements SagaConfigurationL
 
         $containingIdentifierSource = SagaMetadata::CORRELATION_ID_SOURCE_EVENT;
 
-        if (null !== $sagaHeader->containingIdSource && '' !== (string) $sagaHeader->containingIdSource)
+        if ($sagaHeader->containingIdSource !== null &&  (string) $sagaHeader->containingIdSource !== '')
         {
             $containingIdentifierSource = \strtolower($sagaHeader->containingIdSource);
         }
