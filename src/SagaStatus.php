@@ -47,7 +47,7 @@ final class SagaStatus
      */
     public static function create(string $value): self
     {
-        if (false === \in_array($value, self::LIST, true))
+        if (\in_array($value, self::LIST, true) === false)
         {
             throw InvalidSagaStatus::create($value);
         }

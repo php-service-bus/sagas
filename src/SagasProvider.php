@@ -131,26 +131,19 @@ final class SagasProvider
                     throw $throwable;
                 }
 
-                try
+                if ($saga !== null)
                 {
-                    if ($saga !== null)
+                    /** Non-expired saga */
+                    if ($saga->expireDate() > now())
                     {
-                        /** Non-expired saga */
-                        if ($saga->expireDate() > now())
-                        {
-                            return $saga;
-                        }
-
-                        yield from $this->doCloseExpired($saga, $context);
-
-                        throw new LoadedExpiredSaga(
-                            \sprintf('Unable to load the saga (ID: "%s") whose lifetime has expired', $id->toString())
-                        );
+                        return $saga;
                     }
-                }
-                finally
-                {
-                    yield from $this->releaseMutex($id);
+
+                    yield from $this->doCloseExpired($saga, $context);
+
+                    throw new LoadedExpiredSaga(
+                        \sprintf('Unable to load the saga (ID: "%s") whose lifetime has expired', $id->toString())
+                    );
                 }
             }
         );
@@ -266,6 +259,8 @@ final class SagasProvider
 
             yield $this->save($saga, $context);
         }
+
+        yield from $this->releaseMutex($saga->id());
     }
 
     /**
