@@ -1852,19 +1852,20 @@
         },
         {
             "name": "php-service-bus/storage",
-            "version": "v4.1.2",
+            "version": "v4.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-service-bus/storage.git",
-                "reference": "588d2acf9376094ae67d44b76896d97e62a20b95"
+                "reference": "33a2f046593530d4101f2fc505c8b49708ff721a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-service-bus/storage/zipball/588d2acf9376094ae67d44b76896d97e62a20b95",
-                "reference": "588d2acf9376094ae67d44b76896d97e62a20b95",
+                "url": "https://api.github.com/repos/php-service-bus/storage/zipball/33a2f046593530d4101f2fc505c8b49708ff721a",
+                "reference": "33a2f046593530d4101f2fc505c8b49708ff721a",
                 "shasum": ""
             },
             "require": {
+                "amphp/file": "v1.0.*",
                 "amphp/postgres": "v1.3.*",
                 "doctrine/dbal": "v2.10.*",
                 "ext-pgsql": "*",
@@ -1911,7 +1912,7 @@
                 "command-bus",
                 "messaging"
             ],
-            "time": "2020-08-15T13:26:58+00:00"
+            "time": "2020-08-26T09:09:22+00:00"
         },
         {
             "name": "psr/container",
@@ -2387,16 +2388,16 @@
     "packages-dev": [
         {
             "name": "composer/package-versions-deprecated",
-            "version": "1.10.99.1",
+            "version": "1.11.99",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/package-versions-deprecated.git",
-                "reference": "68c9b502036e820c33445ff4d174327f6bb87486"
+                "reference": "c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/68c9b502036e820c33445ff4d174327f6bb87486",
-                "reference": "68c9b502036e820c33445ff4d174327f6bb87486",
+                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855",
+                "reference": "c8c9aa8a14cc3d3bec86d0a8c3fa52ea79936855",
                 "shasum": ""
             },
             "require": {
@@ -2404,7 +2405,7 @@
                 "php": "^7 || ^8"
             },
             "replace": {
-                "ocramius/package-versions": "1.10.99"
+                "ocramius/package-versions": "1.11.99"
             },
             "require-dev": {
                 "composer/composer": "^1.9.3 || ^2.0@dev",
@@ -2438,7 +2439,7 @@
                 }
             ],
             "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
-            "time": "2020-08-13T12:55:41+00:00"
+            "time": "2020-08-25T05:50:16+00:00"
         },
         {
             "name": "composer/semver",
@@ -2503,16 +2504,16 @@
         },
         {
             "name": "composer/xdebug-handler",
-            "version": "1.4.2",
+            "version": "1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/xdebug-handler.git",
-                "reference": "fa2aaf99e2087f013a14f7432c1cd2dd7d8f1f51"
+                "reference": "ebd27a9866ae8254e873866f795491f02418c5a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/fa2aaf99e2087f013a14f7432c1cd2dd7d8f1f51",
-                "reference": "fa2aaf99e2087f013a14f7432c1cd2dd7d8f1f51",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/ebd27a9866ae8254e873866f795491f02418c5a5",
+                "reference": "ebd27a9866ae8254e873866f795491f02418c5a5",
                 "shasum": ""
             },
             "require": {
@@ -2543,7 +2544,7 @@
                 "Xdebug",
                 "performance"
             ],
-            "time": "2020-06-04T11:16:35+00:00"
+            "time": "2020-08-19T10:27:58+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -3378,16 +3379,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.37",
+            "version": "0.12.39",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "5e16d83e6eb2dd784fbdaeaece5e2bca72e4f68a"
+                "reference": "f970cab80f0a681019dc669bf8c72905845dadaa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5e16d83e6eb2dd784fbdaeaece5e2bca72e4f68a",
-                "reference": "5e16d83e6eb2dd784fbdaeaece5e2bca72e4f68a",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/f970cab80f0a681019dc669bf8c72905845dadaa",
+                "reference": "f970cab80f0a681019dc669bf8c72905845dadaa",
                 "shasum": ""
             },
             "require": {
@@ -3416,7 +3417,7 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
-            "time": "2020-08-09T14:32:41+00:00"
+            "time": "2020-08-24T21:34:53+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

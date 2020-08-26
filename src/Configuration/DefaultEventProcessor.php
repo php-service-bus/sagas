@@ -120,7 +120,6 @@ final class DefaultEventProcessor implements EventProcessor
                     }
 
                     /**
-                     * @psalm-suppress MixedArgument
                      * @var object[] $messages
                      */
                     $messages = invokeReflectionMethod($saga, 'messages');
@@ -263,7 +262,6 @@ final class DefaultEventProcessor implements EventProcessor
 
             if (\is_object($propertyValue) && \method_exists($propertyValue, 'toString'))
             {
-                /** @psalm-suppress MixedMethodCall */
                 $propertyValue = (string) $propertyValue->toString();
             }
         }

@@ -145,6 +145,8 @@ final class SagasProvider
                         \sprintf('Unable to load the saga (ID: "%s") whose lifetime has expired', $id->toString())
                     );
                 }
+
+                yield $this->releaseMutex($id);
             }
         );
     }
