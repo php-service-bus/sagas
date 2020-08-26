@@ -146,7 +146,7 @@ final class SagasProvider
                     );
                 }
 
-                yield $this->releaseMutex($id);
+                yield from $this->releaseMutex($id);
             }
         );
     }
