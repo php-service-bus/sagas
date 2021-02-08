@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
@@ -16,8 +16,6 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaStatus;
 
 /**
  * SagaStatus of the saga.
- *
- * @internal
  */
 final class SagaStatus
 {
@@ -103,9 +101,6 @@ final class SagaStatus
         return self::STATUS_IN_PROGRESS === $this->value || self::STATUS_REOPENED === $this->value;
     }
 
-    /**
-     * @param SagaStatus $status
-     */
     public function equals(SagaStatus $status): bool
     {
         return $this->value === $status->value;

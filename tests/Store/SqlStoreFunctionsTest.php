@@ -1,9 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -23,8 +23,6 @@ final class SqlStoreFunctionsTest extends TestCase
 {
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function incorrectBase64(): void
     {
@@ -35,8 +33,6 @@ final class SqlStoreFunctionsTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function incorrectSerializedObject(): void
     {

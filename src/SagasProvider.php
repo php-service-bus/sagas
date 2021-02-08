@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
@@ -34,10 +34,14 @@ use ServiceBus\Sagas\Store\SagasStore;
  */
 final class SagasProvider
 {
-    /** @var SagasStore */
+    /**
+     * @var SagasStore
+     */
     private $sagaStore;
 
-    /** @var MutexFactory */
+    /**
+     * @var MutexFactory
+     */
     private $mutexFactory;
 
     /**
@@ -49,7 +53,9 @@ final class SagasProvider
      */
     private $sagaMetaDataCollection = [];
 
-    /** @var Lock[] */
+    /**
+     * @var Lock[]
+     */
     private $lockCollection = [];
 
     public function __construct(SagasStore $sagaStore, ?MutexFactory $mutexFactory = null)
@@ -91,7 +97,11 @@ final class SagasProvider
                     $saga = new $id->sagaClass($id, $expireDate);
                     $saga->start($command);
 
-                    yield from $this->doStore($saga, $context, true);
+                    yield from $this->doStore(
+                        saga: $saga,
+                        context: $context,
+                        isNew: true
+                    );
 
                     return $saga;
                 }
@@ -139,7 +149,10 @@ final class SagasProvider
                         return $saga;
                     }
 
-                    yield from $this->doCloseExpired($saga, $context);
+                    yield from $this->doCloseExpired(
+                        saga: $saga,
+                        context: $context
+                    );
 
                     throw new LoadedExpiredSaga(
                         \sprintf('Unable to load the saga (ID: "%s") whose lifetime has expired', $id->toString())
@@ -147,6 +160,8 @@ final class SagasProvider
                 }
 
                 yield from $this->releaseMutex($id);
+
+                return null;
             }
         );
     }
@@ -175,7 +190,11 @@ final class SagasProvider
                         /** The saga has not been updated */
                         if ($existsSaga->stateHash() !== $saga->stateHash())
                         {
-                            yield from $this->doStore($saga, $context, false);
+                            yield from $this->doStore(
+                                saga: $saga,
+                                context: $context,
+                                isNew: false
+                            );
                         }
 
                         return;
@@ -221,7 +240,11 @@ final class SagasProvider
                     {
                         invokeReflectionMethod($saga, 'reopen', $newExpireDate, $reason);
 
-                        yield from $this->doStore($saga, $context, false);
+                        yield from $this->doStore(
+                            saga: $saga,
+                            context: $context,
+                            isNew: false
+                        );
 
                         return;
                     }
@@ -279,23 +302,13 @@ final class SagasProvider
         /**
          * @psalm-var  array<int, object> $messages
          *
-         * @var object[] $messages
+         * @var object[]                  $messages
          */
         $messages = invokeReflectionMethod($saga, 'messages');
 
         $isNew ? yield $this->sagaStore->save($saga) : yield $this->sagaStore->update($saga);
 
-        $promises = [];
-
-        foreach ($messages as $message)
-        {
-            $promises[] = $context->delivery($message);
-        }
-
-        if (\count($promises) !== 0)
-        {
-            yield $promises;
-        }
+        yield $context->deliveryBulk($messages);
     }
 
     /**

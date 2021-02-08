@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -16,7 +16,6 @@ use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\now;
 use function ServiceBus\Common\readReflectionPropertyValue;
-use function ServiceBus\Common\throwableMessage;
 use function ServiceBus\Sagas\createMutexKey;
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
@@ -39,7 +38,9 @@ final class DefaultEventProcessor implements EventProcessor
      */
     private $forEvent;
 
-    /** @var SagasStore */
+    /**
+     * @var SagasStore
+     */
     private $sagasStore;
 
     /**
@@ -49,7 +50,9 @@ final class DefaultEventProcessor implements EventProcessor
      */
     private $sagaListenerOptions;
 
-    /** @var MutexFactory */
+    /**
+     * @var MutexFactory
+     */
     private $mutexFactory;
 
     /**
@@ -67,17 +70,11 @@ final class DefaultEventProcessor implements EventProcessor
         $this->mutexFactory        = $mutexFactory;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function event(): string
     {
         return $this->forEvent;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __invoke(object $event, ServiceBusContext $context): Promise
     {
         return call(
@@ -85,11 +82,14 @@ final class DefaultEventProcessor implements EventProcessor
             {
                 try
                 {
-                    $id = $this->obtainSagaId($event, $context->headers());
+                    $id = $this->obtainSagaId(
+                        event: $event,
+                        headers: $context->headers()
+                    );
                 }
                 catch (\Throwable $throwable)
                 {
-                    $this->logThrowable($throwable, $context);
+                    $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
 
                     return false;
                 }
@@ -108,7 +108,7 @@ final class DefaultEventProcessor implements EventProcessor
 
                     if ($description !== null)
                     {
-                        $context->logContextMessage($description);
+                        $context->logger()->debug($description);
                     }
 
                     invokeReflectionMethod($saga, 'applyEvent', $event);
@@ -125,14 +125,13 @@ final class DefaultEventProcessor implements EventProcessor
                     $messages = invokeReflectionMethod($saga, 'messages');
 
                     yield $this->sagasStore->update($saga);
-
-                    yield from $this->deliveryMessages($context, $messages);
+                    yield $context->deliveryBulk($messages);
 
                     return true;
                 }
                 catch (\Throwable $throwable)
                 {
-                    $this->logThrowable($throwable, $context);
+                    $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
 
                     return false;
                 }
@@ -145,33 +144,9 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     * Delivery events & commands to message bus.
-     *
-     * @param object[] $messages
-     *
-     * @throws \ServiceBus\Common\Context\Exceptions\MessageDeliveryFailed
-     */
-    private function deliveryMessages(ServiceBusContext $context, array $messages): \Generator
-    {
-        $promises = [];
-
-        foreach ($messages as $message)
-        {
-            $promises[] = $context->delivery($message);
-        }
-
-        if (\count($promises) !== 0)
-        {
-            yield $promises;
-        }
-
-        unset($promises);
-    }
-
-    /**
      * Search and instantiate saga identifier.
      *
-     * @psalm-param array<string, string|float|int> $headers
+     * @psalm-param array<string, int|float|string|null> $headers
      *
      * @throws \RuntimeException A property that contains an identifier was not found
      */
@@ -214,7 +189,7 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     * @psalm-param array<string, string|float|int> $headers
+     * @psalm-param array<string, int|float|string|null> $headers
      *
      * @throws \RuntimeException
      */
@@ -226,14 +201,11 @@ final class DefaultEventProcessor implements EventProcessor
 
         if ((string) $headerKeyValue !== '')
         {
-            /** @var SagaId $id */
-            $id = self::identifierInstantiator(
+            return self::identifierInstantiator(
                 $identifierClass,
                 (string) $headerKeyValue,
                 $this->sagaListenerOptions->sagaClass()
             );
-
-            return $id;
         }
 
         throw new \RuntimeException(
@@ -265,7 +237,7 @@ final class DefaultEventProcessor implements EventProcessor
                 $propertyValue = (string) $propertyValue->toString();
             }
         }
-        catch (\Throwable $throwable)
+        catch (\Throwable)
         {
             throw new \RuntimeException(
                 \sprintf(
@@ -278,14 +250,11 @@ final class DefaultEventProcessor implements EventProcessor
 
         if ($propertyValue !== '')
         {
-            /** @var SagaId $id */
-            $id = self::identifierInstantiator(
+            return self::identifierInstantiator(
                 $identifierClass,
                 (string) $propertyValue,
                 $this->sagaListenerOptions->sagaClass()
             );
-
-            return $id;
         }
 
         throw new \RuntimeException(
@@ -306,7 +275,6 @@ final class DefaultEventProcessor implements EventProcessor
     {
         $identifierClass = $this->sagaListenerOptions->identifierClass();
 
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
         if (\class_exists($identifierClass))
         {
             return $identifierClass;
@@ -325,7 +293,7 @@ final class DefaultEventProcessor implements EventProcessor
      * Create identifier instance.
      *
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
-     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga>   $sagaClass
      *
      * @throws \RuntimeException
      */
@@ -355,14 +323,9 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @throws \Throwable Reflection property not found
      */
-    private static function readEventProperty(object $event, string $propertyName)
+    private static function readEventProperty(object $event, string $propertyName): mixed
     {
-        if (isset($event->{$propertyName}))
-        {
-            return $event->{$propertyName};
-        }
-
-        return readReflectionPropertyValue($event, $propertyName);
+        return $event->{$propertyName} ?? readReflectionPropertyValue($event, $propertyName);
     }
 
     /**
@@ -378,17 +341,5 @@ final class DefaultEventProcessor implements EventProcessor
         $lock = yield $mutex->acquire();
 
         return $lock;
-    }
-
-    private function logThrowable(\Throwable $throwable, ServiceBusContext $context): void
-    {
-        $context->logContextMessage(
-            $throwable->getMessage(),
-            [
-                'eventClass'       => $this->forEvent,
-                'throwablePoint'   => \sprintf('%s:%d', $throwable->getFile(), $throwable->getLine()),
-                'throwableMessage' => throwableMessage($throwable),
-            ]
-        );
     }
 }

@@ -1,19 +1,20 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
 
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Module;
 
 use ServiceBus\AnnotationsReader\Reader;
 use ServiceBus\Mutex\InMemory\InMemoryMutexFactory;
+use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
 use ServiceBus\Sagas\SagaMessagesRouterConfigurator;
 use ServiceBus\Sagas\SagasProvider;
 use function ServiceBus\Common\canonicalizeFilesPath;
@@ -23,7 +24,6 @@ use ServiceBus\Common\Module\ServiceBusModule;
 use ServiceBus\MessagesRouter\ChainRouterConfigurator;
 use ServiceBus\MessagesRouter\Router;
 use ServiceBus\Mutex\MutexFactory;
-use ServiceBus\Sagas\Configuration\Annotations\SagaAnnotationBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
@@ -40,10 +40,14 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class SagaModule implements ServiceBusModule
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     private $sagaStoreServiceId;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $databaseAdapterServiceId;
 
     /**
@@ -53,7 +57,9 @@ final class SagaModule implements ServiceBusModule
      */
     private $sagasToRegister = [];
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $configurationLoaderServiceId;
 
     /**
@@ -174,9 +180,6 @@ final class SagaModule implements ServiceBusModule
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function boot(ContainerBuilder $containerBuilder): void
     {
         $containerBuilder->setParameter('service_bus.sagas.list', $this->sagasToRegister);
@@ -282,7 +285,7 @@ final class SagaModule implements ServiceBusModule
         $containerBuilder->setDefinition(EventListenerProcessorFactory::class, $listenerFactoryDefinition);
 
         /** Configuration loader */
-        $configurationLoaderDefinition = (new Definition(SagaAnnotationBasedConfigurationLoader::class))
+        $configurationLoaderDefinition = (new Definition(SagaAttributeBasedConfigurationLoader::class))
             ->setArguments([new Reference(EventListenerProcessorFactory::class)]);
 
         $containerBuilder->setDefinition(SagaConfigurationLoader::class, $configurationLoaderDefinition);

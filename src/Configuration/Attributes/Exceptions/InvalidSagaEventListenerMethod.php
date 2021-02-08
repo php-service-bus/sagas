@@ -3,14 +3,14 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
-namespace ServiceBus\Sagas\Configuration\Annotations\Exceptions;
+namespace ServiceBus\Sagas\Configuration\Attributes\Exceptions;
 
 /**
  *

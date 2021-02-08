@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
@@ -76,11 +76,9 @@ abstract class Saga
      *
      * @var \DateTimeImmutable|null
      */
-    private $closedAt = null;
+    private $closedAt;
 
     /**
-     * @noinspection PhpDocMissingThrowsInspection
-     *
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
      * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
@@ -104,7 +102,6 @@ abstract class Saga
         $this->createdAt  = $createdAt ?? now();
         $this->expireDate = $expireDate;
 
-        /** @noinspection PhpUnhandledExceptionInspection */
         $this->raise(
             new SagaCreated($id, $this->createdAt, $this->expireDate)
         );
@@ -289,7 +286,6 @@ abstract class Saga
         $this->expireDate = $withNewExpirationDate;
         $this->closedAt   = null;
 
-        /** @noinspection PhpUnhandledExceptionInspection */
         $this->raise(
             new SagaReopened($this->id->toString(), $currentDate, $this->expireDate, $withReason)
         );

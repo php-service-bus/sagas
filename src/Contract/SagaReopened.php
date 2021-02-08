@@ -3,24 +3,26 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Contract;
 
 /**
  * Saga reopened
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaReopened
 {
     /**
      * Saga identifier.
+     *
+     * @psalm-readonly
      *
      * @var string
      */
@@ -29,12 +31,16 @@ final class SagaReopened
     /**
      * Operation date.
      *
+     * @psalm-readonly
+     *
      * @var \DateTimeImmutable
      */
     public $datetime;
 
     /**
      * New date of expiration.
+     *
+     * @psalm-readonly
      *
      * @var \DateTimeImmutable
      */
@@ -43,12 +49,18 @@ final class SagaReopened
     /**
      * Reason
      *
+     * @psalm-readonly
+     *
      * @var string
      */
     public $reason;
 
-    public function __construct(string $id, \DateTimeImmutable $datetime, \DateTimeImmutable $expirationDate, string $reason)
-    {
+    public function __construct(
+        string $id,
+        \DateTimeImmutable $datetime,
+        \DateTimeImmutable $expirationDate,
+        string $reason
+    ) {
         $this->id             = $id;
         $this->datetime       = $datetime;
         $this->expirationDate = $expirationDate;

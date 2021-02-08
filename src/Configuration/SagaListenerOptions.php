@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -24,7 +24,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
      *
      * @var string|null
      */
-    private $containingIdentifierSource = null;
+    private $containingIdentifierSource;
 
     /**
      * If a value is specified for a particular listener, then it will be used. Otherwise, the value will be obtained
@@ -32,7 +32,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
      *
      * @var string|null
      */
-    private $containingIdentifierProperty = null;
+    private $containingIdentifierProperty;
 
     /**
      * Basic information about saga.
@@ -102,9 +102,11 @@ final class SagaListenerOptions implements MessageHandlerOptions
      */
     public function containingIdentifierProperty(): string
     {
-        if (null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierProperty)
+        $containingIdentifierProperty = $this->containingIdentifierProperty;
+
+        if ($containingIdentifierProperty !== null && $containingIdentifierProperty !== '')
         {
-            return (string) $this->containingIdentifierProperty;
+            return $containingIdentifierProperty;
         }
 
         return $this->sagaMetadata->containingIdentifierProperty;
@@ -115,9 +117,11 @@ final class SagaListenerOptions implements MessageHandlerOptions
      */
     public function containingIdentifierSource(): string
     {
-        if (null !== $this->containingIdentifierProperty && '' !== $this->containingIdentifierSource)
+        $containingIdentifierSource = $this->containingIdentifierSource;
+
+        if ($containingIdentifierSource !== null && $containingIdentifierSource !== '')
         {
-            return (string) $this->containingIdentifierSource;
+            return $containingIdentifierSource;
         }
 
         return $this->sagaMetadata->containingIdentifierSource;

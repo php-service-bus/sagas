@@ -1,9 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -28,17 +28,16 @@ use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
  */
 final class SQLSagaStoreTest extends TestCase
 {
-    /** @var DatabaseAdapter */
+    /**
+     * @var DatabaseAdapter
+     */
     private $adapter;
 
-    /** @var SQLSagaStore */
+    /**
+     * @var SQLSagaStore
+     */
     private $store;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Throwable
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,11 +59,6 @@ final class SQLSagaStoreTest extends TestCase
         $this->store = new SQLSagaStore($this->adapter);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Throwable
-     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -74,8 +68,6 @@ final class SQLSagaStoreTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function obtain(): void
     {
@@ -90,17 +82,15 @@ final class SQLSagaStoreTest extends TestCase
                 /** @var CorrectSaga $loadedSaga */
                 $loadedSaga = yield $this->store->obtain($id);
 
-                static::assertNotNull($loadedSaga);
-                static::assertInstanceOf(CorrectSaga::class, $loadedSaga);
-                static::assertSame($id->id, $loadedSaga->id()->id);
+                self::assertNotNull($loadedSaga);
+                self::assertInstanceOf(CorrectSaga::class, $loadedSaga);
+                self::assertSame($id->id, $loadedSaga->id()->id);
             }
         );
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function remove(): void
     {
@@ -116,15 +106,13 @@ final class SQLSagaStoreTest extends TestCase
                 /** @var CorrectSaga|null $loadedSaga */
                 $loadedSaga = yield $this->store->obtain($id);
 
-                static::assertNull($loadedSaga);
+                self::assertNull($loadedSaga);
             }
         );
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function removeUnExistsSaga(): void
     {
@@ -138,8 +126,6 @@ final class SQLSagaStoreTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function saveDuplicate(): void
     {
@@ -159,8 +145,6 @@ final class SQLSagaStoreTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function update(): void
     {
@@ -179,15 +163,13 @@ final class SQLSagaStoreTest extends TestCase
                 /** @var CorrectSaga|null $loadedSaga */
                 $loadedSaga = yield $this->store->obtain($id);
 
-                static::assertSame($loadedSaga->value(), 'qwerty');
+                self::assertSame($loadedSaga->value(), 'qwerty');
             }
         );
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function updateUnExistsSaga(): void
     {

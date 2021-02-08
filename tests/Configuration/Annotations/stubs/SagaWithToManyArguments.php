@@ -1,9 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnusedPrivateMethodInspection */
 
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -13,32 +13,24 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations\stubs;
 
 use ServiceBus\Common\Context\ServiceBusContext;
-use ServiceBus\Sagas\Configuration\Annotations\SagaEventListener;
-use ServiceBus\Sagas\Configuration\Annotations\SagaHeader;
+use ServiceBus\Sagas\Configuration\Attributes\SagaEventListener;
+use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\Tests\stubs\EventWithKey;
+use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 
-/**
- * @SagaHeader(
- *     idClass="ServiceBus\Sagas\Tests\stubs\TestSagaId",
- *     containingIdProperty="requestId",
- *     expireDateModifier="+1 year"
- * )
- */
+#[SagaHeader(
+    idClass: TestSagaId::class,
+    containingIdProperty: 'requestId',
+    expireDateModifier: '+1 year'
+)]
 final class SagaWithToManyArguments extends Saga
 {
-    /**
-     * {@inheritdoc}
-     */
     public function start(object $command): void
     {
     }
 
-    /**
-     * @noinspection PhpUnusedPrivateMethodInspection
-     *
-     * @SagaEventListener()
-     */
+    #[SagaEventListener]
     private function onSomeSagaEvent(EventWithKey $event, ServiceBusContext $context): void
     {
     }

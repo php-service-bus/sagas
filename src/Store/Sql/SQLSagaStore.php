@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Store\Sql;
 
@@ -40,7 +40,9 @@ final class SQLSagaStore implements SagasStore
 {
     private const SAGA_STORE_TABLE = 'sagas_store';
 
-    /** @var DatabaseAdapter */
+    /**
+     * @var DatabaseAdapter
+     */
     private $adapter;
 
     public function __construct(DatabaseAdapter $adapter)
@@ -48,9 +50,6 @@ final class SQLSagaStore implements SagasStore
         $this->adapter = $adapter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function obtain(SagaId $id): Promise
     {
         return call(
@@ -64,7 +63,11 @@ final class SQLSagaStore implements SagasStore
                     ];
 
                     /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
-                    $resultSet = yield find($this->adapter, self::SAGA_STORE_TABLE, $criteria);
+                    $resultSet = yield find(
+                        queryExecutor: $this->adapter,
+                        tableName: self::SAGA_STORE_TABLE,
+                        criteria: $criteria
+                    );
 
                     /**
                      * @psalm-var array{
@@ -91,7 +94,7 @@ final class SQLSagaStore implements SagasStore
                             $payload = $this->adapter->unescapeBinary($payload);
                         }
 
-                        /** @var Saga $saga */
+                        /** @psalm-var Saga $saga */
                         $saga = unserializeSaga($payload);
 
                         /**
@@ -100,20 +103,31 @@ final class SQLSagaStore implements SagasStore
                          *
                          * @todo: fix me
                          */
-                        writeReflectionPropertyValue($saga, 'status', SagaStatus::create($result['state_id']));
-                        writeReflectionPropertyValue($saga, 'expireDate', datetimeInstantiator($result['expiration_date']));
+                        writeReflectionPropertyValue(
+                            object: $saga,
+                            propertyName: 'status',
+                            value: SagaStatus::create($result['state_id'])
+                        );
+
+                        writeReflectionPropertyValue(
+                            object: $saga,
+                            propertyName: 'expireDate',
+                            value: datetimeInstantiator($result['expiration_date'])
+                        );
 
                         if ($result['closed_at'] !== null)
                         {
                             writeReflectionPropertyValue(
-                                $saga,
-                                'closedAt',
-                                datetimeInstantiator($result['closed_at'])
+                                object: $saga,
+                                propertyName: 'closedAt',
+                                value: datetimeInstantiator($result['closed_at'])
                             );
                         }
 
                         return $saga;
                     }
+
+                    return null;
                 }
                 catch (\Throwable $throwable)
                 {
@@ -123,9 +137,6 @@ final class SQLSagaStore implements SagasStore
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function save(Saga $saga): Promise
     {
         return call(
@@ -141,7 +152,6 @@ final class SQLSagaStore implements SagasStore
 
                     $closedDatetime = $closedAt !== null ? $closedAt->format('Y-m-d H:i:s.u') : null;
 
-                    /** @var \Latitude\QueryBuilder\Query\InsertQuery $insertQuery */
                     $insertQuery = insertQuery(self::SAGA_STORE_TABLE, [
                         'id'               => $id->toString(),
                         'identifier_class' => \get_class($id),
@@ -155,8 +165,11 @@ final class SQLSagaStore implements SagasStore
 
                     $compiledQuery = $insertQuery->compile();
 
-                    /** @psalm-suppress MixedTypeCoercion */
-                    yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                    /** @psalm-suppress MixedArgumentTypeCoercion */
+                    yield $this->adapter->execute(
+                        queryString: $compiledQuery->sql(),
+                        parameters: $compiledQuery->params()
+                    );
                 }
                 catch (UniqueConstraintViolationCheckFailed $exception)
                 {
@@ -170,9 +183,6 @@ final class SQLSagaStore implements SagasStore
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function update(Saga $saga): Promise
     {
         return call(
@@ -197,24 +207,22 @@ final class SQLSagaStore implements SagasStore
                         ->where(equalsCriteria('id', $id->toString()))
                         ->andWhere(equalsCriteria('identifier_class', \get_class($id)));
 
-                    /** @var \Latitude\QueryBuilder\Query $compiledQuery */
                     $compiledQuery = $updateQuery->compile();
 
-                    /** @psalm-suppress MixedTypeCoercion */
-                    yield $this->adapter->execute($compiledQuery->sql(), $compiledQuery->params());
+                    /** @psalm-suppress MixedArgumentTypeCoercion */
+                    yield $this->adapter->execute(
+                        queryString: $compiledQuery->sql(),
+                        parameters: $compiledQuery->params()
+                    );
                 }
                 catch (\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
-            },
-            $saga
+            }
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function remove(SagaId $id): Promise
     {
         return call(
@@ -227,14 +235,17 @@ final class SQLSagaStore implements SagasStore
                         equalsCriteria('identifier_class', \get_class($id)),
                     ];
 
-                    yield remove($this->adapter, self::SAGA_STORE_TABLE, $criteria);
+                    yield remove(
+                        queryExecutor: $this->adapter,
+                        tableName: self::SAGA_STORE_TABLE,
+                        criteria: $criteria
+                    );
                 }
                 catch (\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
-            },
-            $id
+            }
         );
     }
 }

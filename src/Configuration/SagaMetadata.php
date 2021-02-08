@@ -3,19 +3,19 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
 /**
  * Basic information about saga.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaMetadata
 {
@@ -33,6 +33,7 @@ final class SagaMetadata
     /**
      * Class namespace.
      *
+     * @psalm-readonly
      * @psalm-var class-string<\ServiceBus\Sagas\Saga>
      *
      * @var string
@@ -42,6 +43,7 @@ final class SagaMetadata
     /**
      * Identifier class.
      *
+     * @psalm-readonly
      * @psalm-var class-string<\ServiceBus\Sagas\SagaId>
      *
      * @var string
@@ -51,6 +53,8 @@ final class SagaMetadata
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
      *
+     * @psalm-readonly
+     *
      * @var string
      */
     public $containingIdentifierSource;
@@ -58,12 +62,16 @@ final class SagaMetadata
     /**
      * The field that contains the saga identifier.
      *
+     * @psalm-readonly
+     *
      * @var string
      */
     public $containingIdentifierProperty;
 
     /**
      * Saga expire date modifier.
+     *
+     * @psalm-readonly
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
      *
@@ -84,7 +92,7 @@ final class SagaMetadata
         string $containingIdentifierProperty,
         string $expireDateModifier
     ) {
-        if (false === \in_array($containingIdentifierSource, self::CORRELATION_ID_SOURCES, true))
+        if (\in_array($containingIdentifierSource, self::CORRELATION_ID_SOURCES, true) === false)
         {
             throw new \InvalidArgumentException(
                 \sprintf(

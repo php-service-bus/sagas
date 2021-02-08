@@ -1,9 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation module.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -30,12 +30,11 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class SagaModuleTest extends TestCase
 {
-    /** @var ContainerBuilder */
+    /**
+     * @var ContainerBuilder
+     */
     private $containerBuilder;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,9 +48,6 @@ final class SagaModuleTest extends TestCase
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -61,8 +57,6 @@ final class SagaModuleTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function withSqlStorage(): void
     {
@@ -79,18 +73,16 @@ final class SagaModuleTest extends TestCase
         /** @var SagasProvider $sagasProvider */
         $sagasProvider = $this->containerBuilder->get(SagasProvider::class);
 
-        static::assertInstanceOf(SagasProvider::class, $sagasProvider);
+        self::assertInstanceOf(SagasProvider::class, $sagasProvider);
 
         /** @var Router $router */
         $router = $this->containerBuilder->get(Router::class);
 
-        static::assertCount(3, $router);
+        self::assertCount(3, $router);
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function withCustomStore(): void
     {
@@ -118,6 +110,6 @@ final class SagaModuleTest extends TestCase
 
         $sagasProvider = $this->containerBuilder->get(SagasProvider::class);
 
-        static::assertInstanceOf(SagasProvider::class, $sagasProvider);
+        self::assertInstanceOf(SagasProvider::class, $sagasProvider);
     }
 }

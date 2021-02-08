@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Contract;
 
@@ -17,12 +17,14 @@ use ServiceBus\Sagas\SagaId;
 /**
  * The saga was completed.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaClosed
 {
     /**
      * Saga identifier.
+     *
+     * @psalm-readonly
      *
      * @var string
      */
@@ -31,12 +33,16 @@ final class SagaClosed
     /**
      * Saga identifier class.
      *
+     * @psalm-readonly
+     *
      * @var string
      */
     public $idClass;
 
     /**
      * Saga class.
+     *
+     * @psalm-readonly
      *
      * @var string
      */
@@ -45,12 +51,16 @@ final class SagaClosed
     /**
      * Reason for closing the saga.
      *
+     * @psalm-readonly
+     *
      * @var string|null
      */
-    public $withReason = null;
+    public $withReason;
 
     /**
      * Operation datetime.
+     *
+     * @psalm-readonly
      *
      * @var \DateTimeImmutable
      */
@@ -59,7 +69,7 @@ final class SagaClosed
     public function __construct(SagaId $sagaId, \DateTimeImmutable $datetime, ?string $withReason = null)
     {
         $this->id         = $sagaId->toString();
-        $this->idClass    = (string) \get_class($sagaId);
+        $this->idClass    = \get_class($sagaId);
         $this->sagaClass  = $sagaId->sagaClass;
         $this->withReason = $withReason;
         $this->datetime   = $datetime;

@@ -3,7 +3,7 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -23,33 +23,21 @@ use ServiceBus\Sagas\Store\SagasStore;
  */
 final class CustomSagaStore implements SagasStore
 {
-    /**
-     * {@inheritdoc}
-     */
     public function obtain(SagaId $id): Promise
     {
         return new Success();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function save(Saga $saga): Promise
     {
         return new Success();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function update(Saga $saga): Promise
     {
         return new Success();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function remove(SagaId $id): Promise
     {
         return new Success();

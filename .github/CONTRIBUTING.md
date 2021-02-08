@@ -37,7 +37,7 @@ You can find help and discussion in the following places:
 * Create issue [https://github.com/php-service-bus/service-bus/issues](https://github.com/php-service-bus/service-bus/issues)
 
 ## Security
-If you discover any security related issues, please email [`dev@async-php.com`](mailto:dev@async-php.com) instead of using the issue tracker.
+If you discover any security related issues, please email [`contacts@desperado.dev`](mailto:contacts@desperado.dev) instead of using the issue tracker.
 
 ## Reporting issues
 * [General problems](https://github.com/php-service-bus/service-bus/issues)

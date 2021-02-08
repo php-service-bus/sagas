@@ -3,7 +3,7 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -12,13 +12,16 @@ declare(strict_types = 1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
-use function ServiceBus\Common\uuid;
+use ServiceBus\Common\Context\ContextLogger;
+use ServiceBus\Common\Context\IncomingMessageMetadata;
+use ServiceBus\Common\Context\OutcomeMessageMetadata;
+use ServiceBus\Common\Context\ValidationViolations;
 use Amp\Promise;
 use Amp\Success;
-use Psr\Log\LogLevel;
 use Psr\Log\Test\TestLogger;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\Endpoint\DeliveryOptions;
+use function ServiceBus\Common\uuid;
 
 /**
  *
@@ -30,10 +33,14 @@ final class TestContext implements ServiceBusContext
      */
     public $messages = [];
 
-    /** @var array */
+    /**
+     * @var array
+     */
     public $headers = [];
 
-    /** @var TestLogger */
+    /**
+     * @var TestLogger
+     */
     public $logger;
 
     public function __construct()
@@ -41,79 +48,42 @@ final class TestContext implements ServiceBusContext
         $this->logger = new TestLogger();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isValid(): bool
+    public function violations(): ?ValidationViolations
     {
-        return true;
+        return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function violations(): array
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function delivery(object $message, ?DeliveryOptions $deliveryOptions = null): Promise
+    public function delivery(object $message, ?DeliveryOptions $deliveryOptions = null, ?OutcomeMessageMetadata $withMetadata = null): Promise
     {
         $this->messages[] = $message;
 
         return new Success();
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function deliveryBulk(array $messages, ?DeliveryOptions $deliveryOptions = null, ?OutcomeMessageMetadata $withMetadata = null): Promise
+    {
+        $this->messages = \array_merge($this->messages, $messages);
+
+        return new Success();
+    }
+
+    public function return(int $secondsDelay = 3, ?OutcomeMessageMetadata $withMetadata = null): Promise
+    {
+        return new Success();
+    }
+
+    public function logger(): ContextLogger
+    {
+        return new TestContextLogger($this->logger, new \stdClass(), $this->metadata());
+    }
+
     public function headers(): array
     {
         return $this->headers;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function logContextMessage(string $logMessage, array $extra = [], string $level = LogLevel::INFO): void
+    public function metadata(): IncomingMessageMetadata
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->logger->log($level, $logMessage, $extra);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function logContextThrowable(\Throwable $throwable, array $extra = [], string $level = LogLevel::ERROR): void
-    {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->logger->log($level, $throwable->getMessage(), $extra);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function return(int $secondsDelay = 3): Promise
-    {
-        return new Success();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function operationId(): string
-    {
-        return uuid();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function traceId(): string
-    {
-        return uuid();
+        return TestIncomingMessageMetadata::create(uuid(), []);
     }
 }

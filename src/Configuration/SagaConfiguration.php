@@ -3,31 +3,39 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
 /**
  * Configuration details.
  *
- * @psalm-readonly
+ * @psalm-immutable
  */
 final class SagaConfiguration
 {
-    /** @var SagaMetadata */
+    /**
+     * @psalm-readonly
+     *
+     * @var SagaMetadata
+     */
     public $metaData;
 
-    /** @var \SplObjectStorage */
+    /**
+     * @psalm-readonly
+     *
+     * @var \SplObjectStorage
+     */
     public $handlerCollection;
 
-    public function __construct(SagaMetadata $metaData, \SplObjectStorage $handlerCollection)
+    public function __construct(SagaMetadata $sagaMetadata, \SplObjectStorage $handlerCollection)
     {
-        $this->metaData          = $metaData;
+        $this->metaData          = $sagaMetadata;
         $this->handlerCollection = $handlerCollection;
     }
 }

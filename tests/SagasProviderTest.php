@@ -1,9 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation module.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
@@ -46,20 +46,21 @@ use function ServiceBus\Storage\Sql\updateQuery;
  */
 final class SagasProviderTest extends TestCase
 {
-    /** @var ContainerBuilder */
+    /**
+     * @var ContainerBuilder
+     */
     private $containerBuilder;
 
-    /** @var DatabaseAdapter */
+    /**
+     * @var DatabaseAdapter
+     */
     private $adapter;
 
-    /** @var SagasProvider */
+    /**
+     * @var SagasProvider
+     */
     private $sagaProvider;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Throwable
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -101,9 +102,6 @@ final class SagasProviderTest extends TestCase
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -112,7 +110,7 @@ final class SagasProviderTest extends TestCase
         {
             wait($this->adapter->execute('DELETE FROM sagas_store'));
         }
-        catch (\Throwable $throwable)
+        catch (\Throwable)
         {
         }
 
@@ -121,8 +119,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function updateNonexistentSaga(): void
     {
@@ -140,8 +136,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function startWithoutMetadata(): void
     {
@@ -159,8 +153,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function start(): void
     {
@@ -174,17 +166,15 @@ final class SagasProviderTest extends TestCase
                 /** @var Saga $saga */
                 $saga = yield $this->sagaProvider->start($id, new TestCommand(), new TestContext());
 
-                static::assertNotNull($saga);
-                static::assertInstanceOf(TestSaga::class, $saga);
-                static::assertSame($id, $saga->id());
+                self::assertNotNull($saga);
+                self::assertInstanceOf(TestSaga::class, $saga);
+                self::assertSame($id, $saga->id());
             }
         );
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function startDuplicate(): void
     {
@@ -205,8 +195,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function startWithoutSchema(): void
     {
@@ -226,8 +214,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function obtainWithoutSchema(): void
     {
@@ -246,8 +232,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function saveWithoutSchema(): void
     {
@@ -267,15 +251,13 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function obtainNonexistentSaga(): void
     {
         Loop::run(
             function (): \Generator
             {
-                static::assertNull(
+                self::assertNull(
                     yield $this->sagaProvider->obtain(TestSagaId::new(TestSaga::class), new TestContext())
                 );
             }
@@ -284,8 +266,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function obtainExpiredSaga(): void
     {
@@ -300,8 +280,7 @@ final class SagasProviderTest extends TestCase
 
                 $id = TestSagaId::new(TestSaga::class);
 
-                /** @var Saga $saga */
-                $saga = yield $this->sagaProvider->start($id, new TestCommand(), $context);
+                yield $this->sagaProvider->start($id, new TestCommand(), $context);
 
                 $query = updateQuery(
                     'sagas_store',
@@ -318,8 +297,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function obtain(): void
     {
@@ -340,15 +317,13 @@ final class SagasProviderTest extends TestCase
                 /** @var Saga $loadedSaga */
                 $loadedSaga = yield $this->sagaProvider->obtain($id, $context);
 
-                static::assertSame($saga->id()->id, $loadedSaga->id()->id);
+                self::assertSame($saga->id()->id, $loadedSaga->id()->id);
             }
         );
     }
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function successReopen(): void
     {
@@ -366,7 +341,7 @@ final class SagasProviderTest extends TestCase
 
                 invokeReflectionMethod($saga, 'makeFailed');
 
-                static::assertNotNull($saga->closedAt());
+                self::assertNotNull($saga->closedAt());
 
                 yield $this->sagaProvider->save($saga, $context);
 
@@ -380,13 +355,13 @@ final class SagasProviderTest extends TestCase
                 /** @var \ServiceBus\Sagas\Contract\SagaReopened $latestEvent */
                 $latestEvent = \end($messages);
 
-                static::assertInstanceOf(SagaReopened::class, $latestEvent);
+                self::assertInstanceOf(SagaReopened::class, $latestEvent);
 
                 /** @var Saga $loadedSaga */
                 $loadedSaga = yield $this->sagaProvider->obtain($id, $context);
 
-                static::assertNull($loadedSaga->closedAt());
-                static::assertSame(
+                self::assertNull($loadedSaga->closedAt());
+                self::assertSame(
                     $newExpireDate->format('Y-m-d H:i:s'),
                     $loadedSaga->expireDate()->format('Y-m-d H:i:s')
                 );
@@ -396,8 +371,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function reopenInProgressSaga(): void
     {
@@ -421,8 +394,6 @@ final class SagasProviderTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Throwable
      */
     public function reopenUnknownSaga(): void
     {

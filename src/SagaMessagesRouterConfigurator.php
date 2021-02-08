@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
@@ -23,10 +23,14 @@ use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
  */
 final class SagaMessagesRouterConfigurator implements RouterConfigurator
 {
-    /** @var SagasProvider */
+    /**
+     * @var SagasProvider
+     */
     private $sagaProvider;
 
-    /** @var SagaConfigurationLoader */
+    /**
+     * @var SagaConfigurationLoader
+     */
     private $sagaConfigurationLoader;
 
     /**
@@ -39,28 +43,30 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
     private $sagasList;
 
     /**
-     * @psalm-param array<array-key, string> $sagasList
+     * @psalm-param array<array-key, class-string<\ServiceBus\Sagas\Saga>> $sagasList
      */
-    public function __construct(SagasProvider $sagaProvider, SagaConfigurationLoader $sagaConfigurationLoader, array $sagasList)
-    {
+    public function __construct(
+        SagasProvider $sagaProvider,
+        SagaConfigurationLoader $sagaConfigurationLoader,
+        array $sagasList
+    ) {
         $this->sagaProvider            = $sagaProvider;
         $this->sagaConfigurationLoader = $sagaConfigurationLoader;
         $this->sagasList               = $sagasList;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function configure(Router $router): void
     {
         try
         {
-            /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass */
+            /**
+             * @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass
+             */
             foreach ($this->sagasList as $sagaClass)
             {
                 $sagaConfiguration = $this->sagaConfigurationLoader->load($sagaClass);
 
-                /** Append metadata details.  */
+                /** Append metadata details. */
                 invokeReflectionMethod(
                     $this->sagaProvider,
                     'appendMetaData',
@@ -71,7 +77,10 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
                 /** @var \ServiceBus\Common\MessageHandler\MessageHandler $handler */
                 foreach ($sagaConfiguration->handlerCollection as $handler)
                 {
-                    $router->registerListener((string) $handler->messageClass, new SagaMessageExecutor($handler));
+                    if ($handler->messageClass !== null)
+                    {
+                        $router->registerListener($handler->messageClass, new SagaMessageExecutor($handler));
+                    }
                 }
             }
         }

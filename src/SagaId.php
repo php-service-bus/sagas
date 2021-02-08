@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
@@ -17,6 +17,8 @@ use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 
 /**
  * Base saga id class.
+ *
+ * @psalm-immutable
  */
 abstract class SagaId
 {
@@ -62,6 +64,7 @@ abstract class SagaId
             throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 
+        /** @psalm-suppress ImpureFunctionCall */
         if (
             $sagaClass === '' ||
             \class_exists($sagaClass) === false ||

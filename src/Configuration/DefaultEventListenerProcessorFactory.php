@@ -3,12 +3,12 @@
 /**
  * Saga pattern implementation.
  *
- * @author  Maksim Masiukevich <dev@async-php.com>
+ * @author  Maksim Masiukevich <contacts@desperado.dev>
  * @license MIT
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -21,10 +21,14 @@ use ServiceBus\Sagas\Store\SagasStore;
  */
 final class DefaultEventListenerProcessorFactory implements EventListenerProcessorFactory
 {
-    /** @var SagasStore */
+    /**
+     * @var SagasStore
+     */
     private $sagaStore;
 
-    /** @var MutexFactory */
+    /**
+     * @var MutexFactory
+     */
     private $mutexFactory;
 
     public function __construct(SagasStore $sagaStore, ?MutexFactory $mutexFactory = null)
@@ -33,12 +37,8 @@ final class DefaultEventListenerProcessorFactory implements EventListenerProcess
         $this->mutexFactory = $mutexFactory ?? new InMemoryMutexFactory();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createProcessor(string $event, SagaListenerOptions $listenerOptions): EventProcessor
     {
-        /** @var class-string $event */
         return new DefaultEventProcessor($event, $this->sagaStore, $listenerOptions, $this->mutexFactory);
     }
 }

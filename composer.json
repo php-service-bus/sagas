@@ -11,7 +11,7 @@
   "authors": [
     {
       "name": "Masiukevich Maksim",
-      "email": "dev@async-php.com",
+      "email": "contacts@desperado.dev",
       "homepage": "https://github.com/mmasiukevich",
       "role": "Developer"
     }
@@ -28,12 +28,12 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "ServiceBus\\Common\\Tests\\": "vendor/php-service-bus/common/tests",
-      "ServiceBus\\Storage\\Common\\Tests\\": "vendor/php-service-bus/storage-common/tests",
-      "ServiceBus\\Storage\\Sql\\Tests\\": "vendor/php-service-bus/storage-sql/tests",
-      "ServiceBus\\AnnotationsReader\\Tests\\": "vendor/php-service-bus/annotations-reader/tests",
-      "ServiceBus\\MessagesRouter\\Tests\\": "vendor/php-service-bus/messages-router/tests",
-      "ServiceBus\\Sagas\\Tests\\": "tests/"
+      "ServiceBus\\Sagas\\Tests\\": "tests/",
+      "ServiceBus\\Common\\Tests\\": "vendor/php-service-bus/common/tests/",
+      "ServiceBus\\Mutex\\Tests\\": "vendor/php-service-bus/mutex/tests/",
+      "ServiceBus\\Storage\\Tests\\": "vendor/php-service-bus/storage/tests/",
+      "ServiceBus\\AnnotationsReader\\Tests\\": "vendor/php-service-bus/annotations-reader/tests/",
+      "ServiceBus\\MessagesRouter\\Tests\\": "vendor/php-service-bus/messages-router/tests/"
     },
     "files": [
       "src/functions.php",
@@ -41,17 +41,17 @@
     ]
   },
   "require": {
-    "php": ">=7.4",
-    "php-service-bus/storage": "v4.1.*",
-    "php-service-bus/mutex": "v4.1.*",
-    "php-service-bus/annotations-reader": "v4.1.*",
-    "php-service-bus/messages-router": "v4.1.*"
+    "php": ">=8.0",
+    "php-service-bus/storage": "v5.0.*",
+    "php-service-bus/mutex": "v5.0.*",
+    "php-service-bus/annotations-reader":"v5.0.*",
+    "php-service-bus/messages-router": "v5.0.*"
   },
   "require-dev": {
-    "php-service-bus/code-style-config": "v1.2.*",
-    "doctrine/dbal": "v2.10.*",
-    "phpunit/phpunit": "v9.2.*",
-    "vimeo/psalm": "v3.13.*",
+    "php-service-bus/code-style-config": "v1.3.*",
+    "doctrine/dbal": "v3.0.*",
+    "phpunit/phpunit": "v9.5.*",
+    "vimeo/psalm": "v4.4.*",
     "phpstan/phpstan": "v0.12.*"
   },
   "prefer-stable": true,
