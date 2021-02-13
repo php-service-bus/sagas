@@ -185,9 +185,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 /** @var \ReflectionNamedType $reflectionType */
                 $reflectionType = $reflectionParameters[0]->getType();
 
-                /**
-                 * @psalm-var class-string $eventClass
-                 */
+                /** @psalm-var class-string $eventClass */
                 $eventClass = $reflectionType->getName();
 
                 /** @psalm-suppress RedundantConditionGivenDocblockType */

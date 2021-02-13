@@ -12,6 +12,7 @@ declare(strict_types = 0);
 
 namespace ServiceBus\Sagas;
 
+use ServiceBus\Common\EntryPoint\Retry\RetryStrategy;
 use ServiceBus\Common\MessageExecutor\MessageExecutor;
 use function Amp\call;
 use Amp\Promise;
@@ -31,6 +32,18 @@ final class SagaMessageExecutor implements MessageExecutor
     public function __construct(MessageHandler $messageHandler)
     {
         $this->messageHandler = $messageHandler;
+    }
+
+    public function id(): string
+    {
+        return \sha1(
+            \sprintf('%s:%s', (string) $this->messageHandler->messageClass, $this->messageHandler->methodName)
+        );
+    }
+
+    public function retryStrategy(): ?RetryStrategy
+    {
+        return null;
     }
 
     public function __invoke(object $message, ServiceBusContext $context): Promise
