@@ -124,6 +124,8 @@ final class DefaultEventProcessorTest extends TestCase
 
                 self::assertInstanceOf(SecondEventWithKey::class, $event, get_class($event));
                 self::assertSame($id->toString(), $event->key);
+
+                Loop::stop();
             }
         );
     }
@@ -158,6 +160,8 @@ final class DefaultEventProcessorTest extends TestCase
 
                 self::assertInstanceOf(SecondEventWithKey::class, $event);
                 self::assertSame('qwerty', $event->key);
+
+                Loop::stop();
             }
         );
     }
@@ -191,6 +195,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'The value of the "saga-correlation-id" header key can\'t be empty, since it is the saga id',
                     $records[0]['context']['throwableMessage']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -224,6 +230,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'Attempt to apply event to non-existent saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
                     $records[0]['context']['throwableMessage']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -259,6 +267,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'A property that contains an identifier ("requestId") was not found in class "ServiceBus\\Sagas\\Tests\\stubs\\EmptyEvent"',
                     $records[0]['context']['throwableMessage']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -294,6 +304,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'The value of the "key" property of the "ServiceBus\\Sagas\\Tests\\stubs\\EventWithKey" event can\'t be empty, since it is the saga id',
                     $records[0]['context']['throwableMessage']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -331,6 +343,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'Attempt to apply event to completed saga (ID: 1b6d89ec-cf60-4e48-a253-fd57f844c07d)',
                     $records[0]['context']['throwableMessage']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -365,6 +379,8 @@ final class DefaultEventProcessorTest extends TestCase
                 );
 
                 self::assertFalse($stored);
+
+                Loop::stop();
             }
         );
     }
@@ -412,6 +428,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'Identifier class "SomeUnknownClass" specified in the saga "ServiceBus\Sagas\Tests\stubs\CorrectSaga" not found',
                     $record['message']
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -459,6 +477,8 @@ final class DefaultEventProcessorTest extends TestCase
                     'Saga identifier mus be type of "ServiceBus\Sagas\SagaId". "ServiceBus\Sagas\Tests\stubs\IncorrectSagaIdType" type specified',
                     $record['message']
                 );
+
+                Loop::stop();
             }
         );
     }

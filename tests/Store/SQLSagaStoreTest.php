@@ -85,6 +85,8 @@ final class SQLSagaStoreTest extends TestCase
                 self::assertNotNull($loadedSaga);
                 self::assertInstanceOf(CorrectSaga::class, $loadedSaga);
                 self::assertSame($id->id, $loadedSaga->id()->id);
+
+                Loop::stop();
             }
         );
     }
@@ -107,6 +109,8 @@ final class SQLSagaStoreTest extends TestCase
                 $loadedSaga = yield $this->store->obtain($id);
 
                 self::assertNull($loadedSaga);
+
+                Loop::stop();
             }
         );
     }
@@ -120,6 +124,8 @@ final class SQLSagaStoreTest extends TestCase
             function (): \Generator
             {
                 yield $this->store->remove(TestSagaId::new(CorrectSaga::class));
+
+                Loop::stop();
             }
         );
     }
@@ -139,6 +145,8 @@ final class SQLSagaStoreTest extends TestCase
 
                 yield $this->store->save($saga);
                 yield $this->store->save($saga);
+
+                Loop::stop();
             }
         );
     }
@@ -164,6 +172,8 @@ final class SQLSagaStoreTest extends TestCase
                 $loadedSaga = yield $this->store->obtain($id);
 
                 self::assertSame($loadedSaga->value(), 'qwerty');
+
+                Loop::stop();
             }
         );
     }
@@ -180,6 +190,8 @@ final class SQLSagaStoreTest extends TestCase
                 $saga = new CorrectSaga($id);
 
                 yield $this->store->update($saga);
+
+                Loop::stop();
             }
         );
     }

@@ -130,6 +130,8 @@ final class SagasProviderTest extends TestCase
                 $testSaga = new TestSaga(TestSagaId::new(TestSaga::class));
 
                 yield $this->sagaProvider->save($testSaga, new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -147,6 +149,8 @@ final class SagasProviderTest extends TestCase
                 $id = TestSagaId::new(TestSaga::class);
 
                 yield $this->sagaProvider->start($id, new TestCommand(), new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -169,6 +173,8 @@ final class SagasProviderTest extends TestCase
                 self::assertNotNull($saga);
                 self::assertInstanceOf(TestSaga::class, $saga);
                 self::assertSame($id, $saga->id());
+
+                Loop::stop();
             }
         );
     }
@@ -189,6 +195,8 @@ final class SagasProviderTest extends TestCase
 
                 yield $this->sagaProvider->start($id, new TestCommand(), new TestContext());
                 yield $this->sagaProvider->start($id, new TestCommand(), new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -208,6 +216,8 @@ final class SagasProviderTest extends TestCase
                 $this->containerBuilder->get(Router::class);
 
                 yield $this->sagaProvider->start(TestSagaId::new(TestSaga::class), new TestCommand(), new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -226,6 +236,8 @@ final class SagasProviderTest extends TestCase
 
                 yield $this->adapter->execute('DROP TABLE sagas_store');
                 yield $this->sagaProvider->obtain(TestSagaId::new(TestSaga::class), new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -245,6 +257,8 @@ final class SagasProviderTest extends TestCase
                 $testSaga = new TestSaga(TestSagaId::new(TestSaga::class));
 
                 yield $this->sagaProvider->save($testSaga, new TestContext());
+
+                Loop::stop();
             }
         );
     }
@@ -260,6 +274,8 @@ final class SagasProviderTest extends TestCase
                 self::assertNull(
                     yield $this->sagaProvider->obtain(TestSagaId::new(TestSaga::class), new TestContext())
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -291,6 +307,8 @@ final class SagasProviderTest extends TestCase
 
                 yield $this->adapter->execute($query->sql(), $query->params());
                 yield $this->sagaProvider->obtain($id, $context);
+
+                Loop::stop();
             }
         );
     }
@@ -318,6 +336,8 @@ final class SagasProviderTest extends TestCase
                 $loadedSaga = yield $this->sagaProvider->obtain($id, $context);
 
                 self::assertSame($saga->id()->id, $loadedSaga->id()->id);
+
+                Loop::stop();
             }
         );
     }
@@ -365,6 +385,8 @@ final class SagasProviderTest extends TestCase
                     $newExpireDate->format('Y-m-d H:i:s'),
                     $loadedSaga->expireDate()->format('Y-m-d H:i:s')
                 );
+
+                Loop::stop();
             }
         );
     }
@@ -388,6 +410,8 @@ final class SagasProviderTest extends TestCase
 
                 yield $this->sagaProvider->start($id, new TestCommand(), $context);
                 yield $this->sagaProvider->reopen($id, $context, datetimeInstantiator('+1 day'), 'testing');
+
+                Loop::stop();
             }
         );
     }
@@ -410,6 +434,8 @@ final class SagasProviderTest extends TestCase
                 $id = new TestSagaId('ccfd1b8e-be8b-4f69-b1ca-c92a14379558', TestSaga::class);
 
                 yield $this->sagaProvider->reopen($id, $context, datetimeInstantiator('+1 day'), 'testing');
+
+                Loop::stop();
             }
         );
     }
