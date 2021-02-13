@@ -55,6 +55,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
         {
             $attributes = $this->attributesReader->extract($sagaClass);
 
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             $sagaHeader = self::searchSagaHeader(
                 sagaClass: $sagaClass,
                 classLevelAttributes: $attributes->classLevelCollection
@@ -65,6 +66,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 sagaHeader: $sagaHeader
             );
 
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             $handlersCollection = $this->collectSagaEventHandlers(
                 methodLevelAttributes: $attributes->methodLevelCollection,
                 sagaMetadata: $sagaMetadata

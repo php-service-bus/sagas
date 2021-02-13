@@ -84,6 +84,6 @@ final class TestContext implements ServiceBusContext
 
     public function metadata(): IncomingMessageMetadata
     {
-        return TestIncomingMessageMetadata::create(uuid(), []);
+        return new TestIncomingMessageMetadata(uuid(), []);
     }
 }

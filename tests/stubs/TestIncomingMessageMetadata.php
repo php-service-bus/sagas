@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Common\Context\IncomingMessageMetadata;
+use function ServiceBus\Common\uuid;
 
 /**
  *
@@ -30,23 +31,9 @@ final class TestIncomingMessageMetadata implements IncomingMessageMetadata
      */
     private $variables;
 
-    public static function create(string $messageId, array $variables): self
+    public function traceId(): string
     {
-        return new self(
-            messageId: $messageId,
-            variables: $variables
-        );
-    }
-
-    public function with(string $key, float|bool|int|string|null $value): self
-    {
-        $variables       = $this->variables;
-        $variables[$key] = $value;
-
-        return new self(
-            messageId: $this->messageId,
-            variables: $variables
-        );
+        return uuid();
     }
 
     public function messageId(): string
@@ -72,7 +59,7 @@ final class TestIncomingMessageMetadata implements IncomingMessageMetadata
     /**
      * @psalm-param array<string, string|int|float|bool|null> $variables
      */
-    private function __construct(string $messageId, array $variables)
+    public function __construct(string $messageId, array $variables)
     {
         $this->messageId = $messageId;
         $this->variables = $variables;
