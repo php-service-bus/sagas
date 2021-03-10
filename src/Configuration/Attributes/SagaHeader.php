@@ -57,9 +57,6 @@ final class SagaHeader
      */
     public $expireDateModifier;
 
-    /**
-     * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
-     */
     public function __construct(
         string $idClass,
         string $containingIdProperty,

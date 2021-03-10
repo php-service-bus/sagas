@@ -31,9 +31,10 @@ The following tests must pass before we will accept a pull request. If any of th
 ```bash
 composer tests
 ```
-## Communication Channels
+### Communication Channels
 You can find help and discussion in the following places:
 * [Telegram chat (RU)](https://t.me/php_service_bus)
+* [Twitter](https://twitter.com/PhpBus)
 * Create issue [https://github.com/php-service-bus/service-bus/issues](https://github.com/php-service-bus/service-bus/issues)
 
 ## Security
@@ -41,4 +42,4 @@ If you discover any security related issues, please email [`contacts@desperado.d
 
 ## Reporting issues
 * [General problems](https://github.com/php-service-bus/service-bus/issues)
-* [Documentation](https://github.com/php-service-bus/documentation/issues)
+* [Documentation](https://github.com/php-service-bus/service-bus/issues)
