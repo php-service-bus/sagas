@@ -51,13 +51,13 @@
     "php-service-bus/code-style-config": "v1.3.*",
     "doctrine/dbal": "v3.0.*",
     "phpunit/phpunit": "v9.5.*",
-    "vimeo/psalm": "v4.5.*",
+    "vimeo/psalm": "v4.6.*",
     "phpstan/phpstan": "v0.12.*"
   },
   "prefer-stable": true,
   "minimum-stability": "stable",
   "scripts": {
-    "psalm": "./vendor/bin/psalm --config=psalm.xml",
+    "psalm": "rm -rf ~/.cache/psalm/ && ./vendor/bin/psalm --config=psalm.xml",
     "phpstan": "./vendor/bin/phpstan analyse src --level 7",
     "tests": "./vendor/bin/phpunit --configuration phpunit.xml --debug --verbose --debug",
     "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-html ./coverage --debug --verbose --debug",
