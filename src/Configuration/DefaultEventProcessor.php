@@ -91,7 +91,7 @@ final class DefaultEventProcessor implements EventProcessor
                 {
                     $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
 
-                    return false;
+                    throw $throwable;
                 }
 
                 /** @var Lock $lock */
@@ -116,7 +116,7 @@ final class DefaultEventProcessor implements EventProcessor
                     /** The saga has not been updated */
                     if ($stateHash === $saga->stateHash())
                     {
-                        return false;
+                        return;
                     }
 
                     /**
@@ -127,13 +127,13 @@ final class DefaultEventProcessor implements EventProcessor
                     yield $this->sagasStore->update($saga);
                     yield $context->deliveryBulk($messages);
 
-                    return true;
+                    return;
                 }
                 catch (\Throwable $throwable)
                 {
                     $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
 
-                    return false;
+                    throw $throwable;
                 }
                 finally
                 {

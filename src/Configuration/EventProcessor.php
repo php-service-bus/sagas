@@ -28,7 +28,9 @@ interface EventProcessor
     /**
      * Invoke saga listener.
      *
-     * @return Promise<bool> Has the saga been preserved?
+     * @return Promise<void>
+     *
+     * @throws \Throwable In case of error while preserving the saga.
      */
     public function __invoke(object $event, ServiceBusContext $context): Promise;
 }
