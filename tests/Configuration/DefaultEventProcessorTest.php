@@ -112,10 +112,7 @@ final class DefaultEventProcessorTest extends TestCase
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
 
-                /** @var bool $saved */
-                $saved = yield call($handler->closure, new EventWithKey($id->toString()), $context);
-
-                self::assertTrue($saved);
+                yield call($handler->closure, new EventWithKey($id->toString()), $context);
 
                 $messages = $context->messages;
 
@@ -174,6 +171,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                 $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
@@ -209,6 +208,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
 
                 $context = new TestContext();
@@ -244,6 +245,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -281,6 +284,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -318,6 +323,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -352,7 +359,7 @@ final class DefaultEventProcessorTest extends TestCase
     /**
      * @test
      */
-    public function executeWithNoChanges(): void
+    public function executeWithNoChangesIsOk(): void
     {
         Loop::run(
             function (): \Generator
@@ -371,14 +378,11 @@ final class DefaultEventProcessorTest extends TestCase
 
                 self::assertSame(SecondEventWithKey::class, $handler->messageClass);
 
-                /** @var bool $stored */
-                $stored = yield call(
+                yield call(
                     $handler->closure,
                     new SecondEventWithKey('1b6d89ec-cf60-4e48-a253-fd57f844c07d'),
                     $context
                 );
-
-                self::assertFalse($stored);
 
                 Loop::stop();
             }
@@ -393,6 +397,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -442,6 +448,8 @@ final class DefaultEventProcessorTest extends TestCase
         Loop::run(
             function (): \Generator
             {
+                self::expectException(\Throwable::class);
+
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
