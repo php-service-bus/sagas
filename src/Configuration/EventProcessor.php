@@ -28,7 +28,13 @@ interface EventProcessor
     /**
      * Invoke saga listener.
      *
-     * @return Promise<bool> Has the saga been preserved?
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
+     * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
+     * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
+     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
+     * @throws \Throwable Reflection fails
+     *
+     * @return Promise<void>
      */
     public function __invoke(object $event, ServiceBusContext $context): Promise;
 }

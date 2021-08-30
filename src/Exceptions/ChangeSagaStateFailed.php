@@ -28,4 +28,9 @@ final class ChangeSagaStateFailed extends \RuntimeException
             )
         );
     }
+
+    public static function applyEventFailed(string $withReason): self
+    {
+        return new self($withReason);
+    }
 }

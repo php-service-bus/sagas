@@ -12,6 +12,8 @@ declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
+use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\now;
@@ -59,10 +61,10 @@ final class DefaultEventProcessor implements EventProcessor
      * @psalm-param class-string $forEvent
      */
     public function __construct(
-        string $forEvent,
-        SagasStore $sagasStore,
+        string              $forEvent,
+        SagasStore          $sagasStore,
         SagaListenerOptions $sagaListenerOptions,
-        MutexFactory $mutexFactory
+        MutexFactory        $mutexFactory
     ) {
         $this->forEvent            = $forEvent;
         $this->sagasStore          = $sagasStore;
@@ -80,19 +82,10 @@ final class DefaultEventProcessor implements EventProcessor
         return call(
             function () use ($event, $context): \Generator
             {
-                try
-                {
-                    $id = $this->obtainSagaId(
-                        event: $event,
-                        headers: $context->headers()
-                    );
-                }
-                catch (\Throwable $throwable)
-                {
-                    $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
-
-                    return false;
-                }
+                $id = $this->obtainSagaId(
+                    event: $event,
+                    headers: $context->headers()
+                );
 
                 /** @var Lock $lock */
                 $lock = yield from $this->setupMutex($id);
@@ -113,27 +106,16 @@ final class DefaultEventProcessor implements EventProcessor
 
                     invokeReflectionMethod($saga, 'applyEvent', $event);
 
-                    /** The saga has not been updated */
-                    if ($stateHash === $saga->stateHash())
+                    if ($stateHash !== $saga->stateHash())
                     {
-                        return false;
+                        /**
+                         * @var object[] $messages
+                         */
+                        $messages = invokeReflectionMethod($saga, 'messages');
+
+                        yield $this->sagasStore->update($saga);
+                        yield $context->deliveryBulk($messages);
                     }
-
-                    /**
-                     * @var object[] $messages
-                     */
-                    $messages = invokeReflectionMethod($saga, 'messages');
-
-                    yield $this->sagasStore->update($saga);
-                    yield $context->deliveryBulk($messages);
-
-                    return true;
-                }
-                catch (\Throwable $throwable)
-                {
-                    $context->logger()->throwable($throwable, ['eventClass' => $this->forEvent]);
-
-                    return false;
                 }
                 finally
                 {
@@ -148,7 +130,7 @@ final class DefaultEventProcessor implements EventProcessor
      *
      * @psalm-param array<string, int|float|string|null> $headers
      *
-     * @throws \RuntimeException A property that contains an identifier was not found
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     private function obtainSagaId(object $event, array $headers): SagaId
     {
@@ -158,7 +140,7 @@ final class DefaultEventProcessor implements EventProcessor
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      */
@@ -169,7 +151,7 @@ final class DefaultEventProcessor implements EventProcessor
 
         if ($saga === null)
         {
-            throw new \RuntimeException(
+            throw ChangeSagaStateFailed::applyEventFailed(
                 \sprintf(
                     'Attempt to apply event to non-existent saga (ID: %s)',
                     $id->toString()
@@ -183,7 +165,7 @@ final class DefaultEventProcessor implements EventProcessor
             return $saga;
         }
 
-        throw new \RuntimeException(
+        throw ChangeSagaStateFailed::applyEventFailed(
             \sprintf('Attempt to apply event to completed saga (ID: %s)', $id->toString())
         );
     }
@@ -191,7 +173,7 @@ final class DefaultEventProcessor implements EventProcessor
     /**
      * @psalm-param array<string, int|float|string|null> $headers
      *
-     * @throws \RuntimeException
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     private function searchSagaIdentifierInHeaders(array $headers): SagaId
     {
@@ -208,18 +190,14 @@ final class DefaultEventProcessor implements EventProcessor
             );
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'The value of the "%s" header key can\'t be empty, since it is the saga id',
-                $this->sagaListenerOptions->containingIdentifierProperty()
-            )
-        );
+        throw InvalidSagaIdentifier::headerKeyCantBeEmpty($this->sagaListenerOptions->containingIdentifierProperty());
     }
 
     /**
      * Search saga identifier in the event payload.
      *
-     * @throws \RuntimeException
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
+     * @throws \Throwable Reflection property not found
      */
     private function searchSagaIdentifierInEvent(object $event): SagaId
     {
@@ -239,13 +217,7 @@ final class DefaultEventProcessor implements EventProcessor
         }
         catch (\Throwable)
         {
-            throw new \RuntimeException(
-                \sprintf(
-                    'A property that contains an identifier ("%s") was not found in class "%s"',
-                    $propertyName,
-                    \get_class($event)
-                )
-            );
+            throw InvalidSagaIdentifier::propertyNotFound($propertyName, $event);
         }
 
         if ($propertyValue !== '')
@@ -257,19 +229,13 @@ final class DefaultEventProcessor implements EventProcessor
             );
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'The value of the "%s" property of the "%s" event can\'t be empty, since it is the saga id',
-                $propertyName,
-                \get_class($event)
-            )
-        );
+        throw InvalidSagaIdentifier::propertyCantBeEmpty($propertyName, $event);
     }
 
     /**
      * @psalm-return class-string<\ServiceBus\Sagas\SagaId>
      *
-     * @throws \RuntimeException
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     private function getSagaIdentifierClass(): string
     {
@@ -280,13 +246,7 @@ final class DefaultEventProcessor implements EventProcessor
             return $identifierClass;
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'Identifier class "%s" specified in the saga "%s" not found',
-                $identifierClass,
-                $this->sagaListenerOptions->sagaClass()
-            )
-        );
+        throw InvalidSagaIdentifier::typeNotFound($identifierClass, $this->sagaListenerOptions->sagaClass());
     }
 
     /**
@@ -295,7 +255,7 @@ final class DefaultEventProcessor implements EventProcessor
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
      * @psalm-param class-string<\ServiceBus\Sagas\Saga>   $sagaClass
      *
-     * @throws \RuntimeException
+     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
      */
     private static function identifierInstantiator(string $idClass, string $idValue, string $sagaClass): SagaId
     {
@@ -307,13 +267,7 @@ final class DefaultEventProcessor implements EventProcessor
             return $identifier;
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'Saga identifier mus be type of "%s". "%s" type specified',
-                SagaId::class,
-                \get_class($identifier)
-            )
-        );
+        throw InvalidSagaIdentifier::wrongType($identifier);
     }
 
     /**
