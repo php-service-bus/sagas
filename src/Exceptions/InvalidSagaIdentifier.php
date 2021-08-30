@@ -76,7 +76,7 @@ final class InvalidSagaIdentifier extends \RuntimeException
     {
         return new self(
             \sprintf(
-                'Saga identifier mus be type of "%s". "%s" type specified',
+                'Saga identifier must be type of "%s". "%s" type specified',
                 SagaId::class,
                 \get_class($id)
             )
