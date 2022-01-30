@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
 
 /**
  * Saga pattern implementation.
@@ -8,14 +8,11 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests;
 
-use function ServiceBus\Common\datetimeInstantiator;
-use function ServiceBus\Common\invokeReflectionMethod;
-use function ServiceBus\Common\readReflectionPropertyValue;
-use function ServiceBus\Common\uuid;
+use ServiceBus\Sagas\Tests\stubs\CorrectSagaInitialCommand;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
@@ -25,8 +22,11 @@ use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\SagaStatus;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
-use ServiceBus\Sagas\Tests\stubs\EmptyCommand;
 use ServiceBus\Sagas\Tests\stubs\TestSagaId;
+use function ServiceBus\Common\datetimeInstantiator;
+use function ServiceBus\Common\invokeReflectionMethod;
+use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Common\uuid;
 
 /**
  *
@@ -51,7 +51,7 @@ final class SagaTest extends TestCase
         $id = new TestSagaId(uuid(), CorrectSaga::class);
 
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
         $saga->doSomething();
 
         self::assertTrue(
@@ -73,19 +73,19 @@ final class SagaTest extends TestCase
         self::assertCount(0, $messages);
 
         self::assertSame(
-            SagaStatus::create('in_progress')->toString(),
-            readReflectionPropertyValue($saga, 'status')->toString()
+            SagaStatus::IN_PROGRESS,
+            readReflectionPropertyValue($saga, 'status')
         );
 
         $saga->doSomethingElse();
 
         $messages  = invokeReflectionMethod($saga, 'messages');
 
-        self::assertCount(2, $messages);
+        self::assertCount(1, $messages);
 
         self::assertSame(
-            SagaStatus::create('in_progress')->toString(),
-            readReflectionPropertyValue($saga, 'status')->toString()
+            SagaStatus::IN_PROGRESS,
+            readReflectionPropertyValue($saga, 'status')
         );
     }
 
@@ -100,7 +100,7 @@ final class SagaTest extends TestCase
         $id = new TestSagaId('123456789', CorrectSaga::class);
 
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
         $saga->closeWithSuccessStatus();
         $saga->doSomethingElse();
@@ -114,12 +114,12 @@ final class SagaTest extends TestCase
         $id = new TestSagaId('123456789', CorrectSaga::class);
 
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
         $saga->closeWithSuccessStatus();
 
         self::assertSame(
-            SagaStatus::create('completed')->toString(),
-            readReflectionPropertyValue($saga, 'status')->toString()
+            SagaStatus::COMPLETED,
+            readReflectionPropertyValue($saga, 'status')
         );
 
         /** @var array<int, string> $events */
@@ -137,8 +137,8 @@ final class SagaTest extends TestCase
         self::assertSame($id->toString(), $changedStatusEvent->id);
         self::assertSame(\get_class($id), $changedStatusEvent->idClass);
         self::assertSame(CorrectSaga::class, $changedStatusEvent->sagaClass);
-        self::assertTrue(SagaStatus::created()->equals(SagaStatus::create($changedStatusEvent->previousStatus)));
-        self::assertTrue(SagaStatus::completed()->equals(SagaStatus::create($changedStatusEvent->newStatus)));
+        self::assertTrue(SagaStatus::IN_PROGRESS->equals(SagaStatus::from($changedStatusEvent->previousStatus)));
+        self::assertTrue(SagaStatus::COMPLETED->equals(SagaStatus::from($changedStatusEvent->newStatus)));
         self::assertNull($changedStatusEvent->withReason);
 
         /** @var \ServiceBus\Sagas\Contract\SagaClosed $sagaClosedEvent */
@@ -160,7 +160,7 @@ final class SagaTest extends TestCase
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
         /** @var array<int, string> $events */
         $events = invokeReflectionMethod($saga, 'messages');
@@ -186,9 +186,9 @@ final class SagaTest extends TestCase
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
-        invokeReflectionMethod($saga, 'makeFailed', 'fail reason');
+        invokeReflectionMethod($saga, 'fail', 'fail reason');
 
         /** @var array<int, string> $events */
         $events = invokeReflectionMethod($saga, 'messages');
@@ -206,7 +206,7 @@ final class SagaTest extends TestCase
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
         invokeReflectionMethod($saga, 'expire', 'fail reason');
 
@@ -226,22 +226,22 @@ final class SagaTest extends TestCase
     {
         $id   = new TestSagaId('123456789', CorrectSaga::class);
         $saga = new CorrectSaga($id);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
-        $startHash = $saga->stateHash();
+        $startHash = $saga->hash();
 
         self::assertSame(\sha1(\serialize($saga)), $startHash);
 
         $saga->changeValue(\str_repeat('x', 100000));
 
-        $newHash = $saga->stateHash();
+        $newHash = $saga->hash();
 
         self::assertNotSame($startHash, $newHash);
         self::assertSame(\sha1(\serialize($saga)), $newHash);
 
         $saga->changeValue(\str_repeat('x', 10000000));
 
-        $latestHash = $saga->stateHash();
+        $latestHash = $saga->hash();
 
         self::assertNotSame($newHash, $latestHash);
         self::assertSame(\sha1(\serialize($saga)), $latestHash);
@@ -272,7 +272,7 @@ final class SagaTest extends TestCase
         $createdAt          = datetimeInstantiator('2012-12-12');
         $nonsenseExpireDate = datetimeInstantiator('+4543 days');
         $saga               = new CorrectSaga($id, $nonsenseExpireDate, $createdAt);
-        $saga->start(new EmptyCommand());
+        $saga->start(new CorrectSagaInitialCommand(uuid()));
 
         /** @var array<int, string> $events */
         $events = invokeReflectionMethod($saga, 'messages');

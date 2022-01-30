@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Exceptions;
 
@@ -55,7 +55,7 @@ final class InvalidSagaIdentifier extends \RuntimeException
     {
         return new self(
             \sprintf(
-                'The value of the "%s" property of the "%s" event can\'t be empty, since it is the saga id',
+                'The value of the "%s" property of the "%s" event can\'t be empty. The property must contain either a string or an object with the `toString()` method',
                 $propertyName,
                 \get_class($event)
             )

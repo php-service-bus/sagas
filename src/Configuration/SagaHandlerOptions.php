@@ -8,16 +8,16 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
 
 use ServiceBus\Common\MessageHandler\MessageHandlerOptions;
 
 /**
- * Specified for each listener options.
+ * Specified for each listener/handler options.
  */
-final class SagaListenerOptions implements MessageHandlerOptions
+final class SagaHandlerOptions implements MessageHandlerOptions
 {
     /**
      * Place to look for a correlation identifier (event property: event; header key: headers).
@@ -57,7 +57,7 @@ final class SagaListenerOptions implements MessageHandlerOptions
         $self = new self($metadata);
 
         $self->containingIdentifierSource   = $containingIdentifierSource;
-        $self->containingIdentifierProperty = $containingIdentifierProperty;
+        $self->containingIdentifierProperty = \lcfirst($containingIdentifierProperty);
         $self->description                  = $description;
 
         return $self;
@@ -99,6 +99,8 @@ final class SagaListenerOptions implements MessageHandlerOptions
 
     /**
      * Receive the name of the event property that contains the saga ID.
+     *
+     * @psalm-return non-empty-string
      */
     public function containingIdentifierProperty(): string
     {

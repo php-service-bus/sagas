@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Contract;
 
@@ -95,8 +95,8 @@ final class SagaStatusChanged
         $this->id             = $sagaId->toString();
         $this->idClass        = \get_class($sagaId);
         $this->sagaClass      = $sagaId->sagaClass;
-        $this->previousStatus = $currentStatus->toString();
-        $this->newStatus      = $newStatus->toString();
+        $this->previousStatus = $currentStatus->value;
+        $this->newStatus      = $newStatus->value;
         $this->withReason     = $withReason;
         $this->datetime       = $datetime;
     }

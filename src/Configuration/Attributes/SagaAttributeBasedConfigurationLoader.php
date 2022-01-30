@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration\Attributes;
 
@@ -17,18 +17,15 @@ use ServiceBus\AnnotationsReader\Attribute\MethodLevel;
 use ServiceBus\AnnotationsReader\AttributesReader;
 use ServiceBus\AnnotationsReader\Reader;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaEventListenerMethod;
-use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
+use ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaHandlerMethod;
+use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfiguration;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
-use ServiceBus\Sagas\Configuration\SagaListenerOptions;
+use ServiceBus\Sagas\Configuration\SagaHandlerOptions;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
 use function ServiceBus\Sagas\createEventListenerName;
 
-/**
- *
- */
 final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLoader
 {
     /**
@@ -37,13 +34,13 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
     private $attributesReader;
 
     /**
-     * @var EventListenerProcessorFactory
+     * @var SagaMessageProcessorFactory
      */
     private $eventListenerProcessorFactory;
 
     public function __construct(
-        EventListenerProcessorFactory $eventListenerProcessorFactory,
-        ?Reader $attributesReader = null
+        SagaMessageProcessorFactory $eventListenerProcessorFactory,
+        ?Reader                     $attributesReader = null
     ) {
         $this->eventListenerProcessorFactory = $eventListenerProcessorFactory;
         $this->attributesReader              = $attributesReader ?? new AttributesReader();
@@ -55,7 +52,6 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
         {
             $attributes = $this->attributesReader->extract($sagaClass);
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $sagaHeader = self::searchSagaHeader(
                 sagaClass: $sagaClass,
                 classLevelAttributes: $attributes->classLevelCollection
@@ -66,15 +62,20 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 sagaHeader: $sagaHeader
             );
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            $handlersCollection = $this->collectSagaEventHandlers(
-                methodLevelAttributes: $attributes->methodLevelCollection,
-                sagaMetadata: $sagaMetadata
-            );
-
             return new SagaConfiguration(
-                sagaMetadata: $sagaMetadata,
-                handlerCollection: $handlersCollection
+                metadata: $sagaMetadata,
+                initialCommandHandler: $this->createMessageHandler(
+                    methodLevelAttribute: $this->findInitialCommandHandlerAttribute(
+                        sagaClass: $sagaClass,
+                        methodLevelAttributes: $attributes->methodLevelCollection
+                    ),
+                    sagaMetadata: $sagaMetadata,
+                    handlerType: SagaMessageHandlerType::INITIAL_COMMAND_HANDLER
+                ),
+                listenerCollection: $this->collectSagaEventHandlers(
+                    methodLevelAttributes: $attributes->methodLevelCollection,
+                    sagaMetadata: $sagaMetadata
+                )
             );
         }
         catch (\Throwable $throwable)
@@ -86,13 +87,17 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
     /**
      * Collect a saga event handlers.
      *
-     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaEventListenerMethod
+     * @psalm-param \SplObjectStorage<MethodLevel, null> $methodLevelAttributes
+     *
+     * @psalm-return \SplObjectStorage<MessageHandler, null>
+     *
+     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaHandlerMethod
      */
     private function collectSagaEventHandlers(
         \SplObjectStorage $methodLevelAttributes,
-        SagaMetadata $sagaMetadata
+        SagaMetadata      $sagaMetadata
     ): \SplObjectStorage {
-        /** @psalm-var \SplObjectStorage<MessageHandler, int> $handlersCollection */
+        /** @psalm-var \SplObjectStorage<MessageHandler, null> $handlersCollection */
         $handlersCollection = new \SplObjectStorage();
 
         /** @var MethodLevel $methodLevelAttribute */
@@ -103,7 +108,8 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 $handlersCollection->attach(
                     $this->createMessageHandler(
                         methodLevelAttribute: $methodLevelAttribute,
-                        sagaMetadata: $sagaMetadata
+                        sagaMetadata: $sagaMetadata,
+                        handlerType: SagaMessageHandlerType::EVENT_LISTENER
                     )
                 );
             }
@@ -115,64 +121,76 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
     /**
      * Create a saga event handler.
      *
-     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaEventListenerMethod
+     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaHandlerMethod
      */
-    private function createMessageHandler(MethodLevel $methodLevelAttribute, SagaMetadata $sagaMetadata): MessageHandler
-    {
-        /** @var SagaEventListener $listenerAttribute */
-        $listenerAttribute = $methodLevelAttribute->attribute;
+    private function createMessageHandler(
+        MethodLevel            $methodLevelAttribute,
+        SagaMetadata           $sagaMetadata,
+        SagaMessageHandlerType $handlerType
+    ): MessageHandler {
+        /** @var SagaEventListener|SagaInitialHandler $attribute */
+        $attribute = $methodLevelAttribute->attribute;
 
-        $listenerOptions = $listenerAttribute->hasContainingIdProperty()
-            ? SagaListenerOptions::withCustomContainingIdentifierProperty(
-                containingIdentifierSource: (string) $listenerAttribute->containingIdSource,
-                containingIdentifierProperty: (string) $listenerAttribute->containingIdProperty,
+        $options = $attribute->hasContainingIdProperty()
+            ? SagaHandlerOptions::withCustomContainingIdentifierProperty(
+                containingIdentifierSource: (string) $attribute->containingIdSource,
+                containingIdentifierProperty: (string) $attribute->containingIdProperty,
                 metadata: $sagaMetadata,
-                description: $listenerAttribute->description
+                description: $attribute->description
             )
-            : SagaListenerOptions::withGlobalOptions(
+            : SagaHandlerOptions::withGlobalOptions(
                 metadata: $sagaMetadata,
-                description: $listenerAttribute->description
+                description: $attribute->description
             );
 
-        $eventListenerReflectionMethod = $methodLevelAttribute->reflectionMethod;
+        $reflectionMethod = $methodLevelAttribute->reflectionMethod;
 
-        $eventClass = $this->extractEventClass($eventListenerReflectionMethod);
+        $messageClass = $this->extractMessageClass($reflectionMethod);
 
-        $expectedMethodName = createEventListenerName($eventClass);
-
-        if ($expectedMethodName === $eventListenerReflectionMethod->name)
+        $expectedMethodName = match ($handlerType)
         {
-            $reflectionMethod = $methodLevelAttribute->reflectionMethod;
+            SagaMessageHandlerType::INITIAL_COMMAND_HANDLER => self::INITIAL_COMMAND_METHOD,
+            SagaMessageHandlerType::EVENT_LISTENER => createEventListenerName($messageClass)
+        };
 
+        if ($expectedMethodName === $reflectionMethod->name)
+        {
             /** @var callable $processor */
-            $processor = $this->eventListenerProcessorFactory->createProcessor(
-                event: $eventClass,
-                listenerOptions: $listenerOptions
-            );
+            $processor = match ($handlerType)
+            {
+                SagaMessageHandlerType::INITIAL_COMMAND_HANDLER => $this->eventListenerProcessorFactory->createHandler(
+                    command: $messageClass,
+                    handlerOptions: $options
+                ),
+                SagaMessageHandlerType::EVENT_LISTENER => $this->eventListenerProcessorFactory->createListener(
+                    event: $messageClass,
+                    handlerOptions: $options
+                )
+            };
 
             $closure = \Closure::fromCallable($processor);
 
             /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<void> $closure */
 
             return new MessageHandler(
-                messageClass: $eventClass,
+                messageClass: $messageClass,
                 closure: $closure,
                 reflectionMethod: $reflectionMethod,
-                options: $listenerOptions
+                options: $options
             );
         }
 
-        throw InvalidSagaEventListenerMethod::unexpectedName($expectedMethodName, $eventListenerReflectionMethod->name);
+        throw InvalidSagaHandlerMethod::unexpectedName($expectedMethodName, $reflectionMethod->name);
     }
 
     /**
-     * Search for an event class among method arguments.
+     * Search for an event/command class among method arguments.
      *
      * @psalm-return class-string
      *
-     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaEventListenerMethod
+     * @throws \ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaHandlerMethod
      */
-    private function extractEventClass(\ReflectionMethod $reflectionMethod): string
+    private function extractMessageClass(\ReflectionMethod $reflectionMethod): string
     {
         $reflectionParameters = $reflectionMethod->getParameters();
 
@@ -187,20 +205,20 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 /** @var \ReflectionNamedType $reflectionType */
                 $reflectionType = $reflectionParameters[0]->getType();
 
-                /** @psalm-var class-string $eventClass */
-                $eventClass = $reflectionType->getName();
+                /** @psalm-var class-string $messageClass */
+                $messageClass = $reflectionType->getName();
 
                 /** @psalm-suppress RedundantConditionGivenDocblockType */
-                if (\class_exists($eventClass))
+                if (\class_exists($messageClass))
                 {
-                    return $eventClass;
+                    return $messageClass;
                 }
             }
 
-            throw InvalidSagaEventListenerMethod::wrongEventArgument($reflectionMethod);
+            throw InvalidSagaHandlerMethod::wrongEventArgument($reflectionMethod);
         }
 
-        throw InvalidSagaEventListenerMethod::tooManyArguments($reflectionMethod);
+        throw InvalidSagaHandlerMethod::tooManyArguments($reflectionMethod);
     }
 
     /**
@@ -216,25 +234,51 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
         {
             throw new \InvalidArgumentException(
                 \sprintf(
-                    'In the meta data of the saga "%s" an incorrect value of the "idClass"',
+                    'In the metadata of the saga "%s" an incorrect value of the "idClass"',
                     $sagaClass
                 )
             );
         }
 
-        $containingIdentifierSource = SagaMetadata::CORRELATION_ID_SOURCE_EVENT;
-
-        if ($sagaHeader->containingIdSource !== '')
-        {
-            $containingIdentifierSource = \strtolower($sagaHeader->containingIdSource);
-        }
-
         return new SagaMetadata(
             sagaClass: $sagaClass,
             identifierClass: $sagaHeader->idClass,
-            containingIdentifierSource: $containingIdentifierSource,
+            containingIdentifierSource: $sagaHeader->containingIdSource,
             containingIdentifierProperty: $sagaHeader->containingIdProperty,
-            expireDateModifier: (string) $sagaHeader->expireDateModifier
+            expireDateModifier: $sagaHeader->expireDateModifier
+        );
+    }
+
+    /**
+     * Search saga initial handler.
+     *
+     * @psalm-param class-string $sagaClass
+     * @psalm-param \SplObjectStorage<MethodLevel, null> $methodLevelAttributes
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function findInitialCommandHandlerAttribute(
+        string            $sagaClass,
+        \SplObjectStorage $methodLevelAttributes
+    ): MethodLevel {
+        /** @var MethodLevel[] $commandHandlersAttributes */
+        $commandHandlersAttributes = \array_filter(
+            \array_map(
+                static function (MethodLevel $attribute): ?MethodLevel
+                {
+                    return $attribute->attribute instanceof SagaInitialHandler ? $attribute : null;
+                },
+                \iterator_to_array($methodLevelAttributes)
+            )
+        );
+
+        if (\count($commandHandlersAttributes) === 1)
+        {
+            return \end($commandHandlersAttributes);
+        }
+
+        throw new \InvalidArgumentException(
+            \sprintf('The `%s` saga should (may) contain 1 initial command handler', $sagaClass)
         );
     }
 
@@ -242,6 +286,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
      * Search saga header information.
      *
      * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param \SplObjectStorage<ClassLevel, null> $classLevelAttributes
      *
      * @throws \InvalidArgumentException
      */

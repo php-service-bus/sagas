@@ -8,11 +8,10 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
-use function ServiceBus\Common\invokeReflectionMethod;
 use ServiceBus\MessagesRouter\Exceptions\MessageRouterConfigurationFailed;
 use ServiceBus\MessagesRouter\Router;
 use ServiceBus\MessagesRouter\RouterConfigurator;
@@ -23,11 +22,6 @@ use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
  */
 final class SagaMessagesRouterConfigurator implements RouterConfigurator
 {
-    /**
-     * @var SagasProvider
-     */
-    private $sagaProvider;
-
     /**
      * @var SagaConfigurationLoader
      */
@@ -46,11 +40,9 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
      * @psalm-param array<array-key, class-string<\ServiceBus\Sagas\Saga>> $sagasList
      */
     public function __construct(
-        SagasProvider $sagaProvider,
         SagaConfigurationLoader $sagaConfigurationLoader,
-        array $sagasList
+        array                   $sagasList
     ) {
-        $this->sagaProvider            = $sagaProvider;
         $this->sagaConfigurationLoader = $sagaConfigurationLoader;
         $this->sagasList               = $sagasList;
     }
@@ -66,22 +58,19 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
             {
                 $sagaConfiguration = $this->sagaConfigurationLoader->load($sagaClass);
 
-                /** Append metadata details. */
-                invokeReflectionMethod(
-                    $this->sagaProvider,
-                    'appendMetaData',
-                    $sagaClass,
-                    $sagaConfiguration->metaData
-                );
+                /** @todo: more beautiful solution */
+                SagaMetadataStore::instance()->add($sagaConfiguration->metadata);
 
                 /** @var \ServiceBus\Common\MessageHandler\MessageHandler $handler */
-                foreach ($sagaConfiguration->handlerCollection as $handler)
+                foreach ($sagaConfiguration->listenerCollection as $handler)
                 {
-                    if ($handler->messageClass !== null)
-                    {
-                        $router->registerListener($handler->messageClass, new SagaMessageExecutor($handler));
-                    }
+                    $router->registerListener($handler->messageClass, new SagaMessageExecutor($handler));
                 }
+
+                $router->registerHandler(
+                    $sagaConfiguration->initialCommandHandler->messageClass,
+                    new SagaMessageExecutor($sagaConfiguration->initialCommandHandler)
+                );
             }
         }
         catch (\Throwable $throwable)

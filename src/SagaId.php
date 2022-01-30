@@ -8,12 +8,12 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
-use function ServiceBus\Common\uuid;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
+use function ServiceBus\Common\uuid;
 
 /**
  * Base saga id class.
@@ -26,6 +26,7 @@ abstract class SagaId
      * Identifier.
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @var string
      */
@@ -79,6 +80,9 @@ abstract class SagaId
         $this->sagaClass = $sagaClass;
     }
 
+    /**
+     * @psalm-return non-empty-string
+     */
     final public function toString(): string
     {
         return $this->id;

@@ -8,13 +8,12 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
 use ServiceBus\Sagas\Contract\SagaReopened;
 use ServiceBus\Sagas\Exceptions\ReopenFailed;
-use function ServiceBus\Common\datetimeInstantiator;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
@@ -22,6 +21,7 @@ use ServiceBus\Sagas\Contract\SagaStatusChanged;
 use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
 use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
+use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\now;
 
 /**
@@ -29,11 +29,6 @@ use function ServiceBus\Common\now;
  */
 abstract class Saga
 {
-    /**
-     * The prefix from which all names of methods-listeners of events should begin.
-     */
-    public const EVENT_APPLY_PREFIX = 'on';
-
     /**
      * Saga identifier.
      *
@@ -44,7 +39,7 @@ abstract class Saga
     /**
      * List of messages that should be fired while saving.
      *
-     * @psalm-var array<int, object>
+     * @psalm-var list<object>
      *
      * @var object[]
      */
@@ -84,7 +79,7 @@ abstract class Saga
      * @throws \ServiceBus\Common\Exceptions\DateTimeException
      */
     final public function __construct(
-        SagaId $id,
+        SagaId              $id,
         ?\DateTimeImmutable $expireDate = null,
         ?\DateTimeImmutable $createdAt = null
     ) {
@@ -97,7 +92,7 @@ abstract class Saga
         $this->assertExpirationDateIsCorrect($id, $expireDate);
 
         $this->id     = $id;
-        $this->status = SagaStatus::created();
+        $this->status = SagaStatus::IN_PROGRESS;
 
         $this->createdAt  = $createdAt ?? now();
         $this->expireDate = $expireDate;
@@ -114,11 +109,6 @@ abstract class Saga
     {
         $this->clear();
     }
-
-    /**
-     * Start saga flow.
-     */
-    abstract public function start(object $command): void;
 
     /**
      * Receive saga id.
@@ -154,10 +144,15 @@ abstract class Saga
 
     /**
      * Receive current state hash.
+     *
+     * @psalm-return non-empty-string
      */
-    final public function stateHash(): string
+    final public function hash(): string
     {
-        return \sha1(\serialize($this));
+        /** @psalm-var non-empty-string $hash */
+        $hash = \sha1(\serialize($this));
+
+        return $hash;
     }
 
     /**
@@ -168,8 +163,6 @@ abstract class Saga
     final protected function raise(object $event): void
     {
         $this->assertNotClosedSaga();
-
-        $this->applyEvent($event);
         $this->attachMessage($event);
     }
 
@@ -181,7 +174,6 @@ abstract class Saga
     final protected function fire(object $command): void
     {
         $this->assertNotClosedSaga();
-
         $this->attachMessage($command);
     }
 
@@ -192,11 +184,11 @@ abstract class Saga
      *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
      */
-    final protected function makeCompleted(string $withReason = null): void
+    final protected function complete(string $withReason = null): void
     {
         $this->assertNotClosedSaga();
 
-        $this->changeState(SagaStatus::completed(), $withReason);
+        $this->changeState(SagaStatus::COMPLETED, $withReason);
         $this->close($withReason);
     }
 
@@ -207,12 +199,45 @@ abstract class Saga
      *
      * @throws \ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed
      */
-    final protected function makeFailed(string $withReason = null): void
+    final protected function fail(string $withReason = null): void
     {
         $this->assertNotClosedSaga();
 
-        $this->changeState(SagaStatus::failed(), $withReason);
+        $this->changeState(SagaStatus::FAILED, $withReason);
         $this->close($withReason);
+    }
+
+    /**
+     * Reopen saga.
+     *
+     * Called using Reflection API from the infrastructure layer.
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     *
+     * @throws \ServiceBus\Sagas\Exceptions\ReopenFailed
+     */
+    private function reopen(\DateTimeImmutable $withNewExpirationDate, string $withReason = ''): void
+    {
+        if ($this->status->equals(SagaStatus::IN_PROGRESS) || $this->status->equals(SagaStatus::REOPENED))
+        {
+            throw ReopenFailed::stillALive($this->id);
+        }
+
+        $currentDate = now();
+
+        if ($currentDate > $withNewExpirationDate)
+        {
+            throw ReopenFailed::incorrectExpirationDate($this->id);
+        }
+
+        $this->changeState(SagaStatus::REOPENED, $withReason);
+
+        $this->expireDate = $withNewExpirationDate;
+        $this->closedAt   = null;
+
+        $this->raise(
+            new SagaReopened($this->id->toString(), $currentDate, $this->expireDate, $withReason)
+        );
     }
 
     /**
@@ -233,65 +258,6 @@ abstract class Saga
     }
 
     /**
-     * Apply event.
-     * Called using Reflection API from the infrastructure layer.
-     */
-    private function applyEvent(object $event): void
-    {
-        $eventListenerMethodName = createEventListenerName(\get_class($event));
-
-        /**
-         * Call child class method.
-         *
-         * @param object $event
-         *
-         * @return void
-         */
-        $closure = function (object $event) use ($eventListenerMethodName): void
-        {
-            if (\method_exists($this, $eventListenerMethodName))
-            {
-                $this->{$eventListenerMethodName}($event);
-            }
-        };
-
-        $closure->call($this, $event);
-    }
-
-    /**
-     * Reopen saga.
-     *
-     * Called using Reflection API from the infrastructure layer.
-     *
-     * @noinspection PhpUnusedPrivateMethodInspection
-     *
-     * @throws \ServiceBus\Sagas\Exceptions\ReopenFailed
-     */
-    private function reopen(\DateTimeImmutable $withNewExpirationDate, string $withReason = ''): void
-    {
-        if ($this->status->equals(SagaStatus::created()) ||   $this->status->equals(SagaStatus::reopened()))
-        {
-            throw ReopenFailed::stillALive($this->id);
-        }
-
-        $currentDate = now();
-
-        if ($currentDate > $withNewExpirationDate)
-        {
-            throw ReopenFailed::incorrectExpirationDate($this->id);
-        }
-
-        $this->changeState(SagaStatus::reopened(), $withReason);
-
-        $this->expireDate = $withNewExpirationDate;
-        $this->closedAt   = null;
-
-        $this->raise(
-            new SagaReopened($this->id->toString(), $currentDate, $this->expireDate, $withReason)
-        );
-    }
-
-    /**
      * Change saga status to expired.
      * Called using Reflection API from the infrastructure layer.
      *
@@ -299,7 +265,7 @@ abstract class Saga
      */
     private function expire(): void
     {
-        $this->changeState(SagaStatus::expired());
+        $this->changeState(SagaStatus::EXPIRED);
         $this->close('expired');
 
         $this->expireDate = now();
@@ -355,8 +321,10 @@ abstract class Saga
      */
     private function assertNotClosedSaga(): void
     {
-        if ($this->status->inProgress() === false)
-        {
+        if (
+            $this->status->equals(SagaStatus::IN_PROGRESS) === false &&
+            $this->status->equals(SagaStatus::REOPENED) === false
+        ) {
             throw ChangeSagaStateFailed::create($this->status);
         }
     }

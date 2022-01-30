@@ -1,3 +1,5 @@
 parameters:
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
+	ignoreErrors:
+		- '#Method ServiceBus\\Sagas\\Saga::.* is unused#'

@@ -8,12 +8,13 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations\stubs;
 
 use ServiceBus\Sagas\Configuration\Attributes\SagaEventListener;
 use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
+use ServiceBus\Sagas\Configuration\Attributes\SagaInitialHandler;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\Tests\stubs\EmptyCommand;
 use ServiceBus\Sagas\Tests\stubs\EmptyEvent;
@@ -26,7 +27,8 @@ use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 )]
 final class SagaWithMultipleListenerArgs extends Saga
 {
-    public function start(object $command): void
+    #[SagaInitialHandler]
+    public function start(EmptyCommand $command): void
     {
     }
 

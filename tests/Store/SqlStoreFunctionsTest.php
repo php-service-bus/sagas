@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
 
 /**
  * Saga pattern implementation.
@@ -8,13 +8,13 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Store;
 
-use function ServiceBus\Sagas\Store\Sql\unserializeSaga;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Sagas\Store\Exceptions\SagaSerializationError;
+use function ServiceBus\Sagas\Store\Sql\unserializeSaga;
 
 /**
  *

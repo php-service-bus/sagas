@@ -1,4 +1,6 @@
-<?php /** @noinspection ALL */
+<?php
+
+/** @noinspection ALL */
 
 /**
  * Saga pattern implementation.
@@ -8,14 +10,15 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Sagas\Configuration\Attributes\SagaEventListener;
 use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
-use function ServiceBus\Common\uuid;
+use ServiceBus\Sagas\Configuration\Attributes\SagaInitialHandler;
 use ServiceBus\Sagas\Saga;
+use function ServiceBus\Common\uuid;
 
 #[SagaHeader(
     idClass: TestSagaId::class,
@@ -30,7 +33,8 @@ final class CorrectSagaWithHeaderCorrelationId extends Saga
      */
     private $value;
 
-    public function start(object $command): void
+    #[SagaInitialHandler]
+    public function start(CorrectSagaWithHeaderCorrelationIdInitialCommand $command): void
     {
     }
 

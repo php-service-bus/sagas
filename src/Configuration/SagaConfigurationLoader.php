@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -17,6 +17,9 @@ namespace ServiceBus\Sagas\Configuration;
  */
 interface SagaConfigurationLoader
 {
+    final public const INITIAL_COMMAND_METHOD = 'start';
+    final public const EVENT_LISTENER_PREFIX  = 'on';
+
     /**
      * Retrieving saga configuration and event handlers.
      *

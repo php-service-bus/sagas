@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Store;
 
@@ -24,7 +24,7 @@ interface SagasStore
     /**
      * Obtain exists saga.
      *
-     * @return Promise<\ServiceBus\Sagas\Saga|null>
+     * @psalm-return Promise<\ServiceBus\Sagas\Saga|null>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while deserializing saga
@@ -32,30 +32,25 @@ interface SagasStore
     public function obtain(SagaId $id): Promise;
 
     /**
-     * @return Promise<void>
+     * @psalm-param callable():\Generator $publisher
+     *
+     * @psalm-return Promise<void>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga The specified saga has already been added
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while serializing saga
      */
-    public function save(Saga $saga): Promise;
+    public function save(Saga $saga, callable $publisher): Promise;
 
     /**
      * Update existing saga.
      *
-     * @return Promise<void>
+     * @psalm-param callable():\Generator $publisher
+     *
+     * @psalm-return Promise<void>
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while serializing saga
      */
-    public function update(Saga $saga): Promise;
-
-    /**
-     * Remove saga from database.
-     *
-     * @return Promise<void>
-     *
-     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
-     */
-    public function remove(SagaId $id): Promise;
+    public function update(Saga $saga, callable $publisher): Promise;
 }

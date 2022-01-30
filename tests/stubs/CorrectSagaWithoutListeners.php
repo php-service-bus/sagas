@@ -8,11 +8,12 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
+use ServiceBus\Sagas\Configuration\Attributes\SagaInitialHandler;
 use ServiceBus\Sagas\Saga;
 
 #[SagaHeader(
@@ -22,7 +23,8 @@ use ServiceBus\Sagas\Saga;
 )]
 final class CorrectSagaWithoutListeners extends Saga
 {
-    public function start(object $command): void
+    #[SagaInitialHandler]
+    public function start(CorrectSagaWithoutListenersInitialCommand $command): void
     {
     }
 }

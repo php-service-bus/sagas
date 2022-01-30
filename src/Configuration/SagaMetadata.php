@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -21,12 +21,12 @@ final class SagaMetadata
 {
     public const DEFAULT_EXPIRE_INTERVAL = '+1 hour';
 
-    public const CORRELATION_ID_SOURCE_EVENT = 'event';
+    public const CORRELATION_ID_SOURCE_MESSAGE = 'message';
 
     public const CORRELATION_ID_SOURCE_HEADERS = 'headers';
 
     private const CORRELATION_ID_SOURCES = [
-        self::CORRELATION_ID_SOURCE_EVENT,
+        self::CORRELATION_ID_SOURCE_MESSAGE,
         self::CORRELATION_ID_SOURCE_HEADERS,
     ];
 
@@ -54,6 +54,7 @@ final class SagaMetadata
      * Place to look for a correlation identifier (event property: event; header key: headers).
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @var string
      */
@@ -63,6 +64,7 @@ final class SagaMetadata
      * The field that contains the saga identifier.
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @var string
      */
@@ -72,6 +74,7 @@ final class SagaMetadata
      * Saga expire date modifier.
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
      *
@@ -80,8 +83,11 @@ final class SagaMetadata
     public $expireDateModifier;
 
     /**
-     * @psalm-param class-string<\ServiceBus\Sagas\Saga> $sagaClass
+     * @psalm-param class-string<\ServiceBus\Sagas\Saga>   $sagaClass
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $identifierClass
+     * @psalm-param non-empty-string                       $containingIdentifierSource
+     * @psalm-param non-empty-string                       $containingIdentifierProperty
+     * @psalm-param non-empty-string                       $expireDateModifier
      *
      * @throws \InvalidArgumentException
      */
@@ -96,7 +102,7 @@ final class SagaMetadata
         {
             throw new \InvalidArgumentException(
                 \sprintf(
-                    'In the meta data of the saga "%s" an incorrect value of the "containingIdentifierSource" (can be `event` or `headers` only)',
+                    'In the metadata of the saga "%s" an incorrect value of the "containingIdentifierSource" (can be `message` or `headers` only)',
                     $sagaClass
                 )
             );

@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -18,12 +18,12 @@ use ServiceBus\Common\Context\ServiceBusContext;
 /**
  * Saga event listener processor.
  */
-interface EventProcessor
+interface MessageProcessor
 {
     /**
      * Receipt of the event for which the handler was created.
      */
-    public function event(): string;
+    public function message(): string;
 
     /**
      * Invoke saga listener.
@@ -34,7 +34,7 @@ interface EventProcessor
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed
      * @throws \Throwable Reflection fails
      *
-     * @return Promise<void>
+     * @psalm-return Promise<void>
      */
-    public function __invoke(object $event, ServiceBusContext $context): Promise;
+    public function __invoke(object $message, ServiceBusContext $context): Promise;
 }

@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation module.
@@ -8,13 +10,14 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Module;
 
 use PHPUnit\Framework\TestCase;
 use ServiceBus\MessagesRouter\Router;
 use ServiceBus\Sagas\Module\SagaModule;
+use ServiceBus\Sagas\SagaFinder;
 use ServiceBus\Sagas\SagasProvider;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Storage\Common\DatabaseAdapter;
@@ -65,20 +68,20 @@ final class SagaModuleTest extends TestCase
 
         $module->boot($this->containerBuilder);
 
-        $this->containerBuilder->getDefinition(SagasProvider::class)->setPublic(true);
+        $this->containerBuilder->getDefinition(SagaFinder::class)->setPublic(true);
         $this->containerBuilder->getDefinition(Router::class)->setPublic(true);
 
         $this->containerBuilder->compile();
 
-        /** @var SagasProvider $sagasProvider */
-        $sagasProvider = $this->containerBuilder->get(SagasProvider::class);
+        /** @var SagaFinder $sagaFinder */
+        $sagaFinder = $this->containerBuilder->get(SagaFinder::class);
 
-        self::assertInstanceOf(SagasProvider::class, $sagasProvider);
+        self::assertInstanceOf(SagaFinder::class, $sagaFinder);
 
         /** @var Router $router */
         $router = $this->containerBuilder->get(Router::class);
 
-        self::assertCount(3, $router);
+        self::assertCount(4, $router);
     }
 
     /**
@@ -105,11 +108,11 @@ final class SagaModuleTest extends TestCase
             AmpPostgreSQLAdapter::class
         )->boot($this->containerBuilder);
 
-        $this->containerBuilder->getDefinition(SagasProvider::class)->setPublic(true);
+        $this->containerBuilder->getDefinition(SagaFinder::class)->setPublic(true);
         $this->containerBuilder->compile();
 
-        $sagasProvider = $this->containerBuilder->get(SagasProvider::class);
+        $sagaFinder = $this->containerBuilder->get(SagaFinder::class);
 
-        self::assertInstanceOf(SagasProvider::class, $sagasProvider);
+        self::assertInstanceOf(SagaFinder::class, $sagaFinder);
     }
 }

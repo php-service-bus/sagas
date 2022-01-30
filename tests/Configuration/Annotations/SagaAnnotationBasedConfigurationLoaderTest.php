@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation.
@@ -8,16 +10,17 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 
+use ServiceBus\ArgumentResolver\ChainArgumentResolver;
+use ServiceBus\ArgumentResolver\MessageArgumentResolver;
 use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
-use function Amp\Promise\wait;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
-use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
+use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectEventListenerClass;
@@ -32,6 +35,7 @@ use ServiceBus\Sagas\Tests\stubs\CorrectSagaWithoutListeners;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
+use function Amp\Promise\wait;
 
 /**
  *
@@ -44,7 +48,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     private $adapter;
 
     /**
-     * @var EventListenerProcessorFactory
+     * @var SagaMessageProcessorFactory
      */
     private $listenerFactory;
 
@@ -64,7 +68,10 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
         }
 
         $store                 = new SQLSagaStore($this->adapter);
-        $this->listenerFactory = new DefaultEventListenerProcessorFactory($store);
+        $this->listenerFactory = new DefaultSagaMessageProcessorFactory(
+            $store,
+            new ChainArgumentResolver([new MessageArgumentResolver()])
+        );
     }
 
     protected function tearDown(): void
@@ -81,7 +88,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $this->expectException(InvalidSagaConfiguration::class);
 
-        $object = new class()
+        $object = new class ()
         {
         };
 
@@ -96,7 +103,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
         $this->expectException(InvalidSagaConfiguration::class);
         $this->expectExceptionMessage(
             \sprintf(
-                'In the meta data of the saga "%s" an incorrect value of the "idClass"',
+                'In the metadata of the saga "%s" an incorrect value of the "idClass"',
                 SagaWrongIdClassSpecified::class
             )
         );
@@ -112,7 +119,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $result = (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))
             ->load(CorrectSagaWithoutListeners::class)
-            ->handlerCollection;
+            ->listenerCollection;
 
         self::assertEmpty($result);
     }
@@ -124,7 +131,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $result = (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))
             ->load(CorrectSaga::class)
-            ->handlerCollection;
+            ->listenerCollection;
 
         self::assertNotEmpty($result);
         self::assertCount(3, $result);
@@ -164,6 +171,8 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithIncorrectEventListenerClass::class);
+
+        self::assertTrue(true);
     }
 
     /**
@@ -190,7 +199,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     public function sagaWithInvalidListenerArgument(): void
     {
         $this->expectException(InvalidSagaConfiguration::class);
-        $this->expectExceptionMessage('Invalid method name of the event listener: "onSomeEvent". Expected: onEmptyCommand');
+        $this->expectExceptionMessage('Invalid method name of the method: "onSomeEvent". Expected: onEmptyCommand');
 
         (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))
             ->load(SagaWithInvalidListenerArg::class);
@@ -203,7 +212,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $this->expectException(InvalidSagaConfiguration::class);
         $this->expectExceptionMessage(
-            'Invalid method name of the event listener: "wrongEventListenerName". Expected: onEventWithKey'
+            'Invalid method name of the method: "wrongEventListenerName". Expected: onEventWithKey'
         );
 
         (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))

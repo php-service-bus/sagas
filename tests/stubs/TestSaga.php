@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnusedPrivateMethodInspection */
+<?php
+
+/** @noinspection PhpUnusedPrivateMethodInspection */
 
 /**
  * Saga pattern implementation module.
@@ -8,12 +10,14 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
+use ServiceBus\MessagesRouter\Tests\stubs\TestCommand;
 use ServiceBus\Sagas\Configuration\Attributes\SagaEventListener;
 use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
+use ServiceBus\Sagas\Configuration\Attributes\SagaInitialHandler;
 use ServiceBus\Sagas\Saga;
 
 #[SagaHeader(
@@ -23,7 +27,8 @@ use ServiceBus\Sagas\Saga;
 )]
 final class TestSaga extends Saga
 {
-    public function start(object $command): void
+    #[SagaInitialHandler]
+    public function start(TestCommand $command): void
     {
     }
 
@@ -36,6 +41,6 @@ final class TestSaga extends Saga
     #[SagaEventListener]
     private function onEmptyEvent(EmptyEvent $event): void
     {
-        $this->makeFailed('test reason');
+        $this->fail('test reason');
     }
 }

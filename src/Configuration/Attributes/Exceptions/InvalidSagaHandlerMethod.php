@@ -8,14 +8,14 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration\Attributes\Exceptions;
 
 /**
  *
  */
-final class InvalidSagaEventListenerMethod extends \LogicException
+final class InvalidSagaHandlerMethod extends \LogicException
 {
     public static function tooManyArguments(\ReflectionMethod $reflectionMethod): self
     {
@@ -42,7 +42,7 @@ final class InvalidSagaEventListenerMethod extends \LogicException
     public static function unexpectedName(string $expected, string $actual): self
     {
         return new self(\sprintf(
-            'Invalid method name of the event listener: "%s". Expected: %s',
+            'Invalid method name of the method: "%s". Expected: %s',
             $actual,
             $expected
         ));

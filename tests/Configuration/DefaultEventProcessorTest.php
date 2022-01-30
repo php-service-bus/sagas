@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnhandledExceptionInspection */
+<?php
+
+/** @noinspection PhpUnhandledExceptionInspection */
 
 /**
  * Saga pattern implementation.
@@ -8,21 +10,17 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Configuration;
 
 use Amp\Loop;
+use ServiceBus\ArgumentResolver\ChainArgumentResolver;
+use ServiceBus\ArgumentResolver\MessageArgumentResolver;
 use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
-use function Amp\call;
-use function Amp\Promise\wait;
-use function ServiceBus\Common\invokeReflectionMethod;
-use function ServiceBus\Common\readReflectionPropertyValue;
-use function ServiceBus\Common\writeReflectionPropertyValue;
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
-use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
+use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
 use ServiceBus\Sagas\Configuration\SagaMetadata;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
@@ -37,6 +35,11 @@ use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
+use function Amp\call;
+use function Amp\Promise\wait;
+use function ServiceBus\Common\invokeReflectionMethod;
+use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Common\writeReflectionPropertyValue;
 
 /**
  *
@@ -54,14 +57,14 @@ final class DefaultEventProcessorTest extends TestCase
     private $store;
 
     /**
-     * @var EventListenerProcessorFactory
-     */
-    private $listenerFactory;
-
-    /**
      * @var SagaConfigurationLoader
      */
     private $configLoader;
+
+    /**
+     * @var callable
+     */
+    private $publisher;
 
     protected function setUp(): void
     {
@@ -78,10 +81,14 @@ final class DefaultEventProcessorTest extends TestCase
             wait($this->adapter->execute($indexQuery));
         }
 
-        $this->store           = new SQLSagaStore($this->adapter);
-        $this->listenerFactory = new DefaultEventListenerProcessorFactory($this->store);
-        $this->configLoader    = new SagaAttributeBasedConfigurationLoader(
-            new DefaultEventListenerProcessorFactory($this->store)
+        $this->publisher    = static function ()
+        {
+        };
+        $this->store        = new SQLSagaStore($this->adapter);
+        $this->configLoader = new SagaAttributeBasedConfigurationLoader(
+            new DefaultSagaMessageProcessorFactory($this->store, new ChainArgumentResolver([
+                new MessageArgumentResolver()
+            ]))
         );
     }
 
@@ -89,7 +96,7 @@ final class DefaultEventProcessorTest extends TestCase
     {
         parent::tearDown();
 
-        unset($this->adapter, $this->listenerFactory, $this->configLoader);
+        unset($this->adapter, $this->configLoader);
     }
 
     /**
@@ -103,11 +110,11 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -138,12 +145,12 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                 $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context                                 = new TestContext();
                 $context->headers['saga-correlation-id'] = $id->toString();
 
-                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -178,11 +185,11 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                 $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSagaWithHeaderCorrelationId::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -210,7 +217,7 @@ final class DefaultEventProcessorTest extends TestCase
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -239,11 +246,11 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[2];
@@ -263,7 +270,7 @@ final class DefaultEventProcessorTest extends TestCase
     public function executeWithEmptyCorrelationId(): void
     {
         $this->expectExceptionMessage(
-            'The value of the "key" property of the "ServiceBus\\Sagas\\Tests\\stubs\\EventWithKey" event can\'t be empty, since it is the saga id'
+            'The value of the "key" property of the "ServiceBus\Sagas\Tests\stubs\EventWithKey" event can\'t be empty. The property must contain either a string or an object with the `toString()` method'
         );
 
         Loop::run(
@@ -272,11 +279,11 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -307,11 +314,11 @@ final class DefaultEventProcessorTest extends TestCase
 
                 invokeReflectionMethod($saga, 'expire', 'fail reason');
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[0];
@@ -336,11 +343,11 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[1];
@@ -363,9 +370,7 @@ final class DefaultEventProcessorTest extends TestCase
      */
     public function executeWithUnknownIdClass(): void
     {
-        $this->expectExceptionMessage(
-            'Identifier class "SomeUnknownClass" specified in the saga "ServiceBus\Sagas\Tests\stubs\CorrectSaga" not found'
-        );
+        $this->expectExceptionMessage('Class "SomeUnknownClass" not found');
 
         Loop::run(
             function (): \Generator
@@ -373,16 +378,16 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[1];
 
-                /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+                /** @var \ServiceBus\Sagas\Configuration\SagaHandlerOptions $options */
                 $options = readReflectionPropertyValue($handler, 'options');
 
                 /** @var SagaMetadata $metadata */
@@ -414,16 +419,16 @@ final class DefaultEventProcessorTest extends TestCase
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
-                yield $this->store->save($saga);
+                yield $this->store->save($saga, $this->publisher);
 
                 $context = new TestContext();
 
-                $handlers = $this->configLoader->load(CorrectSaga::class)->handlerCollection;
+                $handlers = $this->configLoader->load(CorrectSaga::class)->listenerCollection;
 
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[1];
 
-                /** @var \ServiceBus\Sagas\Configuration\SagaListenerOptions $options */
+                /** @var \ServiceBus\Sagas\Configuration\SagaHandlerOptions $options */
                 $options = readReflectionPropertyValue($handler, 'options');
 
                 /** @var SagaMetadata $metadata */

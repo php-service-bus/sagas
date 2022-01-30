@@ -8,9 +8,11 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
+
+use ServiceBus\Common\MessageHandler\MessageHandler;
 
 /**
  * Configuration details.
@@ -24,18 +26,32 @@ final class SagaConfiguration
      *
      * @var SagaMetadata
      */
-    public $metaData;
+    public $metadata;
 
     /**
      * @psalm-readonly
      *
-     * @var \SplObjectStorage
+     * @var MessageHandler
      */
-    public $handlerCollection;
+    public $initialCommandHandler;
 
-    public function __construct(SagaMetadata $sagaMetadata, \SplObjectStorage $handlerCollection)
-    {
-        $this->metaData          = $sagaMetadata;
-        $this->handlerCollection = $handlerCollection;
+    /**
+     * @psalm-readonly
+     *
+     * @psalm-var \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, null>
+     */
+    public $listenerCollection;
+
+    /**
+     * @psalm-param \SplObjectStorage<\ServiceBus\Common\MessageHandler\MessageHandler, null> $listenerCollection
+     */
+    public function __construct(
+        SagaMetadata      $metadata,
+        MessageHandler    $initialCommandHandler,
+        \SplObjectStorage $listenerCollection
+    ) {
+        $this->metadata              = $metadata;
+        $this->initialCommandHandler = $initialCommandHandler;
+        $this->listenerCollection    = $listenerCollection;
     }
 }

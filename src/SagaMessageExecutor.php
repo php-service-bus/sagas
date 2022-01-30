@@ -8,20 +8,17 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
 use ServiceBus\Common\EntryPoint\Retry\RetryStrategy;
 use ServiceBus\Common\MessageExecutor\MessageExecutor;
-use function Amp\call;
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\MessageHandler\MessageHandler;
+use function Amp\call;
 
-/**
- *
- */
 final class SagaMessageExecutor implements MessageExecutor
 {
     /**
@@ -36,9 +33,12 @@ final class SagaMessageExecutor implements MessageExecutor
 
     public function id(): string
     {
-        return \sha1(
-            \sprintf('%s:%s', (string) $this->messageHandler->messageClass, $this->messageHandler->methodName)
+        /** @psalm-var non-empty-string $id */
+        $id = \sha1(
+            \sprintf('%s:%s', $this->messageHandler->messageClass, $this->messageHandler->methodName)
         );
+
+        return $id;
     }
 
     public function retryStrategy(): ?RetryStrategy

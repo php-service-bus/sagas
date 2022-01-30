@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUnusedPrivateMethodInspection */
+<?php
+
+/** @noinspection PhpUnusedPrivateMethodInspection */
 
 /**
  * Saga pattern implementation.
@@ -8,14 +10,15 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Sagas\Configuration\Attributes\SagaEventListener;
 use ServiceBus\Sagas\Configuration\Attributes\SagaHeader;
-use function ServiceBus\Common\uuid;
+use ServiceBus\Sagas\Configuration\Attributes\SagaInitialHandler;
 use ServiceBus\Sagas\Saga;
+use function ServiceBus\Common\uuid;
 
 #[SagaHeader(
     idClass: TestSagaId::class,
@@ -29,7 +32,11 @@ final class CorrectSaga extends Saga
      */
     private $value;
 
-    public function start(object $command): void
+
+    #[SagaInitialHandler(
+        containingIdProperty: "id"
+    )]
+    public function start(CorrectSagaInitialCommand $command): void
     {
     }
 
@@ -45,7 +52,7 @@ final class CorrectSaga extends Saga
 
     public function closeWithSuccessStatus(): void
     {
-        $this->makeCompleted();
+        $this->complete();
     }
 
     public function value(): ?string
@@ -60,7 +67,7 @@ final class CorrectSaga extends Saga
 
     private function onSomeFirstEvent(): void
     {
-        $this->makeFailed('test reason');
+        $this->fail('test reason');
     }
 
     #[SagaEventListener(containingIdProperty: 'key')]

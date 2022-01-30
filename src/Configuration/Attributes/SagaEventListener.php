@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration\Attributes;
 
@@ -47,6 +47,10 @@ final class SagaEventListener
      */
     public $description;
 
+    /**
+     * @psalm-param non-empty-string|null $containingIdSource
+     * @psalm-param non-empty-string|null $containingIdProperty
+     */
     public function __construct(
         ?string $containingIdSource = null,
         ?string $containingIdProperty = null,

@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration\Attributes;
 
@@ -32,6 +32,7 @@ final class SagaHeader
      * Place to look for a correlation identifier (event property: event; header key: headers).
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @var string
      */
@@ -41,6 +42,7 @@ final class SagaHeader
      * The event property (or header key) that contains the saga ID.
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @var string
      */
@@ -50,25 +52,29 @@ final class SagaHeader
      * Saga expire date modifier.
      *
      * @psalm-readonly
+     * @psalm-var non-empty-string
      *
      * @see http://php.net/manual/ru/datetime.formats.relative.php
      *
-     * @var string|null
+     * @var string
      */
     public $expireDateModifier;
 
     /**
      * @psalm-param class-string<\ServiceBus\Sagas\SagaId> $idClass
+     * @psalm-param non-empty-string                       $containingIdProperty
+     * @psalm-param non-empty-string                       $containingIdSource
+     * @psalm-param non-empty-string                       $expireDateModifier
      */
     public function __construct(
         string $idClass,
         string $containingIdProperty,
-        string $containingIdSource = 'event',
-        ?string $expireDateModifier = null
+        string $containingIdSource = 'message',
+        string $expireDateModifier = '+1 month'
     ) {
         $this->idClass              = $idClass;
         $this->containingIdProperty = $containingIdProperty;
-        $this->containingIdSource   = $containingIdSource;
+        $this->containingIdSource   = \strtolower($containingIdSource);
         $this->expireDateModifier   = $expireDateModifier;
     }
 }

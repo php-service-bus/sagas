@@ -3,13 +3,13 @@
 [![Packagist](https://img.shields.io/packagist/v/php-service-bus/sagas.svg)](https://packagist.org/packages/php-service-bus/sagas)
 [![Packagist](https://img.shields.io/packagist/dt/php-service-bus/sagas.svg)](https://packagist.org/packages/php-service-bus/sagas)
 ![Continuous Integration](https://github.com/php-service-bus/sagas/workflows/Continuous%20Integration/badge.svg)
-[![codecov](https://codecov.io/gh/php-service-bus/sagas/branch/v5.0/graph/badge.svg?token=0bKwdiuo0S)](https://codecov.io/gh/php-service-bus/sagas)
+[![codecov](https://codecov.io/gh/php-service-bus/sagas/branch/v5.1/graph/badge.svg?token=0bKwdiuo0S)](https://codecov.io/gh/php-service-bus/sagas)
 [![Shepherd](https://shepherd.dev/github/php-service-bus/sagas/coverage.svg)](https://shepherd.dev/github/php-service-bus/sagas)
 
 This component is part of the [PHP Service Bus](https://github.com/php-service-bus/service-bus): saga pattern implementation
 
 ## Documentation
-[Sagas](https://github.com/php-service-bus/service-bus/blob/v5.0/.documentation/sagas.md)
+[Sagas](https://github.com/php-service-bus/service-bus/blob/v5.1/.documentation/sagas.md)
 
 ## Contributing
 Contributions are welcome! Please read [CONTRIBUTING](.github/CONTRIBUTING.md) for details.

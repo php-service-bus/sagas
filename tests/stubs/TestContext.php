@@ -8,17 +8,17 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\stubs;
 
+use Psr\Log\NullLogger;
 use ServiceBus\Common\Context\ContextLogger;
 use ServiceBus\Common\Context\IncomingMessageMetadata;
 use ServiceBus\Common\Context\OutcomeMessageMetadata;
 use ServiceBus\Common\Context\ValidationViolations;
 use Amp\Promise;
 use Amp\Success;
-use Psr\Log\Test\TestLogger;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\Endpoint\DeliveryOptions;
 use function ServiceBus\Common\uuid;
@@ -39,13 +39,13 @@ final class TestContext implements ServiceBusContext
     public $headers = [];
 
     /**
-     * @var TestLogger
+     * @var NullLogger
      */
     public $logger;
 
     public function __construct()
     {
-        $this->logger = new TestLogger();
+        $this->logger = new NullLogger();
     }
 
     public function violations(): ?ValidationViolations

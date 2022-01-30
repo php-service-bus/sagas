@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Exceptions;
 
@@ -24,7 +24,7 @@ final class ChangeSagaStateFailed extends \RuntimeException
         return new self(
             \sprintf(
                 'Changing the state of the saga is impossible: the saga is complete with status "%s"',
-                $currentStatus->toString()
+                $currentStatus->value
             )
         );
     }

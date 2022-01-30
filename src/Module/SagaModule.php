@@ -8,24 +8,26 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Module;
 
 use ServiceBus\AnnotationsReader\Reader;
-use ServiceBus\Mutex\InMemory\InMemoryMutexFactory;
+use ServiceBus\ArgumentResolver\ChainArgumentResolver;
+use ServiceBus\ArgumentResolver\ContainerArgumentResolver;
+use ServiceBus\ArgumentResolver\MessageArgumentResolver;
+use ServiceBus\Mutex\InMemory\InMemoryMutexService;
+use ServiceBus\Mutex\MutexService;
 use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
+use ServiceBus\Sagas\SagaLifecycleManager;
 use ServiceBus\Sagas\SagaMessagesRouterConfigurator;
-use ServiceBus\Sagas\SagasProvider;
-use function ServiceBus\Common\canonicalizeFilesPath;
-use function ServiceBus\Common\extractNamespaceFromFile;
-use function ServiceBus\Common\searchFiles;
+use ServiceBus\Sagas\SagaFinder;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use ServiceBus\Common\Module\ServiceBusModule;
 use ServiceBus\MessagesRouter\ChainRouterConfigurator;
 use ServiceBus\MessagesRouter\Router;
-use ServiceBus\Mutex\MutexFactory;
-use ServiceBus\Sagas\Configuration\DefaultEventListenerProcessorFactory;
-use ServiceBus\Sagas\Configuration\EventListenerProcessorFactory;
+use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\Store\SagasStore;
@@ -34,6 +36,9 @@ use ServiceBus\Storage\Common\DatabaseAdapter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use function ServiceBus\Common\canonicalizeFilesPath;
+use function ServiceBus\Common\extractNamespaceFromFile;
+use function ServiceBus\Common\searchFiles;
 
 /**
  *
@@ -63,14 +68,11 @@ final class SagaModule implements ServiceBusModule
     private $configurationLoaderServiceId;
 
     /**
-     * @param string|null $configurationLoaderServiceId If not specified, the default annotation-based configurator
-     *                                                  will be used
-     *
      * @throws \LogicException The component "php-service-bus/storage-sql" was not installed
      * @throws \LogicException The component "php-service-bus/annotations-reader" was not installed
      */
     public static function withSqlStorage(
-        string $databaseAdapterServiceId,
+        string  $databaseAdapterServiceId,
         ?string $configurationLoaderServiceId = null
     ): self {
         if (\interface_exists(DatabaseAdapter::class) === false)
@@ -78,7 +80,7 @@ final class SagaModule implements ServiceBusModule
             throw new \LogicException('The component "php-service-bus/storage" was not installed');
         }
 
-        if ($configurationLoaderServiceId === null &&  \interface_exists(Reader::class) === false)
+        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false)
         {
             throw new \LogicException('The component "php-service-bus/annotations-reader" was not installed');
         }
@@ -91,17 +93,14 @@ final class SagaModule implements ServiceBusModule
     }
 
     /**
-     * @param string|null $configurationLoaderServiceId If not specified, the default annotation-based configurator
-     *                                                  will be used
-     *
      * @throws \LogicException The component "php-service-bus/annotations-reader" was not installed
      */
     public static function withCustomStore(
-        string $storeImplementationServiceId,
-        string $databaseAdapterServiceId,
+        string  $storeImplementationServiceId,
+        string  $databaseAdapterServiceId,
         ?string $configurationLoaderServiceId = null
     ): self {
-        if ($configurationLoaderServiceId === null &&  \interface_exists(Reader::class) === false)
+        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false)
         {
             throw new \LogicException('The component "php-service-bus/annotations-reader" was not installed');
         }
@@ -121,20 +120,22 @@ final class SagaModule implements ServiceBusModule
      * Note: All files containing user-defined functions must be excluded
      * Note: Increases start time because of the need to scan files
      *
-     * @psalm-param  array<array-key, string> $directories
-     * @psalm-param  array<array-key, string> $excludedFiles
+     * @psalm-param list<non-empty-string> $directories
+     * @psalm-param list<non-empty-string> $excludedFiles
      */
     public function enableAutoImportSagas(array $directories, array $excludedFiles = []): self
     {
         $excludedFiles = canonicalizeFilesPath($excludedFiles);
-        $files         = searchFiles($directories, '/\.php/i');
+
+        $files = searchFiles($directories, '/\.php/i');
 
         /** @var \SplFileInfo $file */
         foreach ($files as $file)
         {
+            /** @psalm-var non-empty-string|bool $filePath */
             $filePath = $file->getRealPath();
 
-            if ($filePath === false || \in_array($filePath, $excludedFiles, true))
+            if (\is_string($filePath) === false || \in_array($filePath, $excludedFiles, true))
             {
                 continue;
             }
@@ -184,9 +185,11 @@ final class SagaModule implements ServiceBusModule
     {
         $containerBuilder->setParameter('service_bus.sagas.list', $this->sagasToRegister);
 
+        $this->registerDefaultArgumentResolver($containerBuilder);
         $this->registerSagaStore($containerBuilder);
         $this->registerMutexFactory($containerBuilder);
         $this->registerSagasProvider($containerBuilder);
+        $this->registerSagasLifecycleManager($containerBuilder);
 
         if ($this->configurationLoaderServiceId === null)
         {
@@ -198,11 +201,24 @@ final class SagaModule implements ServiceBusModule
         $this->registerRoutesConfigurator($containerBuilder);
     }
 
+    private function registerSagasLifecycleManager(ContainerBuilder $containerBuilder): void
+    {
+        $sagasFinderDefinition = (new Definition(SagaLifecycleManager::class))
+            ->setArguments(
+                [
+                    new Reference(SagasStore::class),
+                    new Reference(MutexService::class)
+                ]
+            );
+
+        $containerBuilder->setDefinition(SagaLifecycleManager::class, $sagasFinderDefinition);
+    }
+
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition(MutexFactory::class) === false)
+        if ($containerBuilder->hasDefinition(MutexService::class) === false)
         {
-            $containerBuilder->setDefinition(MutexFactory::class, new Definition(InMemoryMutexFactory::class));
+            $containerBuilder->setDefinition(MutexService::class, new Definition(InMemoryMutexService::class));
         }
     }
 
@@ -227,7 +243,6 @@ final class SagaModule implements ServiceBusModule
 
         $sagaRoutingConfiguratorDefinition = (new Definition(SagaMessagesRouterConfigurator::class))
             ->setArguments([
-                new Reference(SagasProvider::class),
                 new Reference(SagaConfigurationLoader::class),
                 '%service_bus.sagas.list%',
             ]);
@@ -242,15 +257,15 @@ final class SagaModule implements ServiceBusModule
 
     private function registerSagasProvider(ContainerBuilder $containerBuilder): void
     {
-        $sagasProviderDefinition = (new Definition(SagasProvider::class))
+        $sagasFinderDefinition = (new Definition(SagaFinder::class))
             ->setArguments(
                 [
                     new Reference(SagasStore::class),
-                    new Reference(MutexFactory::class)
+                    new Reference(MutexService::class)
                 ]
             );
 
-        $containerBuilder->setDefinition(SagasProvider::class, $sagasProviderDefinition);
+        $containerBuilder->setDefinition(SagaFinder::class, $sagasFinderDefinition);
     }
 
     private function registerSagaStore(ContainerBuilder $containerBuilder): void
@@ -266,6 +281,43 @@ final class SagaModule implements ServiceBusModule
         $containerBuilder->setDefinition(SagasStore::class, $sagaStoreDefinition);
     }
 
+    private function registerDefaultArgumentResolver(ContainerBuilder $containerBuilder): void
+    {
+        if ($containerBuilder->hasDefinition('service_bus.services_locator') === false)
+        {
+            $definition = (new Definition(ServiceLocator::class, [[]]))->setPublic(true);
+
+            $containerBuilder->addDefinitions(['service_bus.services_locator' => $definition]);
+        }
+
+        if ($containerBuilder->hasDefinition(ChainArgumentResolver::class) === false)
+        {
+            $containerBuilder->addDefinitions(
+                [
+                    /** Passing message to arguments */
+                    MessageArgumentResolver::class   => new Definition(MessageArgumentResolver::class),
+                    /** Autowiring of registered services in arguments */
+                    ContainerArgumentResolver::class => (new Definition(
+                        class: ContainerArgumentResolver::class,
+                        arguments: ['$serviceLocator' => new Reference('service_bus.services_locator')]
+                    ))->addTag('service_bus_argument_resolver', [])
+                ]
+            );
+
+            $definition = new Definition(
+                ChainArgumentResolver::class,
+                [
+                    '$resolvers' => [
+                        new Reference(MessageArgumentResolver::class),
+                        new Reference(ContainerArgumentResolver::class)
+                    ]
+                ]
+            );
+
+            $containerBuilder->addDefinitions(['service_bus.saga.argument_resolver' => $definition]);
+        }
+    }
+
     private function registerDefaultConfigurationLoader(ContainerBuilder $containerBuilder): void
     {
         if ($containerBuilder->hasDefinition(SagaConfigurationLoader::class) === true)
@@ -273,20 +325,26 @@ final class SagaModule implements ServiceBusModule
             return;
         }
 
-        if ($containerBuilder->hasDefinition(EventListenerProcessorFactory::class) === true)
+        if ($containerBuilder->hasDefinition(SagaMessageProcessorFactory::class) === true)
         {
             return;
         }
 
-        /** Event listener factory */
-        $listenerFactoryDefinition = (new Definition(DefaultEventListenerProcessorFactory::class))
-            ->setArguments([new Reference(SagasStore::class)]);
 
-        $containerBuilder->setDefinition(EventListenerProcessorFactory::class, $listenerFactoryDefinition);
+        /** Event listener factory */
+        $listenerFactoryDefinition = (new Definition(DefaultSagaMessageProcessorFactory::class))
+            ->setArguments(
+                [
+                    new Reference(SagasStore::class),
+                    new Reference('service_bus.saga.argument_resolver')
+                ]
+            );
+
+        $containerBuilder->setDefinition(SagaMessageProcessorFactory::class, $listenerFactoryDefinition);
 
         /** Configuration loader */
         $configurationLoaderDefinition = (new Definition(SagaAttributeBasedConfigurationLoader::class))
-            ->setArguments([new Reference(EventListenerProcessorFactory::class)]);
+            ->setArguments([new Reference(SagaMessageProcessorFactory::class)]);
 
         $containerBuilder->setDefinition(SagaConfigurationLoader::class, $configurationLoaderDefinition);
 
@@ -294,8 +352,8 @@ final class SagaModule implements ServiceBusModule
     }
 
     private function __construct(
-        string $sagaStoreServiceId,
-        string $databaseAdapterServiceId,
+        string  $sagaStoreServiceId,
+        string  $databaseAdapterServiceId,
         ?string $configurationLoaderServiceId = null
     ) {
         $this->sagaStoreServiceId           = $sagaStoreServiceId;
