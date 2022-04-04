@@ -95,7 +95,7 @@ final class SQLSagaStore implements SagasStore
                 if($association !== null)
                 {
                     return (new \ReflectionClass($association['identifier_class']))
-                        ->newInstance($association['id'], $association['saga_class']);
+                        ->newInstance($association['saga_id'], $association['saga_class']);
                 }
 
                 return null;
