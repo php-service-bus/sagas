@@ -12,15 +12,16 @@ declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
-use ServiceBus\Sagas\Contract\SagaReopened;
-use ServiceBus\Sagas\Exceptions\ReopenFailed;
-use ServiceBus\Sagas\Configuration\SagaMetadata;
+use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Contract\SagaClosed;
 use ServiceBus\Sagas\Contract\SagaCreated;
+use ServiceBus\Sagas\Contract\SagaReopened;
 use ServiceBus\Sagas\Contract\SagaStatusChanged;
 use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
+use ServiceBus\Sagas\Exceptions\IncorrectAssociation;
 use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
+use ServiceBus\Sagas\Exceptions\ReopenFailed;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\now;
 
@@ -72,6 +73,20 @@ abstract class Saga
      * @var \DateTimeImmutable|null
      */
     private $closedAt;
+
+    /**
+     * @psalm-var array<non-empty-string, non-empty-string|int>
+     *
+     * @var array
+     */
+    private $associations = [];
+
+    /**
+     * @psalm-var array<array-key, non-empty-string>
+     *
+     * @var array
+     */
+    private $removedAssociations = [];
 
     /**
      * @throws \ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval
@@ -205,6 +220,59 @@ abstract class Saga
 
         $this->changeState(SagaStatus::FAILED, $withReason);
         $this->close($withReason);
+    }
+
+    /**
+     * Save the relationship between the saga and the value of the specified field.
+     *
+     * @throws \ServiceBus\Sagas\Exceptions\IncorrectAssociation
+     */
+    final protected function associateWith(string $propertyName, int|string $value): void
+    {
+        if ($propertyName === '')
+        {
+            throw IncorrectAssociation::emptyPropertyName($this->id);
+        }
+
+        if (empty($value))
+        {
+            throw IncorrectAssociation::emptyPropertyValue($propertyName, $this->id);
+        }
+
+        $this->associations[$propertyName] = $value;
+    }
+
+    /**
+     * Remove association with specified property.
+     *
+     * @throws \ServiceBus\Sagas\Exceptions\IncorrectAssociation
+     */
+    final protected function removeAssociation(string $propertyName): void
+    {
+        if ($propertyName === '')
+        {
+            throw IncorrectAssociation::emptyPropertyName($this->id);
+        }
+
+        $this->removedAssociations[] = $propertyName;
+    }
+
+    /**
+     * Getting information about associations
+     *
+     * Called using Reflection API from the infrastructure layer.
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     *
+     */
+    private function associations(): array
+    {
+        $result = [$this->associations, $this->removedAssociations];
+
+        $this->associations        = [];
+        $this->removedAssociations = [];
+
+        return $result;
     }
 
     /**

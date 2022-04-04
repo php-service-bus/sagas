@@ -10,7 +10,7 @@
 
 declare(strict_types=0);
 
-namespace ServiceBus\Sagas\Configuration;
+namespace ServiceBus\Sagas\Configuration\Metadata;
 
 /**
  * Basic information about saga.

@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
 use ServiceBus\MessagesRouter\Router;
 use ServiceBus\Sagas\Module\SagaModule;
 use ServiceBus\Sagas\SagaFinder;
-use ServiceBus\Sagas\SagasProvider;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;

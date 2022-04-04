@@ -10,11 +10,13 @@
 
 declare(strict_types=0);
 
-namespace ServiceBus\Sagas\Configuration;
+namespace ServiceBus\Sagas\Configuration\MessageProcessor;
 
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\Mutex\InMemory\InMemoryMutexService;
 use ServiceBus\Mutex\MutexService;
+use ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions;
+use ServiceBus\Sagas\Configuration\SagaIdLocator;
 use ServiceBus\Sagas\Store\SagasStore;
 
 final class DefaultSagaMessageProcessorFactory implements SagaMessageProcessorFactory
@@ -34,13 +36,20 @@ final class DefaultSagaMessageProcessorFactory implements SagaMessageProcessorFa
      */
     private $mutexService;
 
+    /**
+     * @var SagaIdLocator
+     */
+    private $sagaIdLocator;
+
     public function __construct(
         SagasStore            $sagaStore,
         ChainArgumentResolver $argumentResolver,
+        SagaIdLocator         $sagaIdLocator,
         ?MutexService         $mutexService = null
     ) {
         $this->sagaStore        = $sagaStore;
         $this->argumentResolver = $argumentResolver;
+        $this->sagaIdLocator    = $sagaIdLocator;
         $this->mutexService     = $mutexService ?? new InMemoryMutexService();
     }
 
@@ -50,8 +59,9 @@ final class DefaultSagaMessageProcessorFactory implements SagaMessageProcessorFa
             forEvent: $event,
             sagasStore: $this->sagaStore,
             sagaListenerOptions: $handlerOptions,
-            mutexService:  $this->mutexService,
-            argumentResolver: $this->argumentResolver
+            mutexService: $this->mutexService,
+            argumentResolver: $this->argumentResolver,
+            sagaIdLocator: $this->sagaIdLocator
         );
     }
 
@@ -61,8 +71,9 @@ final class DefaultSagaMessageProcessorFactory implements SagaMessageProcessorFa
             forCommand: $command,
             sagasStore: $this->sagaStore,
             sagaListenerOptions: $handlerOptions,
-            mutexService:  $this->mutexService,
-            argumentResolver: $this->argumentResolver
+            mutexService: $this->mutexService,
+            argumentResolver: $this->argumentResolver,
+            sagaIdLocator: $this->sagaIdLocator
         );
     }
 }

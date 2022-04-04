@@ -12,7 +12,7 @@ declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
-use ServiceBus\Sagas\Configuration\SagaMetadata;
+use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ final class SagaMetadataStore
     private static $instance;
 
     /**
-     * @psalm-var array<class-string<\ServiceBus\Sagas\Saga>, \ServiceBus\Sagas\Configuration\SagaMetadata>
+     * @psalm-var array<class-string<\ServiceBus\Sagas\Saga>, \ServiceBus\Sagas\Configuration\Metadata\SagaMetadata>
      *
      * @var SagaMetadata[]
      */

@@ -18,12 +18,12 @@ use ServiceBus\AnnotationsReader\AttributesReader;
 use ServiceBus\AnnotationsReader\Reader;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Sagas\Configuration\Attributes\Exceptions\InvalidSagaHandlerMethod;
-use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
-use ServiceBus\Sagas\Configuration\SagaConfiguration;
+use ServiceBus\Sagas\Configuration\MessageProcessor\SagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\Metadata\SagaConfiguration;
+use ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions;
+use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
-use ServiceBus\Sagas\Configuration\SagaHandlerOptions;
-use ServiceBus\Sagas\Configuration\SagaMetadata;
 use function ServiceBus\Sagas\createEventListenerName;
 
 final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLoader
@@ -168,7 +168,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                 )
             };
 
-            $closure = \Closure::fromCallable($processor);
+            $closure = $processor(...);
 
             /** @psalm-var \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<void> $closure */
 

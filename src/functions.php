@@ -12,8 +12,6 @@ declare(strict_types=0);
 
 namespace ServiceBus\Sagas;
 
-use function ServiceBus\Common\readReflectionPropertyValue;
-
 /**
  * Create event listener method name by event class.
  *

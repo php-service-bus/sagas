@@ -9,9 +9,7 @@ use PHPUnit\Framework\TestCase;
 use ServiceBus\MessagesRouter\Router;
 use ServiceBus\Sagas\Module\SagaModule;
 use ServiceBus\Sagas\SagaFinder;
-use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaMessageExecutor;
-use ServiceBus\Sagas\SagasProvider;
 use ServiceBus\Sagas\Store\Exceptions\DuplicateSaga;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\CorrectSagaInitialCommand;
@@ -67,13 +65,15 @@ final class SagaInitialCommandTest extends TestCase
         $this->adapter    = $this->containerBuilder->get(DatabaseAdapter::class);
         $this->sagaFinder = $this->containerBuilder->get(SagaFinder::class);
 
-        wait(
-            $this->adapter->execute(
-                \file_get_contents(
-                    __DIR__ . '/../src/Store/Sql/schema/sagas_store.sql'
-                )
-            )
+        $queries = \explode(
+            ';',
+            \file_get_contents(__DIR__ . '/../src/Store/Sql/schema/sagas_store.sql')
         );
+
+        foreach ($queries as $tableQuery)
+        {
+            wait($this->adapter->execute($tableQuery));
+        }
 
         $indexQueries = \file(__DIR__ . '/../src/Store/Sql/schema/indexes.sql');
 

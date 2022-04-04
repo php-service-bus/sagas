@@ -8,10 +8,11 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types=0);
+declare(strict_types = 0);
 
 namespace ServiceBus\Sagas\Store\Sql;
 
+use ServiceBus\Sagas\Exceptions\IncorrectAssociation;
 use ServiceBus\Sagas\SagaStatus;
 use ServiceBus\Storage\Common\QueryExecutor;
 use Amp\Promise;
@@ -24,9 +25,13 @@ use ServiceBus\Storage\Common\BinaryDataDecoder;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
 use function Amp\call;
+use function ServiceBus\Common\createWithoutConstructor;
 use function ServiceBus\Common\datetimeInstantiator;
+use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\readReflectionPropertyValue;
+use function ServiceBus\Common\uuid;
 use function ServiceBus\Common\writeReflectionPropertyValue;
+use function ServiceBus\Storage\Sql\deleteQuery;
 use function ServiceBus\Storage\Sql\equalsCriteria;
 use function ServiceBus\Storage\Sql\fetchOne;
 use function ServiceBus\Storage\Sql\find;
@@ -38,7 +43,8 @@ use function ServiceBus\Storage\Sql\updateQuery;
  */
 final class SQLSagaStore implements SagasStore
 {
-    private const SAGA_STORE_TABLE = 'sagas_store';
+    private const SAGA_STORE_TABLE       = 'sagas_store';
+    private const SAGA_ASSOCIATION_TABLE = 'sagas_association';
 
     /**
      * @var DatabaseAdapter
@@ -50,10 +56,57 @@ final class SQLSagaStore implements SagasStore
         $this->adapter = $adapter;
     }
 
+    public function searchIdByAssociatedProperty(
+        string     $sagaClass,
+        string     $idClass,
+        string     $propertyKey,
+        string|int $propertyValue
+    ): Promise
+    {
+        return call(
+            function() use ($sagaClass, $idClass, $propertyKey, $propertyValue): \Generator
+            {
+                $criteria = [
+                    equalsCriteria('identifier_class', $idClass),
+                    equalsCriteria('saga_class', $sagaClass),
+                    equalsCriteria('property_name', $propertyKey),
+                    equalsCriteria('property_value', $propertyValue)
+                ];
+
+                /** @var \ServiceBus\Storage\Common\ResultSet $resultSet */
+                $resultSet = yield find(
+                    queryExecutor: $this->adapter,
+                    tableName: self::SAGA_ASSOCIATION_TABLE,
+                    criteria: $criteria
+                );
+
+                /**
+                 * @psalm-var array{
+                 *     id: non-empty-string,
+                 *     saga_id: non-empty-string,
+                 *     identifier_class: class-string<\ServiceBus\Sagas\SagaId>,
+                 *     saga_class: class-string<\ServiceBus\Sagas\Saga>,
+                 *     property_name: non-empty-string,
+                 *     property_value: non-empty-string|int,
+                 * }|null $association
+                 */
+                $association = yield fetchOne($resultSet);
+
+                if($association !== null)
+                {
+                    return (new \ReflectionClass($association['identifier_class']))
+                        ->newInstance($association['id'], $association['saga_class']);
+                }
+
+                return null;
+            }
+        );
+    }
+
     public function obtain(SagaId $id): Promise
     {
         return call(
-            function () use ($id): \Generator
+            function() use ($id): \Generator
             {
                 try
                 {
@@ -71,9 +124,9 @@ final class SQLSagaStore implements SagasStore
 
                     /**
                      * @psalm-var array{
-                     *   id: string,
-                     *   identifier_class: string,
-                     *   saga_class: string,
+                     *   id: non-empty-string,
+                     *   identifier_class: class-string<\ServiceBus\Sagas\SagaId>,
+                     *   saga_class: class-string<\ServiceBus\Sagas\Saga>,
                      *   payload: string,
                      *   state_id: string,
                      *   created_at: string,
@@ -85,11 +138,11 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if ($result !== null)
+                    if($result !== null)
                     {
                         $payload = $result['payload'];
 
-                        if ($this->adapter instanceof BinaryDataDecoder)
+                        if($this->adapter instanceof BinaryDataDecoder)
                         {
                             $payload = $this->adapter->unescapeBinary($payload);
                         }
@@ -115,7 +168,7 @@ final class SQLSagaStore implements SagasStore
                             value: datetimeInstantiator($result['expiration_date'])
                         );
 
-                        if ($result['closed_at'] !== null)
+                        if($result['closed_at'] !== null)
                         {
                             writeReflectionPropertyValue(
                                 object: $saga,
@@ -129,7 +182,7 @@ final class SQLSagaStore implements SagasStore
 
                     return null;
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -140,12 +193,12 @@ final class SQLSagaStore implements SagasStore
     public function save(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function () use ($saga, $publisher): \Generator
+            function() use ($saga, $publisher): \Generator
             {
                 try
                 {
                     yield $this->adapter->transactional(
-                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
+                        static function(QueryExecutor $executor) use ($saga, $publisher): \Generator
                         {
                             $id = $saga->id();
 
@@ -172,15 +225,17 @@ final class SQLSagaStore implements SagasStore
                                 parameters: $compiledQuery->params()
                             );
 
+                            yield self::processAssociations($saga, $executor);
+
                             yield call($publisher);
                         }
                     );
                 }
-                catch (UniqueConstraintViolationCheckFailed $exception)
+                catch(UniqueConstraintViolationCheckFailed $exception)
                 {
                     throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -191,12 +246,12 @@ final class SQLSagaStore implements SagasStore
     public function update(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function () use ($saga, $publisher): \Generator
+            function() use ($saga, $publisher): \Generator
             {
                 try
                 {
                     yield $this->adapter->transactional(
-                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
+                        static function(QueryExecutor $executor) use ($saga, $publisher): \Generator
                         {
                             $id = $saga->id();
 
@@ -223,13 +278,72 @@ final class SQLSagaStore implements SagasStore
                                 parameters: $compiledQuery->params()
                             );
 
+                            yield self::processAssociations($saga, $executor);
+
                             yield call($publisher);
                         }
                     );
                 }
-                catch (\Throwable $throwable)
+                catch(\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
+                }
+            }
+        );
+    }
+
+    private static function processAssociations(Saga $saga, QueryExecutor $executor): Promise
+    {
+        return call(
+            static function() use ($saga, $executor): \Generator
+            {
+                /**
+                 * @psalm-var array<non-empty-string, non-empty-string|int> $associations
+                 * @psalm-var array<array-key, non-empty-string>            $removedAssociations
+                 */
+                /** @phpstan-ignore-next-line */
+                [$associations, $removedAssociations] = invokeReflectionMethod($saga, 'associations');
+
+                $id = $saga->id();
+
+                foreach($removedAssociations as $removedAssociation)
+                {
+                    $compiledQuery = deleteQuery('sagas_association')
+                        ->where(equalsCriteria('saga_id', $id->id))
+                        ->where(equalsCriteria('saga_class', $id->sagaClass))
+                        ->where(equalsCriteria('property_name', $removedAssociation))
+                        ->compile();
+
+                    /** @psalm-suppress MixedArgumentTypeCoercion */
+                    yield $executor->execute(
+                        queryString: $compiledQuery->sql(),
+                        parameters: $compiledQuery->params()
+                    );
+                }
+
+                foreach($associations as $propertyName => $propertyValue)
+                {
+                    $compiledQuery = insertQuery('sagas_association', [
+                        'id'               => uuid(),
+                        'saga_id'          => $id->id,
+                        'identifier_class' => \get_class($id),
+                        'saga_class'       => $id->sagaClass,
+                        'property_name'    => $propertyName,
+                        'property_value'   => $propertyValue
+                    ])->compile();
+
+                    try
+                    {
+                        /** @psalm-suppress MixedArgumentTypeCoercion */
+                        yield $executor->execute(
+                            queryString: $compiledQuery->sql(),
+                            parameters: $compiledQuery->params()
+                        );
+                    }
+                    catch(UniqueConstraintViolationCheckFailed)
+                    {
+                        throw IncorrectAssociation::alreadyExists($propertyName, $id);
+                    }
                 }
             }
         );

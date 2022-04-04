@@ -12,6 +12,8 @@ declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Configuration;
 
+use ServiceBus\Sagas\Configuration\Metadata\SagaConfiguration;
+
 /**
  * Retrieving saga configuration and event handlers.
  */

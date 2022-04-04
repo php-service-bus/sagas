@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace ServiceBus\Sagas\Tests\Configuration;
 
 use PHPUnit\Framework\TestCase;
-use ServiceBus\Sagas\Configuration\SagaMetadata;
+use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 

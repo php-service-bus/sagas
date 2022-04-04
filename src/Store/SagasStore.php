@@ -32,6 +32,20 @@ interface SagasStore
     public function obtain(SagaId $id): Promise;
 
     /**
+     * Find saga id by associated property value.
+     *
+     * @psalm-return Promise<\ServiceBus\Sagas\SagaId|null>
+     *
+     * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
+     */
+    public function searchIdByAssociatedProperty(
+        string     $sagaClass,
+        string     $idClass,
+        string     $propertyKey,
+        string|int $propertyValue
+    ): Promise;
+
+    /**
      * @psalm-param callable():\Generator $publisher
      *
      * @psalm-return Promise<void>
@@ -39,6 +53,7 @@ interface SagasStore
      * @throws \ServiceBus\Sagas\Store\Exceptions\DuplicateSaga The specified saga has already been added
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while serializing saga
+     * @throws \ServiceBus\Sagas\Exceptions\IncorrectAssociation
      */
     public function save(Saga $saga, callable $publisher): Promise;
 
@@ -51,6 +66,7 @@ interface SagasStore
      *
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagasStoreInteractionFailed Database interaction error
      * @throws \ServiceBus\Sagas\Store\Exceptions\SagaSerializationError Error while serializing saga
+     * @throws \ServiceBus\Sagas\Exceptions\IncorrectAssociation
      */
     public function update(Saga $saga, callable $publisher): Promise;
 }

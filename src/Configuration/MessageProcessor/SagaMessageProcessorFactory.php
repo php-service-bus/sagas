@@ -10,7 +10,9 @@
 
 declare(strict_types=0);
 
-namespace ServiceBus\Sagas\Configuration;
+namespace ServiceBus\Sagas\Configuration\MessageProcessor;
+
+use ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions;
 
 interface SagaMessageProcessorFactory
 {

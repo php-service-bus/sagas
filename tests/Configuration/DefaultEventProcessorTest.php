@@ -15,14 +15,15 @@ declare(strict_types=1);
 namespace ServiceBus\Sagas\Tests\Configuration;
 
 use Amp\Loop;
+use PHPUnit\Framework\TestCase;
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\ArgumentResolver\MessageArgumentResolver;
-use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
-use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
+use ServiceBus\Sagas\Configuration\MessageProcessor\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
-use ServiceBus\Sagas\Configuration\SagaMetadata;
+use ServiceBus\Sagas\Configuration\SagaIdLocator;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\stubs\CorrectSaga;
 use ServiceBus\Sagas\Tests\stubs\CorrectSagaWithHeaderCorrelationId;
@@ -74,21 +75,34 @@ final class DefaultEventProcessorTest extends TestCase
             new StorageConfiguration('sqlite:///:memory:')
         );
 
-        wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')));
+        $queries = \explode(
+            ';',
+            \file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')
+        );
+
+        foreach ($queries as $tableQuery)
+        {
+            wait($this->adapter->execute($tableQuery));
+        }
 
         foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {
             wait($this->adapter->execute($indexQuery));
         }
 
-        $this->publisher    = static function ()
+        $this->publisher = static function ()
         {
         };
+
         $this->store        = new SQLSagaStore($this->adapter);
         $this->configLoader = new SagaAttributeBasedConfigurationLoader(
-            new DefaultSagaMessageProcessorFactory($this->store, new ChainArgumentResolver([
-                new MessageArgumentResolver()
-            ]))
+            new DefaultSagaMessageProcessorFactory(
+                sagaStore: $this->store,
+                argumentResolver: new ChainArgumentResolver([  new MessageArgumentResolver()]),
+                sagaIdLocator: new SagaIdLocator(
+                    sagaStore: $this->store
+                )
+            )
         );
     }
 
@@ -387,7 +401,7 @@ final class DefaultEventProcessorTest extends TestCase
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[1];
 
-                /** @var \ServiceBus\Sagas\Configuration\SagaHandlerOptions $options */
+                /** @var \ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions $options */
                 $options = readReflectionPropertyValue($handler, 'options');
 
                 /** @var SagaMetadata $metadata */
@@ -428,7 +442,7 @@ final class DefaultEventProcessorTest extends TestCase
                 /** @var MessageHandler $handler */
                 $handler = \iterator_to_array($handlers)[1];
 
-                /** @var \ServiceBus\Sagas\Configuration\SagaHandlerOptions $options */
+                /** @var \ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions $options */
                 $options = readReflectionPropertyValue($handler, 'options');
 
                 /** @var SagaMetadata $metadata */

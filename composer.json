@@ -62,7 +62,7 @@
   "prefer-stable": true,
   "minimum-stability": "stable",
   "scripts": {
-    "psalm": "rm -rf ~/.cache/psalm/ && ./vendor/bin/psalm --config=psalm.xml",
+    "psalm": "rm -rf ~/.cache/psalm/ && ./vendor/bin/psalm --config=psalm.xml --show-info=true",
     "phpstan": "./vendor/bin/phpstan analyse src --level 9",
     "tests": "./vendor/bin/phpunit --configuration phpunit.xml --verbose --debug",
     "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-html ./coverage --verbose --debug",

@@ -10,7 +10,7 @@
 
 declare(strict_types=0);
 
-namespace ServiceBus\Sagas\Configuration;
+namespace ServiceBus\Sagas\Configuration\MessageProcessor;
 
 use Amp\Promise;
 use ServiceBus\Common\Context\ServiceBusContext;

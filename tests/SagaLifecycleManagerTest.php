@@ -83,13 +83,15 @@ final class SagaLifecycleManagerTest extends TestCase
         $this->sagaStore        = $this->containerBuilder->get(SagasStore::class);
         $this->lifecycleManager = $this->containerBuilder->get(SagaLifecycleManager::class);
 
-        wait(
-            $this->adapter->execute(
-                \file_get_contents(
-                    __DIR__ . '/../src/Store/Sql/schema/sagas_store.sql'
-                )
-            )
+        $queries = \explode(
+            ';',
+            \file_get_contents(__DIR__ . '/../src/Store/Sql/schema/sagas_store.sql')
         );
+
+        foreach ($queries as $tableQuery)
+        {
+            wait($this->adapter->execute($tableQuery));
+        }
 
         $indexQueries = \file(__DIR__ . '/../src/Store/Sql/schema/indexes.sql');
 

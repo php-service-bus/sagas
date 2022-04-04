@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-namespace ServiceBus\Sagas\Configuration;
+namespace ServiceBus\Sagas\Configuration\MessageProcessor;
 
 use Amp\Promise;
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\Common\Context\ServiceBusContext;
 use ServiceBus\Common\MessageHandler\MessageHandler;
 use ServiceBus\Mutex\MutexService;
+use ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions;
+use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
+use ServiceBus\Sagas\Configuration\SagaIdLocator;
 use ServiceBus\Sagas\Exceptions\SagaMetaDataNotFound;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\SagaId;
@@ -17,6 +20,7 @@ use ServiceBus\Sagas\Store\SagasStore;
 use function Amp\call;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
+use function ServiceBus\Sagas\Configuration\createClosure;
 use function ServiceBus\Sagas\createMutexKey;
 
 final class DefaultInitialCommandHandlerMessageProcessor implements MessageProcessor
@@ -53,6 +57,11 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
     private $argumentResolver;
 
     /**
+     * @var SagaIdLocator
+     */
+    private $sagaIdLocator;
+
+    /**
      * @psalm-param class-string $forCommand
      */
     public function __construct(
@@ -60,13 +69,15 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
         SagasStore            $sagasStore,
         SagaHandlerOptions    $sagaListenerOptions,
         MutexService          $mutexService,
-        ChainArgumentResolver $argumentResolver
+        ChainArgumentResolver $argumentResolver,
+        SagaIdLocator         $sagaIdLocator
     ) {
         $this->forCommand          = $forCommand;
         $this->sagasStore          = $sagasStore;
         $this->sagaListenerOptions = $sagaListenerOptions;
         $this->mutexService        = $mutexService;
         $this->argumentResolver    = $argumentResolver;
+        $this->sagaIdLocator       = $sagaIdLocator;
     }
 
     public function message(): string
@@ -79,8 +90,10 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
         return call(
             function () use ($message, $context): \Generator
             {
-                $id = $this->obtainSagaId(
-                    command: $message,
+                /** @psalm-var SagaId $id */
+                $id = yield $this->sagaIdLocator->process(
+                    handlerOptions: $this->sagaListenerOptions,
+                    message: $message,
                     headers: $context->headers()
                 );
 
@@ -157,29 +170,5 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
                 )
             );
         }
-    }
-
-    /**
-     * Search and instantiate saga identifier.
-     *
-     * @psalm-param array<string, int|float|string|null> $headers
-     *
-     * @throws \ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier
-     */
-    private function obtainSagaId(object $command, array $headers): SagaId
-    {
-        return SagaMetadata::CORRELATION_ID_SOURCE_MESSAGE === $this->sagaListenerOptions->containingIdentifierSource()
-            ? searchSagaIdentifierInMessageObject(
-                message: $command,
-                propertyName: $this->sagaListenerOptions->containingIdentifierProperty(),
-                identifierClass: $this->sagaListenerOptions->identifierClass(),
-                sagaClass: $this->sagaListenerOptions->sagaClass()
-            )
-            : searchSagaIdentifierInHeaders(
-                identifierClass: $this->sagaListenerOptions->identifierClass(),
-                sagaClass: $this->sagaListenerOptions->sagaClass(),
-                headerKey: $this->sagaListenerOptions->containingIdentifierProperty(),
-                headers: $headers
-            );
     }
 }

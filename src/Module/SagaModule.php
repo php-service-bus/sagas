@@ -16,26 +16,27 @@ use ServiceBus\AnnotationsReader\Reader;
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\ArgumentResolver\ContainerArgumentResolver;
 use ServiceBus\ArgumentResolver\MessageArgumentResolver;
-use ServiceBus\Mutex\InMemory\InMemoryMutexService;
-use ServiceBus\Mutex\MutexService;
-use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
-use ServiceBus\Sagas\SagaLifecycleManager;
-use ServiceBus\Sagas\SagaMessagesRouterConfigurator;
-use ServiceBus\Sagas\SagaFinder;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 use ServiceBus\Common\Module\ServiceBusModule;
 use ServiceBus\MessagesRouter\ChainRouterConfigurator;
 use ServiceBus\MessagesRouter\Router;
-use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
-use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
+use ServiceBus\Mutex\InMemory\InMemoryMutexService;
+use ServiceBus\Mutex\MutexService;
+use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
+use ServiceBus\Sagas\Configuration\MessageProcessor\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\MessageProcessor\SagaMessageProcessorFactory;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
+use ServiceBus\Sagas\Configuration\SagaIdLocator;
 use ServiceBus\Sagas\Saga;
+use ServiceBus\Sagas\SagaFinder;
+use ServiceBus\Sagas\SagaLifecycleManager;
+use ServiceBus\Sagas\SagaMessagesRouterConfigurator;
 use ServiceBus\Sagas\Store\SagasStore;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use function ServiceBus\Common\canonicalizeFilesPath;
 use function ServiceBus\Common\extractNamespaceFromFile;
 use function ServiceBus\Common\searchFiles;
@@ -330,13 +331,19 @@ final class SagaModule implements ServiceBusModule
             return;
         }
 
+        $idAllocatorDefinition = (new Definition(SagaIdLocator::class))
+            ->setArguments([new Reference(SagasStore::class)]);
+
+        $containerBuilder->setDefinition(SagaIdLocator::class, $idAllocatorDefinition);
 
         /** Event listener factory */
         $listenerFactoryDefinition = (new Definition(DefaultSagaMessageProcessorFactory::class))
             ->setArguments(
                 [
                     new Reference(SagasStore::class),
-                    new Reference('service_bus.saga.argument_resolver')
+                    new Reference('service_bus.saga.argument_resolver'),
+                    new Reference(SagaIdLocator::class),
+                    new Reference(MutexService::class)
                 ]
             );
 

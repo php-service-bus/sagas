@@ -14,14 +14,15 @@ declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Tests\Configuration\Annotations;
 
+use PHPUnit\Framework\TestCase;
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\ArgumentResolver\MessageArgumentResolver;
-use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
-use PHPUnit\Framework\TestCase;
 use ServiceBus\Common\MessageHandler\MessageHandler;
-use ServiceBus\Sagas\Configuration\DefaultSagaMessageProcessorFactory;
-use ServiceBus\Sagas\Configuration\SagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\Attributes\SagaAttributeBasedConfigurationLoader;
 use ServiceBus\Sagas\Configuration\Exceptions\InvalidSagaConfiguration;
+use ServiceBus\Sagas\Configuration\MessageProcessor\DefaultSagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\MessageProcessor\SagaMessageProcessorFactory;
+use ServiceBus\Sagas\Configuration\SagaIdLocator;
 use ServiceBus\Sagas\Store\Sql\SQLSagaStore;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectEventListenerClass;
 use ServiceBus\Sagas\Tests\Configuration\Annotations\stubs\SagaWithIncorrectListenerName;
@@ -60,7 +61,15 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
             new StorageConfiguration('sqlite:///:memory:')
         );
 
-        wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../../src/Store/Sql/schema/sagas_store.sql')));
+        $queries = \explode(
+            ';',
+            \file_get_contents(__DIR__ . '/../../../src/Store/Sql/schema/sagas_store.sql')
+        );
+
+        foreach ($queries as $tableQuery)
+        {
+            wait($this->adapter->execute($tableQuery));
+        }
 
         foreach (\file(__DIR__ . '/../../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {
@@ -69,8 +78,11 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
 
         $store                 = new SQLSagaStore($this->adapter);
         $this->listenerFactory = new DefaultSagaMessageProcessorFactory(
-            $store,
-            new ChainArgumentResolver([new MessageArgumentResolver()])
+            sagaStore: $store,
+            argumentResolver: new ChainArgumentResolver([new MessageArgumentResolver()]),
+            sagaIdLocator: new SagaIdLocator(
+                sagaStore: $store
+            )
         );
     }
 

@@ -51,7 +51,19 @@ final class SQLSagaStoreTest extends TestCase
         );
 
         wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/extensions.sql')));
-        wait($this->adapter->execute(\file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')));
+
+        $queries = \explode(
+            ';',
+            \file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')
+        );
+
+        foreach ($queries as $tableQuery)
+        {
+            if (!empty(trim($tableQuery)))
+            {
+                wait($this->adapter->execute($tableQuery));
+            }
+        }
 
         foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
         {

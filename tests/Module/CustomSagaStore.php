@@ -26,6 +26,11 @@ final class CustomSagaStore implements SagasStore
         return new Success();
     }
 
+    public function searchIdByAssociatedProperty(string $sagaClass, string $idClass, string $propertyKey, int|string $propertyValue): Promise
+    {
+        return new Success();
+    }
+
     public function save(Saga $saga, callable $publisher): Promise
     {
         return call(
