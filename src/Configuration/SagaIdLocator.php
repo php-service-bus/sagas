@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace ServiceBus\Sagas\Configuration;
 
@@ -37,10 +37,9 @@ final class SagaIdLocator
         SagaHandlerOptions $handlerOptions,
         object             $message,
         array              $headers
-    ): Promise
-    {
+    ): Promise {
         return call(
-            function() use ($handlerOptions, $message, $headers): \Generator
+            function () use ($handlerOptions, $message, $headers): \Generator
             {
                 $propertyName  = $handlerOptions->containingIdentifierProperty();
                 $propertyValue = match ($handlerOptions->containingIdentifierSource())
@@ -68,10 +67,10 @@ final class SagaIdLocator
                 );
 
                 return $sagaId ?? $this->identifierInstantiator(
-                        idClass: $handlerOptions->identifierClass(),
-                        idValue: $propertyValue,
-                        sagaClass: $handlerOptions->sagaClass(),
-                    );
+                    idClass: $handlerOptions->identifierClass(),
+                    idValue: $propertyValue,
+                    sagaClass: $handlerOptions->sagaClass(),
+                );
             }
         );
     }
@@ -88,21 +87,21 @@ final class SagaIdLocator
             /** @psalm-var object|string|int|float $value */
             $value = $message->{$propertyName} ?? readReflectionPropertyValue($message, $propertyName);
         }
-        catch(\Throwable)
+        catch (\Throwable)
         {
             throw InvalidSagaIdentifier::propertyNotFound($propertyName, $message);
         }
 
-        if(\is_string($value) && $value !== '')
+        if (\is_string($value) && $value !== '')
         {
             return $value;
         }
 
-        if(\is_object($value) && \method_exists($value, 'toString'))
+        if (\is_object($value) && \method_exists($value, 'toString'))
         {
             $value = (string) $value->toString();
 
-            if($value !== '')
+            if ($value !== '')
             {
                 return $value;
             }
@@ -123,12 +122,11 @@ final class SagaIdLocator
         string $idClass,
         string $idValue,
         string $sagaClass
-    ): SagaId
-    {
+    ): SagaId {
         /** @var object|SagaId $identifier */
         $identifier = new $idClass($idValue, $sagaClass);
 
-        if($identifier instanceof SagaId)
+        if ($identifier instanceof SagaId)
         {
             return $identifier;
         }

@@ -243,6 +243,36 @@ abstract class Saga
     }
 
     /**
+     * Event stub. It can't be processed inside the saga
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     */
+    private function onSagaStatusChanged(SagaStatusChanged $event): void
+    {
+        /** not interests */
+    }
+
+    /**
+     * Event stub. It can't be processed inside the saga
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     */
+    private function onSagaClosed(SagaClosed $event): void
+    {
+        /** not interests */
+    }
+
+    /**
+     * Event stub. It can't be processed inside the saga
+     *
+     * @noinspection PhpUnusedPrivateMethodInspection
+     */
+    private function onSagaSagaCreated(SagaCreated $event): void
+    {
+        /** not interests */
+    }
+
+    /**
      * Remove association with specified property.
      *
      * @throws \ServiceBus\Sagas\Exceptions\IncorrectAssociation
@@ -263,7 +293,6 @@ abstract class Saga
      * Called using Reflection API from the infrastructure layer.
      *
      * @noinspection PhpUnusedPrivateMethodInspection
-     *
      */
     private function associations(): array
     {

@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/MIT
  */
 
-declare(strict_types = 0);
+declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Store\Sql;
 
@@ -61,10 +61,9 @@ final class SQLSagaStore implements SagasStore
         string     $idClass,
         string     $propertyKey,
         string|int $propertyValue
-    ): Promise
-    {
+    ): Promise {
         return call(
-            function() use ($sagaClass, $idClass, $propertyKey, $propertyValue): \Generator
+            function () use ($sagaClass, $idClass, $propertyKey, $propertyValue): \Generator
             {
                 $criteria = [
                     equalsCriteria('identifier_class', $idClass),
@@ -92,7 +91,7 @@ final class SQLSagaStore implements SagasStore
                  */
                 $association = yield fetchOne($resultSet);
 
-                if($association !== null)
+                if ($association !== null)
                 {
                     return (new \ReflectionClass($association['identifier_class']))
                         ->newInstance($association['saga_id'], $association['saga_class']);
@@ -106,7 +105,7 @@ final class SQLSagaStore implements SagasStore
     public function obtain(SagaId $id): Promise
     {
         return call(
-            function() use ($id): \Generator
+            function () use ($id): \Generator
             {
                 try
                 {
@@ -138,11 +137,11 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if($result !== null)
+                    if ($result !== null)
                     {
                         $payload = $result['payload'];
 
-                        if($this->adapter instanceof BinaryDataDecoder)
+                        if ($this->adapter instanceof BinaryDataDecoder)
                         {
                             $payload = $this->adapter->unescapeBinary($payload);
                         }
@@ -168,7 +167,7 @@ final class SQLSagaStore implements SagasStore
                             value: datetimeInstantiator($result['expiration_date'])
                         );
 
-                        if($result['closed_at'] !== null)
+                        if ($result['closed_at'] !== null)
                         {
                             writeReflectionPropertyValue(
                                 object: $saga,
@@ -182,7 +181,7 @@ final class SQLSagaStore implements SagasStore
 
                     return null;
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -193,12 +192,12 @@ final class SQLSagaStore implements SagasStore
     public function save(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function() use ($saga, $publisher): \Generator
+            function () use ($saga, $publisher): \Generator
             {
                 try
                 {
                     yield $this->adapter->transactional(
-                        static function(QueryExecutor $executor) use ($saga, $publisher): \Generator
+                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
                         {
                             $id = $saga->id();
 
@@ -231,11 +230,11 @@ final class SQLSagaStore implements SagasStore
                         }
                     );
                 }
-                catch(UniqueConstraintViolationCheckFailed $exception)
+                catch (UniqueConstraintViolationCheckFailed $exception)
                 {
                     throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -246,12 +245,12 @@ final class SQLSagaStore implements SagasStore
     public function update(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function() use ($saga, $publisher): \Generator
+            function () use ($saga, $publisher): \Generator
             {
                 try
                 {
                     yield $this->adapter->transactional(
-                        static function(QueryExecutor $executor) use ($saga, $publisher): \Generator
+                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
                         {
                             $id = $saga->id();
 
@@ -284,7 +283,7 @@ final class SQLSagaStore implements SagasStore
                         }
                     );
                 }
-                catch(\Throwable $throwable)
+                catch (\Throwable $throwable)
                 {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
@@ -295,7 +294,7 @@ final class SQLSagaStore implements SagasStore
     private static function processAssociations(Saga $saga, QueryExecutor $executor): Promise
     {
         return call(
-            static function() use ($saga, $executor): \Generator
+            static function () use ($saga, $executor): \Generator
             {
                 /**
                  * @psalm-var array<non-empty-string, non-empty-string|int> $associations
@@ -306,7 +305,7 @@ final class SQLSagaStore implements SagasStore
 
                 $id = $saga->id();
 
-                foreach($removedAssociations as $removedAssociation)
+                foreach ($removedAssociations as $removedAssociation)
                 {
                     $compiledQuery = deleteQuery('sagas_association')
                         ->where(equalsCriteria('saga_id', $id->id))
@@ -321,7 +320,7 @@ final class SQLSagaStore implements SagasStore
                     );
                 }
 
-                foreach($associations as $propertyName => $propertyValue)
+                foreach ($associations as $propertyName => $propertyValue)
                 {
                     $compiledQuery = insertQuery('sagas_association', [
                         'id'               => uuid(),
@@ -340,7 +339,7 @@ final class SQLSagaStore implements SagasStore
                             parameters: $compiledQuery->params()
                         );
                     }
-                    catch(UniqueConstraintViolationCheckFailed)
+                    catch (UniqueConstraintViolationCheckFailed)
                     {
                         throw IncorrectAssociation::alreadyExists($propertyName, $id);
                     }
