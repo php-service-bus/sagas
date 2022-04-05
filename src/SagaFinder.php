@@ -37,7 +37,8 @@ final class SagaFinder
     /**
      * Load saga.
      *
-     * @psalm-param callable(Saga):mixed $onLoaded
+     * @template T of Saga
+     * @psalm-param callable(T):mixed $onLoaded
      *
      * @psalm-return Promise<void>
      *
