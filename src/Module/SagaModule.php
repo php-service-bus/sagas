@@ -12,6 +12,8 @@ declare(strict_types=0);
 
 namespace ServiceBus\Sagas\Module;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use ServiceBus\AnnotationsReader\Reader;
 use ServiceBus\ArgumentResolver\ChainArgumentResolver;
 use ServiceBus\ArgumentResolver\ContainerArgumentResolver;
@@ -186,10 +188,17 @@ final class SagaModule implements ServiceBusModule
     {
         $containerBuilder->setParameter('service_bus.sagas.list', $this->sagasToRegister);
 
+        if ($containerBuilder->hasDefinition(LoggerInterface::class) === false)
+        {
+            $containerBuilder->addDefinitions([
+                LoggerInterface::class => new Definition(NullLogger::class)
+            ]);
+        }
+
         $this->registerDefaultArgumentResolver($containerBuilder);
         $this->registerSagaStore($containerBuilder);
         $this->registerMutexFactory($containerBuilder);
-        $this->registerSagasProvider($containerBuilder);
+        $this->registerSagaFinder($containerBuilder);
         $this->registerSagasLifecycleManager($containerBuilder);
 
         if ($this->configurationLoaderServiceId === null)
@@ -200,6 +209,7 @@ final class SagaModule implements ServiceBusModule
         }
 
         $this->registerRoutesConfigurator($containerBuilder);
+        $this->collectSagasDependencies($containerBuilder);
     }
 
     private function registerSagasLifecycleManager(ContainerBuilder $containerBuilder): void
@@ -256,7 +266,7 @@ final class SagaModule implements ServiceBusModule
         );
     }
 
-    private function registerSagasProvider(ContainerBuilder $containerBuilder): void
+    private function registerSagaFinder(ContainerBuilder $containerBuilder): void
     {
         $sagasFinderDefinition = (new Definition(SagaFinder::class))
             ->setArguments(
@@ -356,6 +366,40 @@ final class SagaModule implements ServiceBusModule
         $containerBuilder->setDefinition(SagaConfigurationLoader::class, $configurationLoaderDefinition);
 
         $this->configurationLoaderServiceId = SagaConfigurationLoader::class;
+    }
+
+    private function collectSagasDependencies(ContainerBuilder $containerBuilder): void
+    {
+        $externalDependencies = [];
+
+        foreach ($this->sagasToRegister as $sagaClass)
+        {
+            $reflectionClass = new \ReflectionClass($sagaClass);
+
+            foreach ($reflectionClass->getMethods() as $reflectionMethod)
+            {
+                foreach ($reflectionMethod->getParameters() as $reflectionParameter)
+                {
+                    $reflectionType = $reflectionParameter->getType();
+
+                    if (($reflectionType instanceof \ReflectionNamedType) === false)
+                    {
+                        continue;
+                    }
+
+                    $className = $reflectionType->getName();
+
+                    if ($containerBuilder->hasDefinition($className))
+                    {
+                        $containerBuilder->getDefinition($className)->setPublic(true);
+
+                        $externalDependencies[] = $className;
+                    }
+                }
+            }
+        }
+
+        $containerBuilder->setParameter('saga_dependencies', $externalDependencies);
     }
 
     private function __construct(
