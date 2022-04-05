@@ -190,24 +190,6 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     /**
      * @test
      */
-    public function sagaWithMultipleListenerArgs(): void
-    {
-        $this->expectException(InvalidSagaConfiguration::class);
-        $this->expectExceptionMessage(
-            \sprintf(
-                'There are too many arguments for the "%s:onEmptyEvent" method. A subscriber can only accept an '
-                . 'argument: the class of the event he listens to',
-                SagaWithMultipleListenerArgs::class
-            )
-        );
-
-        (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))
-            ->load(SagaWithMultipleListenerArgs::class);
-    }
-
-    /**
-     * @test
-     */
     public function sagaWithInvalidListenerArgument(): void
     {
         $this->expectException(InvalidSagaConfiguration::class);

@@ -17,17 +17,6 @@ namespace ServiceBus\Sagas\Configuration\Attributes\Exceptions;
  */
 final class InvalidSagaHandlerMethod extends \LogicException
 {
-    public static function tooManyArguments(\ReflectionMethod $reflectionMethod): self
-    {
-        return new self(
-            \sprintf(
-                'There are too many arguments for the "%s:%s" method. A subscriber can only accept an argument: the class of the event he listens to',
-                $reflectionMethod->getDeclaringClass()->getName(),
-                $reflectionMethod->getName()
-            )
-        );
-    }
-
     public static function wrongEventArgument(\ReflectionMethod $reflectionMethod): self
     {
         return new self(
