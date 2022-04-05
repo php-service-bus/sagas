@@ -97,6 +97,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
                     headers: $context->headers()
                 );
 
+                /** @phpstan-ignore-next-line */
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
                     code: function () use ($id, $message, $context): \Generator

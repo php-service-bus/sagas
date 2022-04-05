@@ -104,6 +104,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
                     headers: $context->headers()
                 );
 
+                /** @phpstan-ignore-next-line */
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
                     code: function () use ($id, $message, $context): \Generator
