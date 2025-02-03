@@ -16,6 +16,7 @@ use ServiceBus\Sagas\Saga;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  *
  * @psalm-return \Closure(object, \ServiceBus\Common\Context\ServiceBusContext):\Amp\Promise<void>
  */
@@ -25,7 +26,6 @@ function createClosure(Saga $saga, \ReflectionMethod $method): \Closure
     $closure = $method->getClosure($saga);
 
     /** @noinspection PhpConditionAlreadyCheckedInspection */
-    // @codeCoverageIgnoreStart
     if ($closure === null) {
         throw new \LogicException(
             \sprintf(
