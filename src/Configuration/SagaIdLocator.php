@@ -10,6 +10,7 @@ use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 use function ServiceBus\Common\readReflectionPropertyValue;
 
@@ -39,11 +40,9 @@ final class SagaIdLocator
         array              $headers
     ): Promise {
         return call(
-            function () use ($handlerOptions, $message, $headers): \Generator
-            {
+            function () use ($handlerOptions, $message, $headers): \Generator {
                 $propertyName  = $handlerOptions->containingIdentifierProperty();
-                $propertyValue = match ($handlerOptions->containingIdentifierSource())
-                {
+                $propertyValue = match ($handlerOptions->containingIdentifierSource()) {
                     SagaMetadata::CORRELATION_ID_SOURCE_HEADERS => !empty($headers[$propertyName])
                         ? (string) $headers[$propertyName]
                         : throw InvalidSagaIdentifier::headerKeyCantBeEmpty($propertyName),
@@ -82,27 +81,21 @@ final class SagaIdLocator
      */
     private function readMessagePropertyValue(object $message, string $propertyName): string
     {
-        try
-        {
+        try {
             /** @psalm-var object|string|int|float $value */
             $value = $message->{$propertyName} ?? readReflectionPropertyValue($message, $propertyName);
-        }
-        catch (\Throwable)
-        {
+        } catch (\Throwable) {
             throw InvalidSagaIdentifier::propertyNotFound($propertyName, $message);
         }
 
-        if (\is_string($value) && $value !== '')
-        {
+        if (\is_string($value) && $value !== '') {
             return $value;
         }
 
-        if (\is_object($value) && \method_exists($value, 'toString'))
-        {
+        if (\is_object($value) && \method_exists($value, 'toString')) {
             $value = (string) $value->toString();
 
-            if ($value !== '')
-            {
+            if ($value !== '') {
                 return $value;
             }
         }
@@ -126,8 +119,7 @@ final class SagaIdLocator
         /** @var object|SagaId $identifier */
         $identifier = new $idClass($idValue, $sagaClass);
 
-        if ($identifier instanceof SagaId)
-        {
+        if ($identifier instanceof SagaId) {
             return $identifier;
         }
 

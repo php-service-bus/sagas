@@ -29,8 +29,7 @@ final class SagaIdTest extends TestCase
         $this->expectException(InvalidSagaIdentifier::class);
         $this->expectExceptionMessage('The saga identifier can\'t be empty');
 
-        new class ('', __METHOD__) extends SagaId
-        {
+        new class ('', __METHOD__) extends SagaId {
         };
     }
 
@@ -41,8 +40,7 @@ final class SagaIdTest extends TestCase
     {
         $this->expectException(InvalidSagaIdentifier::class);
 
-        new class ('qwerty', __METHOD__) extends SagaId
-        {
+        new class ('qwerty', __METHOD__) extends SagaId {
         };
     }
 
@@ -53,8 +51,7 @@ final class SagaIdTest extends TestCase
     {
         $this->expectException(InvalidSagaIdentifier::class);
 
-        new class ('qwerty', '') extends SagaId
-        {
+        new class ('qwerty', '') extends SagaId {
         };
     }
 }

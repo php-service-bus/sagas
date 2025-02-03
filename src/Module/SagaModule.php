@@ -39,6 +39,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+
 use function ServiceBus\Common\canonicalizeFilesPath;
 use function ServiceBus\Common\extractNamespaceFromFile;
 use function ServiceBus\Common\searchFiles;
@@ -78,13 +79,11 @@ final class SagaModule implements ServiceBusModule
         string  $databaseAdapterServiceId,
         ?string $configurationLoaderServiceId = null
     ): self {
-        if (\interface_exists(DatabaseAdapter::class) === false)
-        {
+        if (\interface_exists(DatabaseAdapter::class) === false) {
             throw new \LogicException('The component "php-service-bus/storage" was not installed');
         }
 
-        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false)
-        {
+        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false) {
             throw new \LogicException('The component "php-service-bus/annotations-reader" was not installed');
         }
 
@@ -103,8 +102,7 @@ final class SagaModule implements ServiceBusModule
         string  $databaseAdapterServiceId,
         ?string $configurationLoaderServiceId = null
     ): self {
-        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false)
-        {
+        if ($configurationLoaderServiceId === null && \interface_exists(Reader::class) === false) {
             throw new \LogicException('The component "php-service-bus/annotations-reader" was not installed');
         }
 
@@ -133,21 +131,18 @@ final class SagaModule implements ServiceBusModule
         $files = searchFiles($directories, '/\.php/i');
 
         /** @var \SplFileInfo $file */
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             /** @psalm-var non-empty-string|bool $filePath */
             $filePath = $file->getRealPath();
 
-            if (\is_string($filePath) === false || \in_array($filePath, $excludedFiles, true))
-            {
+            if (\is_string($filePath) === false || \in_array($filePath, $excludedFiles, true)) {
                 continue;
             }
 
             /** @noinspection PhpUnhandledExceptionInspection */
             $class = extractNamespaceFromFile($filePath);
 
-            if ($class !== null && \is_a($class, Saga::class, true))
-            {
+            if ($class !== null && \is_a($class, Saga::class, true)) {
                 /** @psalm-var class-string<\ServiceBus\Sagas\Saga> $class */
 
                 $this->configureSaga($class);
@@ -164,8 +159,7 @@ final class SagaModule implements ServiceBusModule
      */
     public function configureSagas(array $sagas): self
     {
-        foreach ($sagas as $saga)
-        {
+        foreach ($sagas as $saga) {
             $this->configureSaga($saga);
         }
 
@@ -188,8 +182,7 @@ final class SagaModule implements ServiceBusModule
     {
         $containerBuilder->setParameter('service_bus.sagas.list', $this->sagasToRegister);
 
-        if ($containerBuilder->hasDefinition(LoggerInterface::class) === false)
-        {
+        if ($containerBuilder->hasDefinition(LoggerInterface::class) === false) {
             $containerBuilder->addDefinitions([
                 LoggerInterface::class => new Definition(NullLogger::class)
             ]);
@@ -201,8 +194,7 @@ final class SagaModule implements ServiceBusModule
         $this->registerSagaFinder($containerBuilder);
         $this->registerSagasLifecycleManager($containerBuilder);
 
-        if ($this->configurationLoaderServiceId === null)
-        {
+        if ($this->configurationLoaderServiceId === null) {
             $this->registerDefaultConfigurationLoader($containerBuilder);
 
             $this->configurationLoaderServiceId = SagaConfigurationLoader::class;
@@ -227,23 +219,20 @@ final class SagaModule implements ServiceBusModule
 
     private function registerMutexFactory(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition(MutexService::class) === false)
-        {
+        if ($containerBuilder->hasDefinition(MutexService::class) === false) {
             $containerBuilder->setDefinition(MutexService::class, new Definition(InMemoryMutexService::class));
         }
     }
 
     private function registerRoutesConfigurator(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition(ChainRouterConfigurator::class) === false)
-        {
+        if ($containerBuilder->hasDefinition(ChainRouterConfigurator::class) === false) {
             $containerBuilder->setDefinition(ChainRouterConfigurator::class, new Definition(ChainRouterConfigurator::class));
         }
 
         $routerConfiguratorDefinition = $containerBuilder->getDefinition(ChainRouterConfigurator::class);
 
-        if ($containerBuilder->hasDefinition(Router::class) === false)
-        {
+        if ($containerBuilder->hasDefinition(Router::class) === false) {
             $containerBuilder->setDefinition(Router::class, new Definition(Router::class));
         }
 
@@ -281,8 +270,7 @@ final class SagaModule implements ServiceBusModule
 
     private function registerSagaStore(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition(SagasStore::class) === true)
-        {
+        if ($containerBuilder->hasDefinition(SagasStore::class) === true) {
             return;
         }
 
@@ -294,15 +282,13 @@ final class SagaModule implements ServiceBusModule
 
     private function registerDefaultArgumentResolver(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition('service_bus.services_locator') === false)
-        {
+        if ($containerBuilder->hasDefinition('service_bus.services_locator') === false) {
             $definition = (new Definition(ServiceLocator::class, [[]]))->setPublic(true);
 
             $containerBuilder->addDefinitions(['service_bus.services_locator' => $definition]);
         }
 
-        if ($containerBuilder->hasDefinition(ChainArgumentResolver::class) === false)
-        {
+        if ($containerBuilder->hasDefinition(ChainArgumentResolver::class) === false) {
             $containerBuilder->addDefinitions(
                 [
                     /** Passing message to arguments */
@@ -331,13 +317,11 @@ final class SagaModule implements ServiceBusModule
 
     private function registerDefaultConfigurationLoader(ContainerBuilder $containerBuilder): void
     {
-        if ($containerBuilder->hasDefinition(SagaConfigurationLoader::class) === true)
-        {
+        if ($containerBuilder->hasDefinition(SagaConfigurationLoader::class) === true) {
             return;
         }
 
-        if ($containerBuilder->hasDefinition(SagaMessageProcessorFactory::class) === true)
-        {
+        if ($containerBuilder->hasDefinition(SagaMessageProcessorFactory::class) === true) {
             return;
         }
 
@@ -372,25 +356,20 @@ final class SagaModule implements ServiceBusModule
     {
         $externalDependencies = [];
 
-        foreach ($this->sagasToRegister as $sagaClass)
-        {
+        foreach ($this->sagasToRegister as $sagaClass) {
             $reflectionClass = new \ReflectionClass($sagaClass);
 
-            foreach ($reflectionClass->getMethods() as $reflectionMethod)
-            {
-                foreach ($reflectionMethod->getParameters() as $reflectionParameter)
-                {
+            foreach ($reflectionClass->getMethods() as $reflectionMethod) {
+                foreach ($reflectionMethod->getParameters() as $reflectionParameter) {
                     $reflectionType = $reflectionParameter->getType();
 
-                    if (($reflectionType instanceof \ReflectionNamedType) === false)
-                    {
+                    if (($reflectionType instanceof \ReflectionNamedType) === false) {
                         continue;
                     }
 
                     $className = $reflectionType->getName();
 
-                    if ($containerBuilder->hasDefinition($className))
-                    {
+                    if ($containerBuilder->hasDefinition($className)) {
                         $containerBuilder->getDefinition($className)->setPublic(true);
 
                         $externalDependencies[] = $className;

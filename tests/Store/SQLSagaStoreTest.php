@@ -23,6 +23,7 @@ use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\AmpPosgreSQL\AmpPostgreSQLAdapter;
+
 use function Amp\Promise\wait;
 
 /**
@@ -57,16 +58,13 @@ final class SQLSagaStoreTest extends TestCase
             \file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
-            if (!empty(trim($tableQuery)))
-            {
+        foreach ($queries as $tableQuery) {
+            if (!empty(trim($tableQuery))) {
                 wait($this->adapter->execute($tableQuery));
             }
         }
 
-        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
-        {
+        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery) {
             wait($this->adapter->execute($indexQuery));
         }
 
@@ -86,15 +84,13 @@ final class SQLSagaStoreTest extends TestCase
     public function obtain(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
                 yield $this->store->save(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 
@@ -116,8 +112,7 @@ final class SQLSagaStoreTest extends TestCase
     public function saveDuplicate(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $this->expectException(DuplicateSaga::class);
 
                 $id   = TestSagaId::new(CorrectSaga::class);
@@ -125,15 +120,13 @@ final class SQLSagaStoreTest extends TestCase
 
                 yield $this->store->save(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 
                 yield $this->store->save(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 
@@ -148,15 +141,13 @@ final class SQLSagaStoreTest extends TestCase
     public function update(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
                 yield $this->store->save(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 
@@ -164,8 +155,7 @@ final class SQLSagaStoreTest extends TestCase
 
                 yield $this->store->update(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 
@@ -185,15 +175,13 @@ final class SQLSagaStoreTest extends TestCase
     public function updateUnExistsSaga(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
                 yield $this->store->update(
                     saga: $saga,
-                    publisher: static function ()
-                    {
+                    publisher: static function () {
                     }
                 );
 

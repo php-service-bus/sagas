@@ -14,6 +14,7 @@ namespace ServiceBus\Sagas\Tests\Store;
 
 use PHPUnit\Framework\TestCase;
 use ServiceBus\Sagas\Store\Exceptions\SagaSerializationError;
+
 use function ServiceBus\Sagas\Store\Sql\unserializeSaga;
 
 /**

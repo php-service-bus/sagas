@@ -34,14 +34,12 @@ function serializeSaga(Saga $saga): string
  */
 function unserializeSaga(string $serializedContent): Saga
 {
-    try
-    {
+    try {
         /** @var string|bool $decoded */
         $decoded = \base64_decode($serializedContent);
 
         // @codeCoverageIgnoreStart
-        if (\is_string($decoded) === false)
-        {
+        if (\is_string($decoded) === false) {
             throw new \LogicException('Incorrect base64 content');
         }
         // @codeCoverageIgnoreEnd
@@ -49,15 +47,12 @@ function unserializeSaga(string $serializedContent): Saga
         /** @var bool|Saga $unserialized */
         $unserialized = \unserialize($decoded, ['allowed_classes' => true]);
 
-        if ($unserialized instanceof Saga)
-        {
+        if ($unserialized instanceof Saga) {
             return $unserialized;
         }
 
         throw new \LogicException('Content must be a serialized saga object');
-    }
-    catch (\Throwable $throwable)
-    {
+    } catch (\Throwable $throwable) {
         throw SagaSerializationError::fromThrowable($throwable);
     }
 }

@@ -22,6 +22,7 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+
 use function Amp\Promise\wait;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Storage\Sql\equalsCriteria;
@@ -81,15 +82,13 @@ final class SagaFinderTest extends TestCase
             \file_get_contents(__DIR__ . '/../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
+        foreach ($queries as $tableQuery) {
             wait($this->adapter->execute($tableQuery));
         }
 
         $indexQueries = \file(__DIR__ . '/../src/Store/Sql/schema/indexes.sql');
 
-        foreach ($indexQueries as $query)
-        {
+        foreach ($indexQueries as $query) {
             wait($this->adapter->execute($query));
         }
     }
@@ -98,12 +97,9 @@ final class SagaFinderTest extends TestCase
     {
         parent::tearDown();
 
-        try
-        {
+        try {
             wait($this->adapter->execute('DELETE FROM sagas_store'));
-        }
-        catch (\Throwable)
-        {
+        } catch (\Throwable) {
         }
 
         unset($this->containerBuilder, $this->adapter, $this->sagaFinder);
@@ -117,13 +113,11 @@ final class SagaFinderTest extends TestCase
         $this->expectException(SagaNotFound::class);
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 yield $this->sagaFinder->load(
                     id: TestSagaId::new(CorrectSaga::class),
                     context: new TestContext(),
-                    onLoaded: static function (): void
-                    {
+                    onLoaded: static function (): void {
                     }
                 );
             }
@@ -138,14 +132,12 @@ final class SagaFinderTest extends TestCase
         $this->expectException(SagasStoreInteractionFailed::class);
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 yield $this->adapter->execute('DROP TABLE sagas_store');
                 yield $this->sagaFinder->load(
                     id: TestSagaId::new(CorrectSaga::class),
                     context: new TestContext(),
-                    onLoaded: static function (): void
-                    {
+                    onLoaded: static function (): void {
                     }
                 );
             }
@@ -160,8 +152,7 @@ final class SagaFinderTest extends TestCase
         $this->expectException(LoadedExpiredSaga::class);
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $saga = new CorrectSaga(
                     id: TestSagaId::new(CorrectSaga::class),
                     expireDate: datetimeInstantiator('+1 day'),
@@ -170,8 +161,7 @@ final class SagaFinderTest extends TestCase
 
                 yield $this->sagaStore->save(
                     $saga,
-                    static function ()
-                    {
+                    static function () {
                     }
                 );
 
@@ -186,8 +176,7 @@ final class SagaFinderTest extends TestCase
                 yield $this->sagaFinder->load(
                     id: $saga->id(),
                     context: new TestContext(),
-                    onLoaded: static function ()
-                    {
+                    onLoaded: static function () {
                     }
                 );
             }

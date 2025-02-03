@@ -36,6 +36,7 @@ use ServiceBus\Sagas\Tests\stubs\CorrectSagaWithoutListeners;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
+
 use function Amp\Promise\wait;
 
 /**
@@ -66,13 +67,11 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
             \file_get_contents(__DIR__ . '/../../../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
+        foreach ($queries as $tableQuery) {
             wait($this->adapter->execute($tableQuery));
         }
 
-        foreach (\file(__DIR__ . '/../../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
-        {
+        foreach (\file(__DIR__ . '/../../../src/Store/Sql/schema/indexes.sql') as $indexQuery) {
             wait($this->adapter->execute($indexQuery));
         }
 
@@ -100,8 +99,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
     {
         $this->expectException(InvalidSagaConfiguration::class);
 
-        $object = new class ()
-        {
+        $object = new class () {
         };
 
         (new SagaAttributeBasedConfigurationLoader($this->listenerFactory))->load(\get_class($object));
@@ -148,8 +146,7 @@ final class SagaAnnotationBasedConfigurationLoaderTest extends TestCase
         self::assertNotEmpty($result);
         self::assertCount(3, $result);
 
-        foreach ($result as $messageHandler)
-        {
+        foreach ($result as $messageHandler) {
             self::assertInstanceOf(MessageHandler::class, $messageHandler);
         }
     }

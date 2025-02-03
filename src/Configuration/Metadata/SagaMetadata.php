@@ -98,8 +98,7 @@ final class SagaMetadata
         string $containingIdentifierProperty,
         string $expireDateModifier
     ) {
-        if (\in_array($containingIdentifierSource, self::CORRELATION_ID_SOURCES, true) === false)
-        {
+        if (\in_array($containingIdentifierSource, self::CORRELATION_ID_SOURCES, true) === false) {
             throw new \InvalidArgumentException(
                 \sprintf(
                     'In the metadata of the saga "%s" an incorrect value of the "containingIdentifierSource" (can be `message` or `headers` only)',

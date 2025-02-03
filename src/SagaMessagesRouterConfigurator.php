@@ -49,21 +49,18 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
 
     public function configure(Router $router): void
     {
-        try
-        {
+        try {
             /**
              * @psalm-var class-string<\ServiceBus\Sagas\Saga> $sagaClass
              */
-            foreach ($this->sagasList as $sagaClass)
-            {
+            foreach ($this->sagasList as $sagaClass) {
                 $sagaConfiguration = $this->sagaConfigurationLoader->load($sagaClass);
 
                 /** @todo: more beautiful solution */
                 SagaMetadataStore::instance()->add($sagaConfiguration->metadata);
 
                 /** @var \ServiceBus\Common\MessageHandler\MessageHandler $handler */
-                foreach ($sagaConfiguration->listenerCollection as $handler)
-                {
+                foreach ($sagaConfiguration->listenerCollection as $handler) {
                     $router->registerListener($handler->messageClass, new SagaMessageExecutor($handler));
                 }
 
@@ -72,9 +69,7 @@ final class SagaMessagesRouterConfigurator implements RouterConfigurator
                     new SagaMessageExecutor($sagaConfiguration->initialCommandHandler)
                 );
             }
-        }
-        catch (\Throwable $throwable)
-        {
+        } catch (\Throwable $throwable) {
             throw new MessageRouterConfigurationFailed($throwable->getMessage(), (int) $throwable->getCode(), $throwable);
         }
     }

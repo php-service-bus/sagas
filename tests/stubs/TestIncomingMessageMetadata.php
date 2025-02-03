@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace ServiceBus\Sagas\Tests\stubs;
 
 use ServiceBus\Common\Context\IncomingMessageMetadata;
+
 use function ServiceBus\Common\uuid;
 
 /**

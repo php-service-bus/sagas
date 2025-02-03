@@ -22,6 +22,7 @@ use ServiceBus\Sagas\Exceptions\IncorrectAssociation;
 use ServiceBus\Sagas\Exceptions\InvalidExpireDateInterval;
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
 use ServiceBus\Sagas\Exceptions\ReopenFailed;
+
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\now;
 
@@ -229,13 +230,11 @@ abstract class Saga
      */
     final protected function associateWith(string $propertyName, int|string $value): void
     {
-        if ($propertyName === '')
-        {
+        if ($propertyName === '') {
             throw IncorrectAssociation::emptyPropertyName($this->id);
         }
 
-        if (empty($value))
-        {
+        if (empty($value)) {
             throw IncorrectAssociation::emptyPropertyValue($propertyName, $this->id);
         }
 
@@ -279,8 +278,7 @@ abstract class Saga
      */
     final protected function removeAssociation(string $propertyName): void
     {
-        if ($propertyName === '')
-        {
+        if ($propertyName === '') {
             throw IncorrectAssociation::emptyPropertyName($this->id);
         }
 
@@ -315,15 +313,13 @@ abstract class Saga
      */
     private function reopen(\DateTimeImmutable $withNewExpirationDate, string $withReason = ''): void
     {
-        if ($this->status->equals(SagaStatus::IN_PROGRESS) || $this->status->equals(SagaStatus::REOPENED))
-        {
+        if ($this->status->equals(SagaStatus::IN_PROGRESS) || $this->status->equals(SagaStatus::REOPENED)) {
             throw ReopenFailed::stillALive($this->id);
         }
 
         $currentDate = now();
 
-        if ($currentDate > $withNewExpirationDate)
-        {
+        if ($currentDate > $withNewExpirationDate) {
             throw ReopenFailed::incorrectExpirationDate($this->id);
         }
 
@@ -433,8 +429,7 @@ abstract class Saga
     {
         $currentSagaClass = \get_class($this);
 
-        if ($currentSagaClass !== $id->sagaClass)
-        {
+        if ($currentSagaClass !== $id->sagaClass) {
             throw InvalidSagaIdentifier::sagaClassMismatch($currentSagaClass, $id->sagaClass);
         }
     }
@@ -444,8 +439,7 @@ abstract class Saga
      */
     private function assertExpirationDateIsCorrect(SagaId $id, \DateTimeImmutable $dateTime): void
     {
-        if (now() > $dateTime)
-        {
+        if (now() > $dateTime) {
             throw InvalidExpireDateInterval::create($id);
         }
     }

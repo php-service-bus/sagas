@@ -23,6 +23,7 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+
 use function Amp\Promise\wait;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -88,15 +89,13 @@ final class SagaLifecycleManagerTest extends TestCase
             \file_get_contents(__DIR__ . '/../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
+        foreach ($queries as $tableQuery) {
             wait($this->adapter->execute($tableQuery));
         }
 
         $indexQueries = \file(__DIR__ . '/../src/Store/Sql/schema/indexes.sql');
 
-        foreach ($indexQueries as $query)
-        {
+        foreach ($indexQueries as $query) {
             wait($this->adapter->execute($query));
         }
     }
@@ -105,12 +104,9 @@ final class SagaLifecycleManagerTest extends TestCase
     {
         parent::tearDown();
 
-        try
-        {
+        try {
             wait($this->adapter->execute('DELETE FROM sagas_store'));
-        }
-        catch (\Throwable)
-        {
+        } catch (\Throwable) {
         }
 
         unset($this->containerBuilder, $this->adapter, $this->sagaFinder);
@@ -122,8 +118,7 @@ final class SagaLifecycleManagerTest extends TestCase
     public function successReopen(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $context = new TestContext();
 
                 $id   = TestSagaId::new(TestSaga::class);
@@ -139,8 +134,7 @@ final class SagaLifecycleManagerTest extends TestCase
 
                 yield $this->sagaStore->save(
                     $saga,
-                    static function ()
-                    {
+                    static function () {
                     }
                 );
 
@@ -179,8 +173,7 @@ final class SagaLifecycleManagerTest extends TestCase
         $this->expectExceptionMessage('Unable to open unfinished saga `ccfd1b8e-be8b-4f69-b1ca-c92a14379558`');
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $context = new TestContext();
 
                 $id   = new TestSagaId('ccfd1b8e-be8b-4f69-b1ca-c92a14379558', TestSaga::class);
@@ -192,8 +185,7 @@ final class SagaLifecycleManagerTest extends TestCase
 
                 yield $this->sagaStore->save(
                     $saga,
-                    static function ()
-                    {
+                    static function () {
                     }
                 );
 
@@ -216,8 +208,7 @@ final class SagaLifecycleManagerTest extends TestCase
         $this->expectExceptionMessage('Saga `ccfd1b8e-be8b-4f69-b1ca-c92a14379558` doesn\'t exists');
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $context = new TestContext();
 
                 $id = new TestSagaId('ccfd1b8e-be8b-4f69-b1ca-c92a14379558', TestSaga::class);

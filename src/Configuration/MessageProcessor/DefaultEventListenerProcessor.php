@@ -23,6 +23,7 @@ use ServiceBus\Sagas\Exceptions\ChangeSagaStateFailed;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\now;
@@ -95,8 +96,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
     public function __invoke(object $message, ServiceBusContext $context): Promise
     {
         return call(
-            function () use ($message, $context): \Generator
-            {
+            function () use ($message, $context): \Generator {
                 /** @psalm-var SagaId $id */
                 $id = yield $this->sagaIdLocator->process(
                     handlerOptions: $this->sagaListenerOptions,
@@ -107,8 +107,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
                 /** @phpstan-ignore-next-line */
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
-                    code: function () use ($id, $message, $context): \Generator
-                    {
+                    code: function () use ($id, $message, $context): \Generator {
                         /** @var \ServiceBus\Sagas\Saga $saga */
                         $saga = yield from $this->loadSaga($id);
 
@@ -116,8 +115,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
 
                         $description = $this->sagaListenerOptions->description();
 
-                        if ($description !== null)
-                        {
+                        if ($description !== null) {
                             $context->logger()->debug($description);
                         }
 
@@ -131,8 +129,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
 
                         yield call($messageHandler->closure, ...$resolvedArgs);
 
-                        if ($stateHash !== $saga->hash())
-                        {
+                        if ($stateHash !== $saga->hash()) {
                             /**
                              * @var object[] $messages
                              */
@@ -140,8 +137,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
 
                             yield $this->sagasStore->update(
                                 saga: $saga,
-                                publisher: static function () use ($messages, $context): \Generator
-                                {
+                                publisher: static function () use ($messages, $context): \Generator {
                                     yield $context->deliveryBulk($messages);
                                 }
                             );
@@ -162,8 +158,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
         /** @var \ServiceBus\Sagas\Saga|null $saga */
         $saga = yield $this->sagasStore->obtain($id);
 
-        if ($saga === null)
-        {
+        if ($saga === null) {
             throw ChangeSagaStateFailed::applyEventFailed(
                 \sprintf(
                     'Attempt to apply event to non-existent saga (ID: %s)',
@@ -173,8 +168,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
         }
 
         /** Non-expired saga */
-        if ($saga->expireDate() > now())
-        {
+        if ($saga->expireDate() > now()) {
             return $saga;
         }
 
@@ -188,8 +182,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
      */
     private function buildMessageHandler(Saga $saga, object $event): MessageHandler
     {
-        try
-        {
+        try {
             $reflectionMethod = new \ReflectionMethod($saga, createEventListenerName($event));
 
             return new MessageHandler(
@@ -199,9 +192,7 @@ final class DefaultEventListenerProcessor implements MessageProcessor
                 options: $this->sagaListenerOptions,
                 description: $this->sagaListenerOptions->description()
             );
-        }
-        catch (\Throwable $throwable)
-        {
+        } catch (\Throwable $throwable) {
             throw new \RuntimeException(
                 \sprintf(
                     'Unable to compile message handler for `%s`: %s',

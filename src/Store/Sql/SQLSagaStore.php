@@ -24,6 +24,7 @@ use ServiceBus\Sagas\Store\SagasStore;
 use ServiceBus\Storage\Common\BinaryDataDecoder;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\Exceptions\UniqueConstraintViolationCheckFailed;
+
 use function Amp\call;
 use function ServiceBus\Common\createWithoutConstructor;
 use function ServiceBus\Common\datetimeInstantiator;
@@ -63,8 +64,7 @@ final class SQLSagaStore implements SagasStore
         string|int $propertyValue
     ): Promise {
         return call(
-            function () use ($sagaClass, $idClass, $propertyKey, $propertyValue): \Generator
-            {
+            function () use ($sagaClass, $idClass, $propertyKey, $propertyValue): \Generator {
                 $criteria = [
                     equalsCriteria('identifier_class', $idClass),
                     equalsCriteria('saga_class', $sagaClass),
@@ -91,8 +91,7 @@ final class SQLSagaStore implements SagasStore
                  */
                 $association = yield fetchOne($resultSet);
 
-                if ($association !== null)
-                {
+                if ($association !== null) {
                     return (new \ReflectionClass($association['identifier_class']))
                         ->newInstance($association['saga_id'], $association['saga_class']);
                 }
@@ -105,10 +104,8 @@ final class SQLSagaStore implements SagasStore
     public function obtain(SagaId $id): Promise
     {
         return call(
-            function () use ($id): \Generator
-            {
-                try
-                {
+            function () use ($id): \Generator {
+                try {
                     $criteria = [
                         equalsCriteria('id', $id->toString()),
                         equalsCriteria('identifier_class', \get_class($id)),
@@ -137,8 +134,7 @@ final class SQLSagaStore implements SagasStore
                      */
                     $result = yield fetchOne($resultSet);
 
-                    if ($result !== null)
-                    {
+                    if ($result !== null) {
                         $payload = $result['payload'];
                         $payload = $this->adapter->unescapeBinary($payload);
 
@@ -163,8 +159,7 @@ final class SQLSagaStore implements SagasStore
                             value: datetimeInstantiator($result['expiration_date'])
                         );
 
-                        if ($result['closed_at'] !== null)
-                        {
+                        if ($result['closed_at'] !== null) {
                             writeReflectionPropertyValue(
                                 object: $saga,
                                 propertyName: 'closedAt',
@@ -176,9 +171,7 @@ final class SQLSagaStore implements SagasStore
                     }
 
                     return null;
-                }
-                catch (\Throwable $throwable)
-                {
+                } catch (\Throwable $throwable) {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
             }
@@ -188,13 +181,10 @@ final class SQLSagaStore implements SagasStore
     public function save(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function () use ($saga, $publisher): \Generator
-            {
-                try
-                {
+            function () use ($saga, $publisher): \Generator {
+                try {
                     yield $this->adapter->transactional(
-                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
-                        {
+                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator {
                             $id = $saga->id();
 
                             /** @var \ServiceBus\Sagas\SagaStatus $status */
@@ -226,14 +216,10 @@ final class SQLSagaStore implements SagasStore
                             yield call($publisher);
                         }
                     );
-                }
-                catch (UniqueConstraintViolationCheckFailed $exception)
-                {
+                } catch (UniqueConstraintViolationCheckFailed $exception) {
                     /** @psalm-suppress RedundantCast */
                     throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
-                }
-                catch (\Throwable $throwable)
-                {
+                } catch (\Throwable $throwable) {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
             }
@@ -243,13 +229,10 @@ final class SQLSagaStore implements SagasStore
     public function update(Saga $saga, callable $publisher): Promise
     {
         return call(
-            function () use ($saga, $publisher): \Generator
-            {
-                try
-                {
+            function () use ($saga, $publisher): \Generator {
+                try {
                     yield $this->adapter->transactional(
-                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator
-                        {
+                        static function (QueryExecutor $executor) use ($saga, $publisher): \Generator {
                             $id = $saga->id();
 
                             /** @var \ServiceBus\Sagas\SagaStatus $status */
@@ -281,9 +264,7 @@ final class SQLSagaStore implements SagasStore
                             yield call($publisher);
                         }
                     );
-                }
-                catch (\Throwable $throwable)
-                {
+                } catch (\Throwable $throwable) {
                     throw SagasStoreInteractionFailed::fromThrowable($throwable);
                 }
             }
@@ -293,8 +274,7 @@ final class SQLSagaStore implements SagasStore
     private static function processAssociations(Saga $saga, QueryExecutor $executor): Promise
     {
         return call(
-            static function () use ($saga, $executor): \Generator
-            {
+            static function () use ($saga, $executor): \Generator {
                 /**
                  * @psalm-var array<non-empty-string, non-empty-string|int> $associations
                  * @psalm-var array<array-key, non-empty-string>            $removedAssociations
@@ -304,8 +284,7 @@ final class SQLSagaStore implements SagasStore
 
                 $id = $saga->id();
 
-                foreach ($removedAssociations as $removedAssociation)
-                {
+                foreach ($removedAssociations as $removedAssociation) {
                     $compiledQuery = deleteQuery('sagas_association')
                         ->where(equalsCriteria('saga_id', $id->id))
                         ->where(equalsCriteria('saga_class', $id->sagaClass))
@@ -319,8 +298,7 @@ final class SQLSagaStore implements SagasStore
                     );
                 }
 
-                foreach ($associations as $propertyName => $propertyValue)
-                {
+                foreach ($associations as $propertyName => $propertyValue) {
                     $compiledQuery = insertQuery('sagas_association', [
                         'id'               => uuid(),
                         'saga_id'          => $id->id,
@@ -330,16 +308,13 @@ final class SQLSagaStore implements SagasStore
                         'property_value'   => $propertyValue
                     ])->compile();
 
-                    try
-                    {
+                    try {
                         /** @psalm-suppress MixedArgumentTypeCoercion */
                         yield $executor->execute(
                             queryString: $compiledQuery->sql(),
                             parameters: $compiledQuery->params()
                         );
-                    }
-                    catch (UniqueConstraintViolationCheckFailed)
-                    {
+                    } catch (UniqueConstraintViolationCheckFailed) {
                         throw IncorrectAssociation::alreadyExists($propertyName, $id);
                     }
                 }

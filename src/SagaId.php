@@ -13,6 +13,7 @@ declare(strict_types=0);
 namespace ServiceBus\Sagas;
 
 use ServiceBus\Sagas\Exceptions\InvalidSagaIdentifier;
+
 use function ServiceBus\Common\uuid;
 
 /**
@@ -60,8 +61,7 @@ abstract class SagaId
      */
     final public function __construct(string $id, string $sagaClass)
     {
-        if ($id === '')
-        {
+        if ($id === '') {
             throw InvalidSagaIdentifier::idValueCantBeEmpty();
         }
 

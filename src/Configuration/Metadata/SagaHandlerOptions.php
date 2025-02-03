@@ -106,8 +106,7 @@ final class SagaHandlerOptions implements MessageHandlerOptions
     {
         $containingIdentifierProperty = $this->containingIdentifierProperty;
 
-        if ($containingIdentifierProperty !== null && $containingIdentifierProperty !== '')
-        {
+        if ($containingIdentifierProperty !== null && $containingIdentifierProperty !== '') {
             return $containingIdentifierProperty;
         }
 
@@ -121,8 +120,7 @@ final class SagaHandlerOptions implements MessageHandlerOptions
     {
         $containingIdentifierSource = $this->containingIdentifierSource;
 
-        if ($containingIdentifierSource !== null && $containingIdentifierSource !== '')
-        {
+        if ($containingIdentifierSource !== null && $containingIdentifierSource !== '') {
             return $containingIdentifierSource;
         }
 

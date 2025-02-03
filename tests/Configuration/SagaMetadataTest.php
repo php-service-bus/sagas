@@ -31,7 +31,7 @@ final class SagaMetadataTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new  SagaMetadata(
+        new SagaMetadata(
             CorrectSaga::class,
             TestSagaId::class,
             'qwerty',

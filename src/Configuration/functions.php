@@ -26,8 +26,7 @@ function createClosure(Saga $saga, \ReflectionMethod $method): \Closure
 
     /** @noinspection PhpConditionAlreadyCheckedInspection */
     // @codeCoverageIgnoreStart
-    if ($closure === null)
-    {
+    if ($closure === null) {
         throw new \LogicException(
             \sprintf(
                 'Unable to create a closure for the "%s" method',

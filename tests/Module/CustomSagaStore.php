@@ -17,6 +17,7 @@ use Amp\Success;
 use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 
 final class CustomSagaStore implements SagasStore
@@ -34,8 +35,7 @@ final class CustomSagaStore implements SagasStore
     public function save(Saga $saga, callable $publisher): Promise
     {
         return call(
-            static function () use ($publisher)
-            {
+            static function () use ($publisher) {
                 yield call($publisher);
             }
         );
@@ -44,8 +44,7 @@ final class CustomSagaStore implements SagasStore
     public function update(Saga $saga, callable $publisher): Promise
     {
         return call(
-            static function () use ($publisher)
-            {
+            static function () use ($publisher) {
                 yield call($publisher);
             }
         );

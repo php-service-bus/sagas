@@ -10,6 +10,7 @@ use ServiceBus\Mutex\InMemory\InMemoryMutexService;
 use ServiceBus\Mutex\MutexService;
 use ServiceBus\Sagas\Exceptions\ReopenFailed;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 
@@ -47,17 +48,14 @@ final class SagaLifecycleManager
         string             $reason = ''
     ): Promise {
         return call(
-            function () use ($id, $context, $newExpireDate, $reason): \Generator
-            {
+            function () use ($id, $context, $newExpireDate, $reason): \Generator {
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
-                    code: function () use ($id, $context, $newExpireDate, $reason): \Generator
-                    {
+                    code: function () use ($id, $context, $newExpireDate, $reason): \Generator {
                         /** @var Saga|null $saga */
                         $saga = yield $this->sagaStore->obtain($id);
 
-                        if ($saga !== null)
-                        {
+                        if ($saga !== null) {
                             invokeReflectionMethod($saga, 'reopen', $newExpireDate, $reason);
 
                             return yield from $this->doStore(
@@ -93,8 +91,7 @@ final class SagaLifecycleManager
          */
         $messages = invokeReflectionMethod($saga, 'messages');
 
-        $publisher = static function () use ($messages, $context): \Generator
-        {
+        $publisher = static function () use ($messages, $context): \Generator {
             yield $context->deliveryBulk($messages);
         };
 

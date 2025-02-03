@@ -36,6 +36,7 @@ use ServiceBus\Sagas\Tests\stubs\TestSagaId;
 use ServiceBus\Storage\Common\DatabaseAdapter;
 use ServiceBus\Storage\Common\StorageConfiguration;
 use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
+
 use function Amp\call;
 use function Amp\Promise\wait;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -80,18 +81,15 @@ final class DefaultEventProcessorTest extends TestCase
             \file_get_contents(__DIR__ . '/../../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
+        foreach ($queries as $tableQuery) {
             wait($this->adapter->execute($tableQuery));
         }
 
-        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery)
-        {
+        foreach (\file(__DIR__ . '/../../src/Store/Sql/schema/indexes.sql') as $indexQuery) {
             wait($this->adapter->execute($indexQuery));
         }
 
-        $this->publisher = static function ()
-        {
+        $this->publisher = static function () {
         };
 
         $this->store        = new SQLSagaStore($this->adapter);
@@ -119,8 +117,7 @@ final class DefaultEventProcessorTest extends TestCase
     public function successExecute(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -154,8 +151,7 @@ final class DefaultEventProcessorTest extends TestCase
     public function successExecuteWithHeaderValue(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                 $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
@@ -194,8 +190,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSagaWithHeaderCorrelationId::class);
                 $saga = new CorrectSagaWithHeaderCorrelationId($id);
 
@@ -225,8 +220,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
 
                 $context = new TestContext();
@@ -255,8 +249,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -288,8 +281,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = TestSagaId::new(CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -321,8 +313,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -352,8 +343,7 @@ final class DefaultEventProcessorTest extends TestCase
     public function executeWithNoChanges(): void
     {
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -387,8 +377,7 @@ final class DefaultEventProcessorTest extends TestCase
         $this->expectExceptionMessage('Class "SomeUnknownClass" not found');
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 
@@ -428,8 +417,7 @@ final class DefaultEventProcessorTest extends TestCase
         );
 
         Loop::run(
-            function (): \Generator
-            {
+            function (): \Generator {
                 $id   = new TestSagaId('1b6d89ec-cf60-4e48-a253-fd57f844c07d', CorrectSaga::class);
                 $saga = new CorrectSaga($id);
 

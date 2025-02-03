@@ -11,6 +11,7 @@ use ServiceBus\Mutex\MutexService;
 use ServiceBus\Sagas\Exceptions\SagaNotFound;
 use ServiceBus\Sagas\Store\Exceptions\LoadedExpiredSaga;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 use function ServiceBus\Common\invokeReflectionMethod;
 use function ServiceBus\Common\now;
@@ -50,20 +51,16 @@ final class SagaFinder
     public function load(SagaId $id, ServiceBusContext $context, callable $onLoaded): Promise
     {
         return call(
-            function () use ($id, $context, $onLoaded): \Generator
-            {
+            function () use ($id, $context, $onLoaded): \Generator {
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
-                    code: function () use ($id, $context, $onLoaded): \Generator
-                    {
+                    code: function () use ($id, $context, $onLoaded): \Generator {
                         /** @var Saga|null $saga */
                         $saga = yield $this->sagaStore->obtain($id);
 
-                        if ($saga !== null)
-                        {
+                        if ($saga !== null) {
                             /** Non-expired saga */
-                            if ($saga->expireDate() > now())
-                            {
+                            if ($saga->expireDate() > now()) {
                                 /** @psalm-suppress PossiblyInvalidArgument */
                                 return yield call($onLoaded, $saga);
                             }
@@ -100,8 +97,7 @@ final class SagaFinder
         /** @var \ServiceBus\Sagas\SagaStatus $currentStatus */
         $currentStatus = readReflectionPropertyValue($saga, 'status');
 
-        if ($currentStatus->equals(SagaStatus::IN_PROGRESS))
-        {
+        if ($currentStatus->equals(SagaStatus::IN_PROGRESS)) {
             invokeReflectionMethod($saga, 'expire');
 
             yield from $this->doStore(saga: $saga, context: $context);
@@ -126,8 +122,7 @@ final class SagaFinder
          */
         $messages = invokeReflectionMethod($saga, 'messages');
 
-        $publisher = static function () use ($messages, $context): \Generator
-        {
+        $publisher = static function () use ($messages, $context): \Generator {
             yield $context->deliveryBulk($messages);
         };
 

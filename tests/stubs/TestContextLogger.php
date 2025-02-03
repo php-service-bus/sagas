@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use ServiceBus\Common\Context\ContextLogger;
 use ServiceBus\Common\Context\IncomingMessageMetadata;
+
 use function ServiceBus\Common\throwableDetails;
 use function ServiceBus\Common\throwableMessage;
 

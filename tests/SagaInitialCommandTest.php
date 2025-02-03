@@ -21,6 +21,7 @@ use ServiceBus\Storage\Sql\DoctrineDBAL\DoctrineDBALAdapter;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+
 use function Amp\Promise\wait;
 
 final class SagaInitialCommandTest extends TestCase
@@ -70,15 +71,13 @@ final class SagaInitialCommandTest extends TestCase
             \file_get_contents(__DIR__ . '/../src/Store/Sql/schema/sagas_store.sql')
         );
 
-        foreach ($queries as $tableQuery)
-        {
+        foreach ($queries as $tableQuery) {
             wait($this->adapter->execute($tableQuery));
         }
 
         $indexQueries = \file(__DIR__ . '/../src/Store/Sql/schema/indexes.sql');
 
-        foreach ($indexQueries as $query)
-        {
+        foreach ($indexQueries as $query) {
             wait($this->adapter->execute($query));
         }
     }
@@ -87,12 +86,9 @@ final class SagaInitialCommandTest extends TestCase
     {
         parent::tearDown();
 
-        try
-        {
+        try {
             wait($this->adapter->execute('DELETE FROM sagas_store'));
-        }
-        catch (\Throwable)
-        {
+        } catch (\Throwable) {
         }
 
         unset($this->containerBuilder, $this->adapter, $this->sagaFinder);
@@ -120,14 +116,12 @@ final class SagaInitialCommandTest extends TestCase
         $commandHandler = \end($handlers);
 
         Loop::run(
-            function () use ($commandHandler, $sagaId, $message, $context): \Generator
-            {
+            function () use ($commandHandler, $sagaId, $message, $context): \Generator {
                 yield $commandHandler($message, $context);
                 yield $this->sagaFinder->load(
                     id: $sagaId,
                     context: $context,
-                    onLoaded: static function (): void
-                    {
+                    onLoaded: static function (): void {
                         self::assertTrue(true);
 
                         Loop::stop();
@@ -161,8 +155,7 @@ final class SagaInitialCommandTest extends TestCase
         $commandHandler = \end($handlers);
 
         Loop::run(
-            static function () use ($commandHandler, $message, $context): \Generator
-            {
+            static function () use ($commandHandler, $message, $context): \Generator {
                 yield $commandHandler($message, $context);
                 yield $commandHandler($message, $context);
 

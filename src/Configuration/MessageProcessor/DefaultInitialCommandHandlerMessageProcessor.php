@@ -17,6 +17,7 @@ use ServiceBus\Sagas\Saga;
 use ServiceBus\Sagas\SagaId;
 use ServiceBus\Sagas\SagaMetadataStore;
 use ServiceBus\Sagas\Store\SagasStore;
+
 use function Amp\call;
 use function ServiceBus\Common\datetimeInstantiator;
 use function ServiceBus\Common\invokeReflectionMethod;
@@ -88,8 +89,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
     public function __invoke(object $message, ServiceBusContext $context): Promise
     {
         return call(
-            function () use ($message, $context): \Generator
-            {
+            function () use ($message, $context): \Generator {
                 /** @psalm-var SagaId $id */
                 $id = yield $this->sagaIdLocator->process(
                     handlerOptions: $this->sagaListenerOptions,
@@ -100,8 +100,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
                 /** @phpstan-ignore-next-line */
                 yield $this->mutexService->withLock(
                     id: createMutexKey($id),
-                    code: function () use ($id, $message, $context): \Generator
-                    {
+                    code: function () use ($id, $message, $context): \Generator {
                         $sagaMetaData = SagaMetadataStore::instance()->get($id->sagaClass)
                             ?? throw SagaMetaDataNotFound::create($id->sagaClass);
 
@@ -113,8 +112,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
 
                         $description = $this->sagaListenerOptions->description();
 
-                        if ($description !== null)
-                        {
+                        if ($description !== null) {
                             $context->logger()->debug($description);
                         }
 
@@ -133,8 +131,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
 
                         yield $this->sagasStore->save(
                             saga: $saga,
-                            publisher: static function () use ($messages, $context): \Generator
-                            {
+                            publisher: static function () use ($messages, $context): \Generator {
                                 yield $context->deliveryBulk($messages);
                             }
                         );
@@ -149,8 +146,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
      */
     private function buildMessageHandler(Saga $saga, object $command): MessageHandler
     {
-        try
-        {
+        try {
             $reflectionMethod = new \ReflectionMethod($saga, SagaConfigurationLoader::INITIAL_COMMAND_METHOD);
 
             return new MessageHandler(
@@ -160,9 +156,7 @@ final class DefaultInitialCommandHandlerMessageProcessor implements MessageProce
                 options: $this->sagaListenerOptions,
                 description: $this->sagaListenerOptions->description()
             );
-        }
-        catch (\Throwable $throwable)
-        {
+        } catch (\Throwable $throwable) {
             throw new \RuntimeException(
                 \sprintf(
                     'Unable to compile message handler for `%s`: %s',

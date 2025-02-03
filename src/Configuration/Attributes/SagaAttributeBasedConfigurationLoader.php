@@ -24,6 +24,7 @@ use ServiceBus\Sagas\Configuration\Metadata\SagaConfiguration;
 use ServiceBus\Sagas\Configuration\Metadata\SagaHandlerOptions;
 use ServiceBus\Sagas\Configuration\Metadata\SagaMetadata;
 use ServiceBus\Sagas\Configuration\SagaConfigurationLoader;
+
 use function ServiceBus\Sagas\createEventListenerName;
 
 final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLoader
@@ -48,8 +49,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
 
     public function load(string $sagaClass): SagaConfiguration
     {
-        try
-        {
+        try {
             $attributes = $this->attributesReader->extract($sagaClass);
 
             $sagaHeader = self::searchSagaHeader(
@@ -77,9 +77,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
                     sagaMetadata: $sagaMetadata
                 )
             );
-        }
-        catch (\Throwable $throwable)
-        {
+        } catch (\Throwable $throwable) {
             throw InvalidSagaConfiguration::fromThrowable($throwable);
         }
     }
@@ -101,10 +99,8 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
         $handlersCollection = new \SplObjectStorage();
 
         /** @var MethodLevel $methodLevelAttribute */
-        foreach ($methodLevelAttributes as $methodLevelAttribute)
-        {
-            if ($methodLevelAttribute->attribute instanceof SagaEventListener)
-            {
+        foreach ($methodLevelAttributes as $methodLevelAttribute) {
+            if ($methodLevelAttribute->attribute instanceof SagaEventListener) {
                 $handlersCollection->attach(
                     $this->createMessageHandler(
                         methodLevelAttribute: $methodLevelAttribute,
@@ -147,17 +143,14 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
 
         $messageClass = $this->extractMessageClass($reflectionMethod);
 
-        $expectedMethodName = match ($handlerType)
-        {
+        $expectedMethodName = match ($handlerType) {
             SagaMessageHandlerType::INITIAL_COMMAND_HANDLER => self::INITIAL_COMMAND_METHOD,
             SagaMessageHandlerType::EVENT_LISTENER => createEventListenerName($messageClass)
         };
 
-        if ($expectedMethodName === $reflectionMethod->name)
-        {
+        if ($expectedMethodName === $reflectionMethod->name) {
             /** @var callable $processor */
-            $processor = match ($handlerType)
-            {
+            $processor = match ($handlerType) {
                 SagaMessageHandlerType::INITIAL_COMMAND_HANDLER => $this->eventListenerProcessorFactory->createHandler(
                     command: $messageClass,
                     handlerOptions: $options
@@ -198,16 +191,14 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
             ? $reflectionParameters[0]->getType()
             : null;
 
-        if ($firstArgumentType !== null)
-        {
+        if ($firstArgumentType !== null) {
             /** @var \ReflectionNamedType $reflectionType */
             $reflectionType = $reflectionParameters[0]->getType();
 
             /** @psalm-var class-string $messageClass */
             $messageClass = $reflectionType->getName();
 
-            if (\class_exists($messageClass))
-            {
+            if (\class_exists($messageClass)) {
                 return $messageClass;
             }
         }
@@ -224,8 +215,7 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
      */
     private static function createSagaMetadata(string $sagaClass, SagaHeader $sagaHeader): SagaMetadata
     {
-        if (\class_exists($sagaHeader->idClass) === false)
-        {
+        if (\class_exists($sagaHeader->idClass) === false) {
             throw new \InvalidArgumentException(
                 \sprintf(
                     'In the metadata of the saga "%s" an incorrect value of the "idClass"',
@@ -258,16 +248,14 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
         /** @var MethodLevel[] $commandHandlersAttributes */
         $commandHandlersAttributes = \array_filter(
             \array_map(
-                static function (MethodLevel $attribute): ?MethodLevel
-                {
+                static function (MethodLevel $attribute): ?MethodLevel {
                     return $attribute->attribute instanceof SagaInitialHandler ? $attribute : null;
                 },
                 \iterator_to_array($methodLevelAttributes)
             )
         );
 
-        if (\count($commandHandlersAttributes) === 1)
-        {
+        if (\count($commandHandlersAttributes) === 1) {
             return \end($commandHandlersAttributes);
         }
 
@@ -287,12 +275,10 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
     private static function searchSagaHeader(string $sagaClass, \SplObjectStorage $classLevelAttributes): SagaHeader
     {
         /** @var ClassLevel $attributes */
-        foreach ($classLevelAttributes as $attributes)
-        {
+        foreach ($classLevelAttributes as $attributes) {
             $attributeObject = $attributes->attribute;
 
-            if ($attributeObject instanceof SagaHeader)
-            {
+            if ($attributeObject instanceof SagaHeader) {
                 return $attributeObject;
             }
         }
