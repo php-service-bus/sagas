@@ -43,32 +43,31 @@
     ]
   },
   "require": {
-    "php": ">=8.1",
-    "php-service-bus/storage": "v5.1.*",
-    "php-service-bus/mutex": "v5.1.*",
-    "php-service-bus/annotations-reader":"v5.1.*",
-    "php-service-bus/messages-router": "v5.1.*",
-    "php-service-bus/argument-resolver": "v5.1.*",
-    "psr/log": "v1.1.*"
+    "php": ">=8.2",
+    "php-service-bus/storage": "v5.2",
+    "php-service-bus/mutex": "v5.2",
+    "php-service-bus/annotations-reader":"v5.2",
+    "php-service-bus/messages-router": "v5.2",
+    "php-service-bus/argument-resolver": "v5.2",
+    "psr/log": "v3.*"
   },
   "require-dev": {
-    "php-service-bus/code-style-config": "v5.1.*",
-    "doctrine/dbal": "v3.2.*",
-    "phpunit/phpunit": "v9.5.*",
-    "vimeo/psalm": "v4.22.*",
-    "phpstan/phpstan": "v1.5.*",
-    "boesing/psalm-plugin-stringf": "v1.1.*"
+    "doctrine/dbal": "^3.7",
+    "php-service-bus/code-style-config": "v5.2",
+    "phpunit/phpunit": "^10.0 || ^11.0",
+    "vimeo/psalm": "^4.30 || ^5.4",
+    "phpstan/phpstan": "^1.12 || ^2.0"
   },
   "prefer-stable": true,
   "minimum-stability": "stable",
   "scripts": {
-    "psalm": "rm -rf ~/.cache/psalm/ && ./vendor/bin/psalm --config=psalm.xml --show-info=true",
-    "phpstan": "./vendor/bin/phpstan analyse src --level 9",
-    "tests": "./vendor/bin/phpunit --configuration phpunit.xml --verbose --debug",
-    "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-html ./coverage --verbose --debug",
+    "psalm": "rm -rf ~/.cache/psalm/ && ./vendor/bin/psalm --config=psalm.xml",
+    "phpstan": "./vendor/bin/phpstan analyse src",
+    "tests": "./vendor/bin/phpunit --configuration phpunit.xml",
+    "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-html ./coverage",
     "cs-check": "PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run",
     "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --allow-risky=yes",
-    "pre-commit": "PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --allow-risky=yes && ./vendor/bin/psalm --config=psalm.xml && ./vendor/bin/phpstan analyse src --level 9 && ./vendor/bin/phpunit --configuration phpunit.xml --verbose"
+    "pre-commit": "PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --allow-risky=yes && ./vendor/bin/psalm --config=psalm.xml && ./vendor/bin/phpstan analyse src && ./vendor/bin/phpunit --configuration phpunit.xml"
   },
   "config": {
     "optimize-autoloader": true,

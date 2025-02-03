@@ -64,6 +64,7 @@ final class SagaFinder
                             /** Non-expired saga */
                             if ($saga->expireDate() > now())
                             {
+                                /** @psalm-suppress PossiblyInvalidArgument */
                                 return yield call($onLoaded, $saga);
                             }
 

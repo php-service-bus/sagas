@@ -206,7 +206,6 @@ final class SagaAttributeBasedConfigurationLoader implements SagaConfigurationLo
             /** @psalm-var class-string $messageClass */
             $messageClass = $reflectionType->getName();
 
-            /** @psalm-suppress RedundantConditionGivenDocblockType */
             if (\class_exists($messageClass))
             {
                 return $messageClass;

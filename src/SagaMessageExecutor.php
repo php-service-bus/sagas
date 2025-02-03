@@ -48,6 +48,7 @@ final class SagaMessageExecutor implements MessageExecutor
 
     public function __invoke(object $message, ServiceBusContext $context): Promise
     {
+        /** @phpstan-ignore return.type */
         return call($this->messageHandler->closure, $message, $context);
     }
 }

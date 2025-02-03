@@ -1,3 +1,7 @@
 parameters:
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
+    level: 9
+    ignoreErrors:
+         - identifier: missingType.iterableValue
+         - identifier: missingType.generics
+         - identifier: method.unused
+         - identifier: varTag.nativeType

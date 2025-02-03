@@ -1,57 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
          colors="true"
          cacheResult="false"
-         convertDeprecationsToExceptions="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="true"
          stopOnError="false"
          stopOnFailure="false"
          beStrictAboutChangesToGlobalState="true"
-         beStrictAboutOutputDuringTests="true"
-         verbose="true"
->
-    <coverage>
-        <include>
-            <directory>./src</directory>
-        </include>
-        <exclude>
-            <directory>./tests</directory>
-        </exclude>
-    </coverage>
-    <php>
-        <ini name="error_reporting" value="-1"/>
-        <env name="TEST_POSTGRES_DSN" value="pgsql://test:123456789@localhost:5432/test"/>
-        <env name="REDIS_CONNECTION_DSN" value="tcp://localhost:6379"/>
-    </php>
-    <testsuites>
-
-        <testsuite name="PHP Service Bus: Common component">
-            <directory>./vendor/php-service-bus/common/tests/</directory>
-        </testsuite>
-
-        <testsuite name="PHP Service Bus: Annotations (attributes) reader component">
-            <directory>./vendor/php-service-bus/annotations-reader/tests/</directory>
-        </testsuite>
-
-        <testsuite name="PHP Service Bus: Messages router component">
-            <directory>./vendor/php-service-bus/messages-router/tests/</directory>
-        </testsuite>
-
-        <testsuite name="PHP Service Bus: Mutex component">
-            <directory>./vendor/php-service-bus/mutex/tests/</directory>
-        </testsuite>
-
-        <testsuite name="PHP Service Bus: Storage component">
-            <directory>./vendor/php-service-bus/storage/tests/</directory>
-        </testsuite>
-
-        <testsuite name="PHP Service Bus: Sagas component">
-            <directory>./tests/</directory>
-        </testsuite>
-
-    </testsuites>
+         beStrictAboutOutputDuringTests="true">
+  <php>
+    <ini name="error_reporting" value="-1"/>
+    <env name="TEST_POSTGRES_DSN" value="pgsql://test:123456789@localhost:5432/test"/>
+    <env name="REDIS_CONNECTION_DSN" value="tcp://localhost:6379"/>
+  </php>
+  <testsuites>
+    <testsuite name="PHP Service Bus: Common component">
+      <directory>./vendor/php-service-bus/common/tests/</directory>
+    </testsuite>
+    <testsuite name="PHP Service Bus: Annotations (attributes) reader component">
+      <directory>./vendor/php-service-bus/annotations-reader/tests/</directory>
+    </testsuite>
+    <testsuite name="PHP Service Bus: Messages router component">
+      <directory>./vendor/php-service-bus/messages-router/tests/</directory>
+    </testsuite>
+    <testsuite name="PHP Service Bus: Mutex component">
+      <directory>./vendor/php-service-bus/mutex/tests/</directory>
+    </testsuite>
+    <testsuite name="PHP Service Bus: Storage component">
+      <directory>./vendor/php-service-bus/storage/tests/</directory>
+    </testsuite>
+    <testsuite name="PHP Service Bus: Sagas component">
+      <directory>./tests/</directory>
+    </testsuite>
+  </testsuites>
+  <source>
+    <include>
+      <directory>./src</directory>
+    </include>
+    <exclude>
+      <directory>./tests</directory>
+    </exclude>
+  </source>
 </phpunit>

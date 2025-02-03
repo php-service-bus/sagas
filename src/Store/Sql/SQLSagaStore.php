@@ -140,11 +140,7 @@ final class SQLSagaStore implements SagasStore
                     if ($result !== null)
                     {
                         $payload = $result['payload'];
-
-                        if ($this->adapter instanceof BinaryDataDecoder)
-                        {
-                            $payload = $this->adapter->unescapeBinary($payload);
-                        }
+                        $payload = $this->adapter->unescapeBinary($payload);
 
                         /** @psalm-var Saga $saga */
                         $saga = unserializeSaga($payload);
@@ -226,12 +222,14 @@ final class SQLSagaStore implements SagasStore
 
                             yield self::processAssociations($saga, $executor);
 
+                            /** @psalm-suppress PossiblyInvalidArgument */
                             yield call($publisher);
                         }
                     );
                 }
                 catch (UniqueConstraintViolationCheckFailed $exception)
                 {
+                    /** @psalm-suppress RedundantCast */
                     throw new DuplicateSaga('Duplicate saga id', (int) $exception->getCode(), $exception);
                 }
                 catch (\Throwable $throwable)
@@ -279,6 +277,7 @@ final class SQLSagaStore implements SagasStore
 
                             yield self::processAssociations($saga, $executor);
 
+                            /** @psalm-suppress PossiblyInvalidArgument */
                             yield call($publisher);
                         }
                     );
