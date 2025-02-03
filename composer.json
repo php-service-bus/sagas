@@ -44,16 +44,16 @@
   },
   "require": {
     "php": ">=8.2",
-    "php-service-bus/storage": "v5.2",
-    "php-service-bus/mutex": "v5.2",
-    "php-service-bus/annotations-reader":"v5.2",
-    "php-service-bus/messages-router": "v5.2",
-    "php-service-bus/argument-resolver": "v5.2",
+    "php-service-bus/storage": "v5.2.*",
+    "php-service-bus/mutex": "v5.2.*",
+    "php-service-bus/annotations-reader":"v5.2.*",
+    "php-service-bus/messages-router": "v5.2.*",
+    "php-service-bus/argument-resolver": "v5.2.*",
     "psr/log": "v3.*"
   },
   "require-dev": {
     "doctrine/dbal": "^3.7",
-    "php-service-bus/code-style-config": "v5.2",
+    "php-service-bus/code-style-config": "v5.2.*",
     "phpunit/phpunit": "^10.0 || ^11.0",
     "vimeo/psalm": "^4.30 || ^5.4",
     "phpstan/phpstan": "^1.12 || ^2.0"
